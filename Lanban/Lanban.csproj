@@ -57,6 +57,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Board.aspx" />
     <Content Include="images\background.JPG" />
     <Content Include="images\logo.png" />
     <Content Include="images\main_background.jpg" />
@@ -75,24 +76,44 @@
     <Content Include="images\sidebar\setting.png" />
     <Content Include="images\sidebar\share.png" />
     <Content Include="images\top-bg.png" />
+    <Content Include="Login.aspx" />
     <Content Include="Project.aspx" />
+    <Content Include="Scripts\board.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
     <Content Include="Scripts\jquery-ui.min.js" />
     <Content Include="Scripts\jquery.mousewheel.js" />
     <Content Include="Scripts\main.js" />
     <Content Include="Scripts\perfect-scrollbar.js" />
+    <Content Include="Scripts\project.js" />
+    <Content Include="Styles\board.css" />
+    <Content Include="Styles\login.css" />
     <Content Include="Styles\main.css" />
     <Content Include="Styles\perfect-scrollbar.css" />
+    <Content Include="Styles\project.css" />
     <Content Include="Web.config" />
     <Content Include="WebForm1.aspx" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Board.aspx.cs">
+      <DependentUpon>Board.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Board.aspx.designer.cs">
+      <DependentUpon>Board.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Lanban.Master.cs">
       <DependentUpon>Lanban.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Lanban.Master.designer.cs">
       <DependentUpon>Lanban.Master</DependentUpon>
+    </Compile>
+    <Compile Include="Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
     </Compile>
     <Compile Include="Project.aspx.cs">
       <DependentUpon>Project.aspx</DependentUpon>

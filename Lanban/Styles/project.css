@@ -1,0 +1,74 @@
+﻿/*Project only*/
+        .view {
+            height: 90%;
+        }
+
+        #projectbrowser {
+            width: 60%;
+            float: left;
+            border-right: 1px solid gray;
+            margin-left: 2%;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .right-window-content {
+            margin-left: 2%;
+            width: 33%;
+            float: left;
+            transition: left 1s ease;
+            position: relative;
+            left: 50%;
+        }
+
+            .right-window-content.show {
+                left: 0;
+            }
+
+        #txtSearch {
+            background: rgba(25, 15, 15, 0.5);
+            height: 28px;
+            min-width: 200px;
+            padding: 2px 5px;
+            border-radius: 6px;
+            border: solid 1px rgb(128, 128, 128);
+            margin-bottom: 15px;
+        }
+
+        input[name="txtSearch"] {
+            position: relative;
+            top: -10px;
+            border: none;
+            background: transparent;
+            color: gray;
+            font-size: 16px;
+            font-style: italic;
+        }
+
+            input[name="txtSearch"]:focus {
+                color: #e6e6e6;
+            }
+
+        .filter {
+            display: inline-block;
+            height: 30px;
+            line-height: 30px;
+            background: rgba(25, 15, 15, 0.5);
+            border-radius: 5px;
+            padding: 3px 15px;
+            margin: 10px;
+        }
+
+        /*Project.html only*/
+        .board {
+            background-color: rgba(25, 15, 15, 0.79);
+            width: 200px;
+            height: 200px;
+            border-radius: 6px;
+            color: #e0dfdf;
+            padding: 10px;
+            cursor: pointer;
+            margin: auto 40px 40px auto;
+            float: left;
+        }

@@ -1,0 +1,22 @@
+﻿/**********************************/
+#kanban {
+    height: 98%;
+    margin: 5px 0.5% 5px 0.5%;
+}
+
+td {
+    text-align: center;
+    vertical-align: top;
+}
+
+.connected {
+    height: 500px;
+}
+
+.note {
+    background: white;
+    height: 100px;
+    width: 200px;
+    margin: 20px auto auto auto;
+    color: gray;
+}
