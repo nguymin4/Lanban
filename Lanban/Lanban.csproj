@@ -57,12 +57,61 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="images\background.JPG" />
+    <Content Include="images\logo.png" />
+    <Content Include="images\main_background.jpg" />
+    <Content Include="images\sidebar\add_project.png" />
+    <Content Include="images\sidebar\attach.png" />
+    <Content Include="images\sidebar\back.png" />
+    <Content Include="images\sidebar\chart.png" />
+    <Content Include="images\sidebar\column.png" />
+    <Content Include="images\sidebar\contact.png" />
+    <Content Include="images\sidebar\dashboard.png" />
+    <Content Include="images\sidebar\layout.png" />
+    <Content Include="images\sidebar\logout.png" />
+    <Content Include="images\sidebar\profile.png" />
+    <Content Include="images\sidebar\schedule.png" />
+    <Content Include="images\sidebar\search.png" />
+    <Content Include="images\sidebar\setting.png" />
+    <Content Include="images\sidebar\share.png" />
+    <Content Include="images\top-bg.png" />
+    <Content Include="Project.aspx" />
+    <Content Include="Scripts\jquery-2.1.1.min.js" />
+    <Content Include="Scripts\jquery-ui.min.js" />
+    <Content Include="Scripts\jquery.mousewheel.js" />
+    <Content Include="Scripts\main.js" />
+    <Content Include="Scripts\perfect-scrollbar.js" />
+    <Content Include="Styles\main.css" />
+    <Content Include="Styles\perfect-scrollbar.css" />
     <Content Include="Web.config" />
+    <Content Include="WebForm1.aspx" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Lanban.Master.cs">
+      <DependentUpon>Lanban.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Lanban.Master.designer.cs">
+      <DependentUpon>Lanban.Master</DependentUpon>
+    </Compile>
+    <Compile Include="Project.aspx.cs">
+      <DependentUpon>Project.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Project.aspx.designer.cs">
+      <DependentUpon>Project.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WebForm1.aspx.cs">
+      <DependentUpon>WebForm1.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="WebForm1.aspx.designer.cs">
+      <DependentUpon>WebForm1.aspx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Lanban.Master" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -70,6 +119,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

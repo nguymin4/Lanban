@@ -1,0 +1,187 @@
+/*1. Main structure*/
+body {
+    margin: 0px;
+    padding: 0px;
+    min-width: 1000px;
+    background: url("../images/background.jpg") no-repeat transparent;
+    background-size: cover;
+    font-family: "Open Sans",sans-serif;
+}
+
+#container {
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+    overflow: hidden;
+}
+
+#sidebar, #content {
+    float: left;
+    margin: 0px;
+    padding: 0px;
+}
+
+/*1.1 Sidebar*/
+#sidebar {
+    width: 60px;
+    height: 100%;
+    color: white;
+    background: none repeat scroll 0% 0% rgba(25, 15, 15, 0.79);
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    transition: background 0.75s ease;
+}
+
+    #sidebar:hover {
+        background: none repeat scroll 0% 0% rgba(255, 106, 0, 0.77);
+    }
+
+/*sidebar icon*/
+.sidebar_icon_med {
+    height: 30px;
+    width: 30px;
+    margin: auto;
+    background-size: contain !important;
+    transition: 0.25s ease;
+    cursor: pointer;
+    border: none;
+}
+
+
+/*Sidebar structure*/
+#panel, #info {
+    margin: 0px;
+}
+
+/*1.1.1 Panel*/
+#panel {
+    padding: 0px;
+    text-align: center;
+    min-height: 310px;
+}
+
+    #panel li {
+        list-style: none;
+        background-size: contain;
+        width: 48px;
+        height: 48px;
+        display: block;
+        margin: 15px auto;
+        padding: 0px;
+        transition: 0.25s ease;
+        cursor: pointer;
+    }
+
+        #panel li.show {
+            box-shadow: 0 0 1px 1px white;
+        }
+
+        #panel li:hover {
+            height: 54px;
+            width: 54px;
+        }
+
+/*1.1.2 Info */
+#info {
+    min-height: 100px;
+    height: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0px 5px;
+    font-size: 12px;
+}
+
+#profile {
+    width: 48px;
+    height: 48px;
+    margin: auto;
+    padding: 8px 0px;
+    border-top: solid 2px rgba(255, 255, 255, 0.7);
+}
+
+/*1.3 Content*/
+#content {
+    height: 100%;
+    overflow: hidden;
+}
+
+/*1.3.1 Window UI*/
+.window {
+    display: none;
+    background-size: auto, cover;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    box-shadow: 0px 0px 20px #000;
+    color: white;
+}
+
+.view {
+    background: url("../images/top-bg.png") repeat-x, url("../images/main_background.jpg") no-repeat;
+    opacity: 0;
+    width: 600px;
+    height: 90%;
+    min-height: 310px;
+    margin-top: 2%;
+    margin-left: 7%;
+    transition: opacity 0.25s ease;
+}
+
+    .view.show {
+        opacity: 1;
+    }
+
+.title-bar {
+    /*color: #e0dfdf;*/
+    color: rgba(25, 15, 15, 0.79);
+    height: 30px;
+    padding: 6px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    cursor: move;
+}
+
+.window-content {
+    height: 88%;
+    overflow: hidden;
+    position: relative;
+    padding: 0px;
+}
+
+/*1.3.2 Dialog UI*/
+
+.diaglog {
+    background: url("../images/top-bg.png") repeat-x, url("../images/main_background.jpg") bottom no-repeat;
+    position: absolute;
+    left: 40%;
+    top: 30%;
+    width: 350px;
+    height: 150px;
+    color: white;
+}
+
+    .diaglog.show {
+        display: block;
+    }
+
+.diaglog-content {
+    padding: 10px 20px;
+    text-align: center;
+}
+
+.btnOK {
+    display: block;
+    width: 50px;
+    height: 30px;
+    border-radius: 5px;
+    border: solid 1px white;
+    cursor: pointer;
+    transition: 0.25s ease;
+    margin: 20px auto auto auto;
+}
+
+.btnOk:hover {
+    background-color: rgba(25, 15, 15, 0.69);
+    color: white;
+}

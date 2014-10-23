@@ -1,0 +1,43 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Lanban.master.cs" Inherits="Lanban.Lanban" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+    <script src="Scripts/jquery-2.1.1.min.js" type="text/javascript"></script>
+    <script src="Scripts/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="Scripts/jquery.mousewheel.js" type="text/javascript"></script>
+    <script src="Scripts/perfect-scrollbar.js" type="text/javascript"></script>
+    <link href="Styles/perfect-scrollbar.css" rel="stylesheet" />
+    <script src="Scripts/main.js" type="text/javascript"></script>
+    <link href="Styles/main.css" rel="stylesheet" />
+
+    <%-- Part 1: Javascript files and Stylesheet files for each page --%>
+    <asp:ContentPlaceHolder ID="contentHead" runat="server">
+    </asp:ContentPlaceHolder>
+    <%-- End Part 1: --%>
+</head>
+<body>
+    <form id="container" runat="server">
+        <div id="sidebar">
+            <%-- Part 2: Different sidebar for different page --%>
+                <asp:ContentPlaceHolder ID="contentPanel" runat="server">
+                </asp:ContentPlaceHolder>
+            <%-- End Part 2: --%>
+            <div id="info">
+                <img id="profile" src="images/sidebar/profile.png" title="constantine_lazarus" />
+                <button title="Log out" class="sidebar_icon_med" style="display: block; background: url('images/sidebar/logout.png') no-repeat center transparent;"></button>
+            </div>
+        </div>
+
+        <%-- Part 3: Main content --%>
+            <asp:ContentPlaceHolder ID="contentMain" runat="server">
+            </asp:ContentPlaceHolder>
+        <%-- End Part 3: --%>
+
+        <asp:ContentPlaceHolder ID="contentScript" runat="server">
+        </asp:ContentPlaceHolder>
+    </form>
+</body>
+</html>
