@@ -24,7 +24,7 @@ function showWindow(windowName) {
         $("#kanbanWindow").css("display", "none");
         $("#" + windowName).css("display", "block").addClass("show");
         $(viewIndicator[0]).removeClass("show").on("click", function () {
-            hideWindow(windowName);
+            hideWindow();
         });
     }, 250);
 }
@@ -32,9 +32,10 @@ function showWindow(windowName) {
 // Hide Add backlog/task window
 // Open the kanban board
 function hideWindow() {
-    $(".window.show").removeClass("show");
+    var window = $(".window.show");
+    $(window).removeClass("show");
     setTimeout(function () {
-        $(".window.show").css("display", "none");
+        $(window).css("display", "none");
         $("#kanbanWindow").css("display", "block").addClass("show");
         $(viewIndicator[0]).addClass("show");
     }, 250);
@@ -56,22 +57,23 @@ $(document).ready(function () {
     $(".connected").sortable({
         connectWith: ".connected",
         receive: function (event, ui) {
-            if (ui.item.laneType != this.getAttribute("data-lane-type")) {
-                $(ui.sender).sortable("cancel");
-                document.getElementsByClassName("diaglog")[0].setAttribute("class", "window diaglog show");
-            }
-            else {
+            var type = this.getAttribute("data-lane-type");
+            if ((type == 3) || (ui.item.laneType == type) || (ui.item.laneType == 3)) {
                 console.log("receive");
                 ui.item.targetLane = this.id;
                 updatePosition(this.id, ui.item.index());
                 updatePosition(ui.item.startLane, ui.item.startPos);
             }
+            else {
+                $(ui.sender).sortable("cancel");
+                document.getElementsByClassName("diaglog")[0].setAttribute("class", "window diaglog show");
+            }
         },
         start: function (event, ui) {
             ui.item.startLane = this.id;
             ui.item.startPos = ui.item.index();
-            ui.item.laneType = this.getAttribute("data-lane-type");
-            console.log("start");
+            ui.item.laneType = $(ui.item).attr("data-type");
+            console.log("start" + ui.item.laneType);
         },
         stop: function (event, ui) {
             if ((ui.item.targetLane == null) && (ui.item.startPos != ui.item.index())) {

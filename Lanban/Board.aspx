@@ -20,33 +20,11 @@
         <div class="window-content">
             <table id="kanban" border="1">
                 <colgroup></colgroup>
-                <tr>
-                    <th>
-                        <img src="images/sidebar/add_item.png" class="btnAddItem" onclick="showWindow('backlogWindow')" />
-                        Column 1
-                    </th>
-                    <th>
-                        <img src="images/sidebar/add_item.png" class="btnAddItem" onclick="showWindow('backlogWindow')" />
-                        Column 2
-                    </th>
-                    <th>Column 3</th>
-                    <th>Column 4</th>
-                    <th>Column 5</th>
-                </tr>
-                <tr>
-                    <td id="1" class="connected" data-lane-type="1">
-                        <div class="note">1</div>
-                        <div class="note">2</div>
-                        <div class="note">3</div>
-                        <div class="note">4</div>
-                        <div class="note">5</div>
-                        <div class="note">6</div>
-                    </td>
-                    <td id="2" class="connected" data-lane-type="1"></td>
-                    <td id="3" class="connected" data-lane-type="0"></td>
-                    <td id="4" class="connected" data-lane-type="0"></td>
-                    <td id="5" class="connected" data-lane-type="0"></td>
-                </tr>
+                <asp:UpdatePanel runat="server" ID="uplKanban">
+                    <ContentTemplate>
+                        <asp:Panel ID="panelKanban" runat="server"></asp:Panel>
+                    </ContentTemplate>
+                </asp:UpdatePanel>
             </table>
         </div>
     </div>
@@ -117,17 +95,12 @@
     <!-- End - Backlog item window -->
 
     <!-- Start - Task window -->
-    <div class="window view">
+    <div id="taskWindow" class="window view">
         <div class="title-bar">Add new task</div>
         <div class="window-content">
         </div>
     </div>
     <!-- End - Task window  -->
-
-    <%-- Hidden textboxes contains Project ID and Swimlane ID 
-    when you create a new sticky note for a swimlane or click on a sticky note --%>
-    <asp:TextBox CssClass="inputDescription" runat="server" Visible="false" ID="txtProjectID"></asp:TextBox>
-    <asp:TextBox CssClass="inputDescription" runat="server" Visible="false" ID="txtSwimlaneID"></asp:TextBox>
    
      <!-- Error diaglog -->
     <div class="window diaglog">

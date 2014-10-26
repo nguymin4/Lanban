@@ -13,6 +13,24 @@ namespace Lanban {
     public partial class Board {
         
         /// <summary>
+        /// uplKanban control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.UpdatePanel uplKanban;
+        
+        /// <summary>
+        /// panelKanban control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel panelKanban;
+        
+        /// <summary>
         /// uplAddBacklog control.
         /// </summary>
         /// <remarks>
@@ -83,23 +101,5 @@ namespace Lanban {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnAddBacklog;
-        
-        /// <summary>
-        /// txtProjectID control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtProjectID;
-        
-        /// <summary>
-        /// txtSwimlaneID control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtSwimlaneID;
     }
 }
