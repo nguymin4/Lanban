@@ -25,7 +25,7 @@
             <%-- End Part 2: --%>
             <div id="info">
                 <img id="profile" src="images/sidebar/profile.png" title="constantine_lazarus" />
-                <button title="Log out" class="sidebar_icon_med" style="display: block; background: url('images/sidebar/logout.png') no-repeat center transparent;"></button>
+                <input type="button" runat="server" title="Log out" class="sidebar_icon_med" id="btnLogout" onserverclick="btnLogout_ServerClick" />
             </div>
         </div>
 

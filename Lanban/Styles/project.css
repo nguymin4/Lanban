@@ -1,6 +1,7 @@
 ﻿/*Project only*/
         .view {
             height: 90%;
+            background: url("../images/top-bg.png") repeat-x, url("../images/main_background.jpg") no-repeat;
         }
 
         #projectbrowser {

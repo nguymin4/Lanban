@@ -26,6 +26,11 @@ var currentView;
 var viewIndicator
 function showView(index) {
     if (index != currentView) {
+        //Hide secondary window when it is opening in the Board.aspx
+        if (document.getElementById("kanbanWindow") != null)
+            if (!((currentView!=0)&&(index!=0))) hideWindow();
+
+        //Change main window
         view[currentView].setAttribute("class", "window view");
         setTimeout(function () {
             view[currentView].style.display = "none";

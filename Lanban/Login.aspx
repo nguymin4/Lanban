@@ -22,7 +22,7 @@
                             <input type="text" /></td>
                     </tr>
                 </table>
-                <button onclick="window.location.href = 'Project.aspx';" id="btnLogin" class="button">Login</button>
+                <asp:Button runat="server" ID="btnLogin" CssClass="button" Text="Login" OnClick="btnLogin_Click" />
             </div>
         </div>
         <div id="right-panel">

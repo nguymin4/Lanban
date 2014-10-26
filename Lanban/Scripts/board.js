@@ -7,11 +7,38 @@
 
     /*Recalibrate other elements*/
     document.getElementById("content").style.width = windowWidth - 61;
-    document.getElementById("kanban").style.width = windowWidth - 90;
+    document.getElementById("kanbanWindow").style.width = windowWidth - 90;
     var columncount = document.getElementById("kanban").getElementsByTagName("th").length;
-    document.getElementsByTagName("colgroup")[0].style.width = parseInt((windowWidth - 86) / columncount) - 2;
+    var colgroup = document.getElementsByTagName("colgroup")[0];
+    colgroup.innerHTML = "";
+    for (var i = 0; i < columncount; i++) {
+        colgroup.innerHTML += "<col />";
+    }
+    colgroup.style.width = parseInt((windowWidth - 86) / columncount) - 2;
 }
 
+// Show Add backlog/task window
+function showWindow(windowName) {
+    $("#kanbanWindow").removeClass("show");
+    setTimeout(function () {
+        $("#kanbanWindow").css("display", "none");
+        $("#" + windowName).css("display", "block").addClass("show");
+        $(viewIndicator[0]).removeClass("show").on("click", function () {
+            hideWindow(windowName);
+        });
+    }, 250);
+}
+
+// Hide Add backlog/task window
+// Open the kanban board
+function hideWindow() {
+    $(".window.show").removeClass("show");
+    setTimeout(function () {
+        $(".window.show").css("display", "none");
+        $("#kanbanWindow").css("display", "block").addClass("show");
+        $(viewIndicator[0]).addClass("show");
+    }, 250);
+}
 
 $(document).ready(function () {
     /*Add customized scroll bar*/
@@ -19,6 +46,10 @@ $(document).ready(function () {
         wheelSpeed: 20,
         wheelPropagation: false,
         minScrollbarLength: 10
+    });
+
+    $(".btnOK").on("click", function () {
+        $(".diaglog.show").removeClass("show");
     });
 
     /*Board drag and drop functionality*/
@@ -66,3 +97,4 @@ function swapPosition(id1, pos1, id2, pos2) {
 function updatePosition(lane, pos) {
     console.log("Update " + lane + " " + pos);
 }
+

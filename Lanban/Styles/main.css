@@ -100,6 +100,11 @@ body {
     border-top: solid 2px rgba(255, 255, 255, 0.7);
 }
 
+#btnLogout {
+    display: block; 
+    background: url('../images/sidebar/logout.png') no-repeat center transparent;
+}
+
 /*1.3 Content*/
 #content {
     height: 100%;
@@ -117,7 +122,7 @@ body {
 }
 
 .view {
-    background: url("../images/top-bg.png") repeat-x, url("../images/main_background.jpg") no-repeat;
+    background: url("../images/top-bg.png") repeat-x, url("../images/img0.jpg") no-repeat bottom;
     opacity: 0;
     width: 600px;
     height: 90%;
@@ -170,6 +175,31 @@ body {
     text-align: center;
 }
 
+
+/*Other button*/
+.button.medium {
+    width: 80px;
+    height: 40px;
+    line-height: 32px;
+    border-radius: 5px;
+    border: solid 1px white;
+    cursor: pointer;
+    transition: 0.25s ease;
+    margin: 20px 20px auto auto;
+    font-size: 16px;
+}
+
+.btnCancel {
+    background-color: rgb(255, 40, 40);
+    color: white;
+}
+
+.btnCancel:hover {
+     background-color: white;
+     border: solid 1px rgb(255, 40, 40);
+     color: rgb(255, 40, 40);
+}
+
 .btnOK {
     display: block;
     width: 50px;
@@ -184,4 +214,15 @@ body {
 .btnOk:hover {
     background-color: rgba(25, 15, 15, 0.69);
     color: white;
+}
+
+.btnSave {
+    background-color: rgba(29, 196, 37, 0.89);
+    color: white;
+}
+
+.btnSave:hover {
+    background-color: white;
+     border: solid 1px rgba(29, 196, 37, 0.89);
+     color: rgba(29, 196, 37, 0.89);
 }

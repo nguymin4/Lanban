@@ -13,5 +13,12 @@ namespace Lanban
         {
 
         }
+
+        protected void btnLogout_ServerClick(object sender, EventArgs e)
+        {
+            Session.Clear();
+            Session.Abandon();
+            Response.Redirect("Login.aspx");
+        }
     }
 }

@@ -22,7 +22,7 @@
         <div class="window-content">
             <!-- List of all project -->
             <div id="projectbrowser">
-                <div class="board" onclick="window.location.href = 'board.html'">
+                <div class="board" onclick="window.location.href = 'board.aspx'">
                     <strong>Project 1
                     </strong>
                 </div>

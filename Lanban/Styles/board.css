@@ -1,13 +1,31 @@
 ﻿/**********************************/
-#kanban {
+#kanbanWindow {
     height: 98%;
     margin: 5px 0.5% 5px 0.5%;
 }
 
-td {
-    text-align: center;
-    vertical-align: top;
+#kanban {
+    border-collapse: collapse;
+    color: white;
+    margin: 0px 15px;
 }
+
+    #kanban colgroup {
+        min-width: 180px;
+    }
+
+    #kanban th {
+        height: 30px;
+        line-height: 30px;
+        position: relative;
+        text-align: center;
+        vertical-align: top;
+    }
+
+    #kanban td {
+        text-align: center;
+        vertical-align: top;
+    }
 
 .connected {
     height: 500px;
@@ -17,6 +35,89 @@ td {
     background: white;
     height: 100px;
     width: 200px;
-    margin: 20px auto auto auto;
+    margin: 10px auto 10px auto;
     color: gray;
+    box-shadow: 0px 0px 10px #222222;
+    border-radius: 5px;
+}
+
+.btnAddItem {
+    position: absolute;
+    left: 10px;
+    top: 3px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    transition: width 0.25s ease;
+}
+
+    .btnAddItem:hover {
+        width: 28px;
+        height: 28px;
+        top: 0px;
+    }
+
+
+/*Add item window*/
+#backlogWindow, #taskWindow {
+    width: 800px;
+    padding-left: 30px;
+    font-weight: 600;
+    min-height: 450px;
+}
+
+.panelAdd-left {
+    float: left;
+    width: 400px;
+    margin-top: 10px;
+}
+
+.panelAdd-right {
+    float:left;
+    width: 360px;
+    margin-left: 40px;
+    margin-top: 10px;
+}
+
+input[type="text"], textarea {
+    background: rgba(25, 15, 15, 0.5) transparent;
+    height: 28px;
+    min-width: 200px;
+    padding: 2px 5px;
+    border-radius: 6px;
+    border: solid 1px rgb(128, 128, 128);
+    position: relative;
+    color: gray;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.inputTitle {
+    width: 355px;
+}
+
+.inputDescription {
+    display: block;
+    font-family: "Open Sans",sans-serif;
+    height: 300px;
+    width: 400px;
+}
+
+.tblAddData {
+    color: white;
+    font-weight: 600;
+}
+
+.tblAddData td {
+    vertical-align: top;
+    height: 30px;
+    line-height: 30px;
+    margin-bottom: 10px;
+}
+
+.tblAddData select {
+    vertical-align: top;
+    height: 25px;
+    line-height: 25px;
+    width: 40px;
 }

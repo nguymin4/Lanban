@@ -61,6 +61,7 @@
     <Content Include="images\background.JPG" />
     <Content Include="images\logo.png" />
     <Content Include="images\main_background.jpg" />
+    <Content Include="images\sidebar\add_item.png" />
     <Content Include="images\sidebar\add_project.png" />
     <Content Include="images\sidebar\attach.png" />
     <Content Include="images\sidebar\back.png" />
@@ -91,7 +92,6 @@
     <Content Include="Styles\perfect-scrollbar.css" />
     <Content Include="Styles\project.css" />
     <Content Include="Web.config" />
-    <Content Include="WebForm1.aspx" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Board.aspx.cs">
@@ -123,13 +123,7 @@
       <DependentUpon>Project.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WebForm1.aspx.cs">
-      <DependentUpon>WebForm1.aspx</DependentUpon>
-      <SubType>ASPXCodeBehind</SubType>
-    </Compile>
-    <Compile Include="WebForm1.aspx.designer.cs">
-      <DependentUpon>WebForm1.aspx</DependentUpon>
-    </Compile>
+    <Compile Include="Query.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Lanban.Master" />
