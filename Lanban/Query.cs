@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Data.OleDb;
 using System.Data;
+using System.Text;
 
 namespace Lanban
 {
@@ -19,7 +20,7 @@ namespace Lanban
         {
             get { return myDataSet; }
         }
-        
+
         //1. Constructor
         public Query()
         {
@@ -38,13 +39,14 @@ namespace Lanban
         {
             //Retrieve Swimlane data
             myCommand.CommandText = "SELECT * FROM Swimlane WHERE Project_ID=" + projectID;
-            myAdapter.Fill(myDataSet,"Swimlane");
+            myAdapter.Fill(myDataSet, "Swimlane");
             myDataSet.Tables["Swimlane"].DefaultView.Sort = "Position";
         }
 
         //Fill dataset with data from either Task table or Backlog table based on parameter
-        public void fetchNote(string tableName, int projectID, int swimlaneID) {
-            myCommand.CommandText = "SELECT * FROM "+ tableName+" WHERE Project_ID=" + projectID +" AND Swimlane_ID="+ swimlaneID;
+        public void fetchNote(string tableName, int projectID, int swimlaneID)
+        {
+            myCommand.CommandText = "SELECT * FROM " + tableName + " WHERE Project_ID=" + projectID + " AND Swimlane_ID=" + swimlaneID;
             myAdapter.Fill(myDataSet, tableName);
             myDataSet.Tables[tableName].DefaultView.Sort = "Position";
         }
@@ -53,14 +55,17 @@ namespace Lanban
         //2.2 Insert new data
         public void insertNewBacklog(string[] data)
         {
-            string command = @"INSERT INTO Backlog (Project_ID, Swimlane_ID," +
-                "Title, Description, Complexity, Color, Position)" +
-                " VALUES (";
-            for (int i = 0; i < data.Length; i++)
+            StringBuilder command = new StringBuilder("INSERT INTO Backlog (Project_ID, Swimlane_ID," +
+               "Title, Description, Complexity, Color, Position) VALUES (");
+            for (int i = 0; i < data.Length - 1; i++)
             {
-                command += "'" + data[i] + "',";
+                if ((i == 0) || (i == 1) || (i == 4))
+                    command.Append(Convert.ToInt32(data[i]) + ",");
+                else
+                    command.Append("\"" + data[i] + "\",");
             }
-            myCommand.CommandText = command + ")";
+            command.Append(Convert.ToInt32(data[data.Length - 1]) + ");");
+            myCommand.CommandText = command.ToString();
             myCommand.ExecuteNonQuery();
         }
 

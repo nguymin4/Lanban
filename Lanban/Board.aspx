@@ -58,30 +58,41 @@
                         <br />
                         Description:
                         <asp:TextBox CssClass="inputDescription" runat="server" TextMode="MultiLine" ID="txtBacklogDescription"></asp:TextBox>
-                        
+
                     </div>
                     <div class="panelAdd-right">
                         <table class="tblAddData">
                             <tr>
                                 <td>Complexity:</td>
-                                <td><asp:DropDownList runat="server" ID="ddlBacklogComplexity" ClientIDMode="Static"></asp:DropDownList></td>
+                                <td>
+                                    <asp:DropDownList runat="server" ID="ddlBacklogComplexity" ClientIDMode="Static">
+                                        <asp:ListItem Text="1" Value="1"></asp:ListItem>
+                                    </asp:DropDownList>
+                                </td>
                             </tr>
-                            <tr>
+                            <tr> 
                                 <td>Color</td>
-                                <td><asp:DropDownList runat="server" ID="ddlBacklogColor" ClientIDMode="Static"></asp:DropDownList></td>
+                                <td>
+                                    <asp:DropDownList runat="server" ID="ddlBacklogColor" ClientIDMode="Static">
+                                        <asp:ListItem Text="Red" Value="1"></asp:ListItem>
+                                        <asp:ListItem Text="White" Value="2"></asp:ListItem>
+                                    </asp:DropDownList>
+                                </td>
                             </tr>
                             <tr>
                                 <td>Start date:</td>
-                                <td><asp:TextBox runat="server" ID="txtBacklogStart" Enabled="false" ClientIDMode="Static"></asp:TextBox></td>
+                                <td>
+                                    <asp:TextBox runat="server" ID="txtBacklogStart" Enabled="false" ClientIDMode="Static"></asp:TextBox></td>
                             </tr>
                             <tr>
                                 <td>End date:</td>
-                                <td><asp:TextBox runat="server" ID="txtBacklogEnd" Enabled="false" ClientIDMode="Static"></asp:TextBox></td>
+                                <td>
+                                    <asp:TextBox runat="server" ID="txtBacklogEnd" Enabled="false" ClientIDMode="Static"></asp:TextBox></td>
                             </tr>
                             <tr>
                                 <td></td>
                                 <td>
-                                    <asp:Button runat="server" ID="btnAddBacklog" ClientIDMode="Static" CssClass="button medium btnSave" Text="Add" />
+                                    <asp:Button runat="server" ID="btnAddBacklog" ClientIDMode="Static" CssClass="button medium btnSave" Text="Add" OnClick="btnAddBacklog_Click" />
                                     <input type="button" class="button medium btnCancel" value="Close" onclick="hideWindow('backlogWindow')" />
                                 </td>
                             </tr>
@@ -90,7 +101,6 @@
                 </div>
             </ContentTemplate>
         </asp:UpdatePanel>
-
     </div>
     <!-- End - Backlog item window -->
 
@@ -101,8 +111,8 @@
         </div>
     </div>
     <!-- End - Task window  -->
-   
-     <!-- Error diaglog -->
+
+    <!-- Error diaglog -->
     <div class="window diaglog">
         <div class="title-bar">Error</div>
         <div class="diaglog-content">
@@ -110,4 +120,7 @@
             <input type="button" class="btnOK" value="OK" />
         </div>
     </div>
+    <asp:TextBox runat="server" ID="txtSwimlaneID" ClientIDMode="Static"></asp:TextBox>
+    <asp:TextBox runat="server" ID="txtSwimlanePosition" ClientIDMode="Static"></asp:TextBox>
+    <asp:TextBox runat="server" ID="txtNoteIndex" ClientIDMode="Static"></asp:TextBox>
 </asp:Content>

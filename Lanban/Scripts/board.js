@@ -18,7 +18,7 @@
 }
 
 // Show Add backlog/task window
-function showWindow(windowName) {
+function showWindow(windowName, i, swimlaneID) {
     $("#kanbanWindow").removeClass("show");
     setTimeout(function () {
         $("#kanbanWindow").css("display", "none");
@@ -27,6 +27,10 @@ function showWindow(windowName) {
             hideWindow();
         });
     }, 250);
+    $("#txtSwimlanePosition").val(i);
+    $("#txtNoteIndex").val($(".connected")[i].getElementsByTagName("div").length);
+    $("#txtSwimlaneID").val(swimlaneID);
+    console.log($("#txtSwimlanePosition").val());
 }
 
 // Hide Add backlog/task window
