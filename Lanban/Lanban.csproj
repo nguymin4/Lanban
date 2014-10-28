@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Board.aspx" />
+    <Content Include="Global.asax" />
     <Content Include="images\background.JPG" />
     <Content Include="images\logo.png" />
     <Content Include="images\main_background.jpg" />
@@ -80,6 +81,7 @@
     <Content Include="Login.aspx" />
     <Content Include="Project.aspx" />
     <Content Include="Scripts\board.js" />
+    <Content Include="packages.config" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
     <Content Include="Scripts\jquery-ui.min.js" />
     <Content Include="Scripts\jquery.mousewheel.js" />
@@ -100,6 +102,9 @@
     </Compile>
     <Compile Include="Board.aspx.designer.cs">
       <DependentUpon>Board.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Lanban.Master.cs">
       <DependentUpon>Lanban.Master</DependentUpon>

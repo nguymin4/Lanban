@@ -19,49 +19,52 @@ namespace Lanban
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            
+            myQuery = new Query();
             if (!IsPostBack)
             {
                 projectID = 1;
-                int start = Environment.TickCount;
-                myQuery = new Query();
-                createTable();
-                System.Diagnostics.Debug.WriteLine("Total load time: " + (Environment.TickCount - start));
-                Session["myQuery"] = myQuery;
+                if (Request.Params["action"] != null)
+                {
+                    switch (Request.Params["action"])
+                    {
+                        case "insert":
+                            {
+                                if (Request.Params["type"].Equals("backlog")) addBacklogItem();
+                                else addBacklogItem();
+                                break;
+                            }
+                    }
+                }
+                else
+                {
+                    int start = Environment.TickCount;
+                    createKanban();
+                    System.Diagnostics.Debug.WriteLine("Total load time: " + (Environment.TickCount - start));
+                }
             }
             else
             {
                 projectID = Convert.ToInt32(Session["projectID"]);
-                myQuery = (Query) Session["myQuery"];
-                cell = (TableCell []) Session["cell"];
+                createKanban();
             }
-            
         }
 
         //1. Create the kanban board
-        protected void createTable()
+        protected void createKanban()
         {
             //Fetch data of all swimlanes in this project
             myQuery.fetchSwimlane(projectID);
             var swimlane = myQuery.MyDataSet.Tables["Swimlane"];
-
-            //Start creating the table
-            TableRow header = new TableRow();
-            panelKanban.Controls.Add(header);
-            TableRow body = new TableRow();
-            panelKanban.Controls.Add(body);
             cell = new TableCell[swimlane.Rows.Count];
             //Create header row and add the cell in the same column
             for (int i = 0; i < swimlane.Rows.Count; i++)
             {
                 var row = swimlane.Rows[i];
-                header.Controls.Add(createHeader(row, i));
+                panelKanbanHeader.Controls.Add(createHeader(row, i));
                 createCell(row["Swimlane_ID"].ToString(), row["Type"].ToString(), i);
-                body.Controls.Add(cell[i]);
+                panelKanbanBody.Controls.Add(cell[i]);
             }
-
             Session["projectID"] = projectID;
-            Session["cell"] = cell;
         }
 
         //1.1 Add header cell to kanban board
@@ -141,16 +144,9 @@ namespace Lanban
             return div;
         }
 
-        //2. Clear the kanban board
-        protected void clearTable()
-        {
-            panelKanban.Controls.Clear();
-        }
-
-
-        //3. Methods
-        //3.1 Add new backlog item
-        protected void btnAddBacklog_Click(object sender, EventArgs e)
+        //2. Methods
+        //2.1 Add new backlog item
+        protected void addBacklogItem()
         {
             string[] data = { 
                                 projectID.ToString(), txtSwimlaneID.Text ,
@@ -159,7 +155,11 @@ namespace Lanban
                                 txtNoteIndex.Text
                             };
             myQuery.insertNewBacklog(data);
-            addNotes(Convert.ToInt32(txtSwimlaneID.Text), "1", Convert.ToInt32(txtSwimlanePosition.Text));
+        }
+
+        protected void btnAddBacklog_Click(object sender, EventArgs e)
+        {
+            addBacklogItem();
         }
     }
 }

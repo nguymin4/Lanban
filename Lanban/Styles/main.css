@@ -226,3 +226,8 @@ body {
      border: solid 1px rgba(29, 196, 37, 0.89);
      color: rgba(29, 196, 37, 0.89);
 }
+
+/*Other*/
+.hidden {
+    display: none;
+}

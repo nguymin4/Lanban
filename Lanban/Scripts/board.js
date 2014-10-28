@@ -43,6 +43,9 @@ function hideWindow() {
         $("#kanbanWindow").css("display", "block").addClass("show");
         $(viewIndicator[0]).addClass("show");
     }, 250);
+
+    //Testing
+    $("#btnRefresh").trigger("click");
 }
 
 $(document).ready(function () {
@@ -90,13 +93,28 @@ $(document).ready(function () {
     }).disableSelection();
 });
 
-/* In a swimlane, when two items swap positon to each other then
+/*1. Create new sticky note and add it on server */
+function insertItem(type) {
+    var req = new XMLHttpRequest();
+    var url = "Board.aspx?action=insert&type=" + type;
+    req.onreadystatechange = function () {
+        if ((req.readyState == 4) && (req.status == 200)) {
+            console.log(req.responseText);
+            $("#btnRefresh").trigger("click");
+        }
+    }
+    req.open("GET", url, true)
+    req.send();
+}
+
+/*2. Change position of a stickynote*/
+/*2.1 In a swimlane, when two items swap positon to each other then
     - call AJAX function to save new position into the database */
 function swapPosition(id1, pos1, id2, pos2) {
     console.log("Swap");
 }
 
-/* When an item is moved to another swim lane then 
+/*2.2 When an item is moved to another swim lane then 
     call AJAX function to save new position of all items:
     - in the source lane with index <= old index of the moved item
     - in the target lane with index <= new index of the moved item */

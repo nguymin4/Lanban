@@ -14,15 +14,15 @@
         min-width: 180px;
     }
 
-    #kanban th {
-        height: 30px;
-        line-height: 30px;
-        position: relative;
+    #kanban td {
         text-align: center;
         vertical-align: top;
     }
 
-    #kanban td {
+    #kanban th {
+        height: 30px;
+        line-height: 30px;
+        position: relative;
         text-align: center;
         vertical-align: top;
     }

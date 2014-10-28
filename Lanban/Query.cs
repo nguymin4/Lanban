@@ -56,15 +56,11 @@ namespace Lanban
         public void insertNewBacklog(string[] data)
         {
             StringBuilder command = new StringBuilder("INSERT INTO Backlog (Project_ID, Swimlane_ID," +
-               "Title, Description, Complexity, Color, Position) VALUES (");
+               "Title, Description, Complexity, Color, [Position]) VALUES (");
             for (int i = 0; i < data.Length - 1; i++)
-            {
-                if ((i == 0) || (i == 1) || (i == 4))
-                    command.Append(Convert.ToInt32(data[i]) + ",");
-                else
-                    command.Append("\"" + data[i] + "\",");
-            }
-            command.Append(Convert.ToInt32(data[data.Length - 1]) + ");");
+                command.Append("'" + data[i] + "',");
+
+            command.Append("'" + data[data.Length - 1] + "');");
             myCommand.CommandText = command.ToString();
             myCommand.ExecuteNonQuery();
         }
@@ -72,7 +68,6 @@ namespace Lanban
         //2.3 Update data
         public void updateTaskPosition(long id, int pos)
         {
-            myCommand.CommandText = "";
         }
     }
 }
