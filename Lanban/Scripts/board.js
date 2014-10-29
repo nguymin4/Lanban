@@ -30,7 +30,6 @@ function showWindow(windowName, i, swimlaneID) {
     $("#txtSwimlanePosition").val(i);
     $("#txtNoteIndex").val($(".connected")[i].getElementsByTagName("div").length);
     $("#txtSwimlaneID").val(swimlaneID);
-    console.log($("#txtSwimlanePosition").val());
 }
 
 // Hide Add backlog/task window
@@ -121,4 +120,47 @@ function swapPosition(id1, pos1, id2, pos2) {
 function updatePosition(lane, pos) {
     console.log("Update " + lane + " " + pos);
 }
+
+/*3. Using AJAX to search name of member to assign to a task or backlog */
+function addAssignee(obj, type) {
+    var objtext = "<div class='assignee-name-active' onclick='removeAssignee(this)'>" + obj.innerHTML + "</div>";
+    var searchBox = document.getElementById(type + "Assign").getElementsByTagName("input")[0];
+    $(objtext).insertBefore($(searchBox));
+    $(searchBox).val("");
+    searchBox.focus();
+}
+
+function removeAssignee(obj) {
+    var parent = obj.parentElement;
+    parent.removeChild(obj);
+}
+
+function clearResult(obj) {
+    setTimeout(function () {
+        $(obj).val("");
+        $("#assigneeSearchResult").html("").css("display", "none");
+    }, 250);
+}
+
+var assigneeSearch;
+function searchAssignee(searchBox, type) {
+    clearInterval(assigneeSearch);
+    assigneeSearch = setTimeout(function () {
+        var req = new XMLHttpRequest();
+        var url = "Handler.ashx?type="+type+"&keyword=" + $(searchBox).val();
+        req.onreadystatechange = function () {
+            if (req.readyState == 4 && req.status == 200) {
+                var result = document.getElementById("assigneeSearchResult");
+                result.style.display = "block";
+                result.style.top = searchBox.style.top + 120;
+                result.style.left = searchBox.style.left;
+                result.innerHTML = req.responseText;
+            }
+        }
+        // start asyncronious data transfer
+        req.open("GET", url, true);
+        req.send(null);
+    }, 250);
+}
+
 

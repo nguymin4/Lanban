@@ -106,6 +106,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Handler.ashx.cs">
+      <DependentUpon>Handler.ashx</DependentUpon>
+    </Compile>
     <Compile Include="Lanban.Master.cs">
       <DependentUpon>Lanban.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -132,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Lanban.Master" />
+    <Content Include="Handler.ashx" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
