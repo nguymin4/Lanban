@@ -22,30 +22,12 @@ namespace Lanban
             myQuery = new Query();
             if (!IsPostBack)
             {
+                //projectID = Convert.ToInt32(Session["projectID"]);
                 projectID = 1;
-                if (Request.Params["action"] != null)
-                {
-                    switch (Request.Params["action"])
-                    {
-                        case "insert":
-                            {
-                                if (Request.Params["type"].Equals("backlog")) addBacklogItem();
-                                else addBacklogItem();
-                                break;
-                            }
-                    }
-                }
-                else
-                {
-                    int start = Environment.TickCount;
-                    createKanban();
-                    System.Diagnostics.Debug.WriteLine("Total load time: " + (Environment.TickCount - start));
-                }
-            }
-            else
-            {
-                projectID = Convert.ToInt32(Session["projectID"]);
+                txtProjectID.Text = projectID.ToString();
+                int start = Environment.TickCount;
                 createKanban();
+                System.Diagnostics.Debug.WriteLine("Total load time: " + (Environment.TickCount - start));
             }
         }
 
@@ -96,7 +78,7 @@ namespace Lanban
             cell[position] = new TableCell();
             var td = cell[position];
             td.CssClass = "connected";
-            td.Attributes.Add("data-swimlane-id", swimlane_id);
+            td.Attributes.Add("data-id", swimlane_id);
             td.Attributes.Add("data-lane-type", type);
             //td.Attributes.Add("data-position", position.ToString());
             addNotes(Convert.ToInt32(swimlane_id), type, position);
@@ -138,28 +120,12 @@ namespace Lanban
                 div.Attributes.Add("data-id", row["Task_ID"].ToString());
                 divID = row["Task_ID"].ToString();
             }
+            string id = tableName + "." + divID;
+            div.Attributes.Add("id", id);
             div.Attributes.Add("data-id", divID);
-            div.Attributes.Add("onclick", "viewDetailNote('" + tableName.ToLower() + "Window'," + divID + ")");
+            div.Attributes.Add("ondblclick", "viewDetailNote('" + tableName.ToLower() + "Window'," + divID + ")");
             div.InnerHtml = divID + " - " + row["Title"].ToString();
             return div;
-        }
-
-        //2. Methods
-        //2.1 Add new backlog item
-        protected void addBacklogItem()
-        {
-            string[] data = { 
-                                projectID.ToString(), txtSwimlaneID.Text ,
-                                txtBacklogTitle.Text, txtBacklogDescription.Text, 
-                                ddlBacklogComplexity.SelectedValue, ddlBacklogColor.SelectedItem.Text, 
-                                txtNoteIndex.Text
-                            };
-            myQuery.insertNewBacklog(data);
-        }
-
-        protected void btnAddBacklog_Click(object sender, EventArgs e)
-        {
-            addBacklogItem();
         }
     }
 }

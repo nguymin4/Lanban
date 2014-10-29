@@ -14,6 +14,7 @@ namespace Lanban
         private OleDbConnection myConnection;
         private OleDbCommand myCommand;
         private OleDbDataAdapter myAdapter;
+        private OleDbDataReader myReader;
         private DataSet myDataSet;
 
         public DataSet MyDataSet
@@ -53,21 +54,64 @@ namespace Lanban
 
 
         //2.2 Insert new data
-        public void insertNewBacklog(string[] data)
+        public string insertNewBacklog(string[] data)
         {
+            string result;
             StringBuilder command = new StringBuilder("INSERT INTO Backlog (Project_ID, Swimlane_ID," +
                "Title, Description, Complexity, Color, [Position]) VALUES (");
             for (int i = 0; i < data.Length - 1; i++)
                 command.Append("'" + data[i] + "',");
 
-            command.Append("'" + data[data.Length - 1] + "');");
+            command.Append("'" + data[data.Length - 1] + "')");
             myCommand.CommandText = command.ToString();
             myCommand.ExecuteNonQuery();
+            myCommand.CommandText = "SELECT LAST(Backlog_ID) FROM Backlog";
+            result = myCommand.ExecuteScalar().ToString();
+            return result;
         }
 
-        //2.3 Update data
-        public void updateTaskPosition(long id, int pos)
+        //2.3 Update position of sticky note
+        public string updatePosition(string id, string pos, string table)
         {
+            myCommand.CommandText = "UPDATE " + table + " SET [Position]=" + pos + "  WHERE " + table + "_ID=" + id;
+            myCommand.ExecuteNonQuery();
+            return "Updated " + id + " in " + table + " at " + pos;
+        }
+
+        //2.4 Change swimlane of sticky note
+        public string changeSwimlane(string id, string pos, string table, string swimlane_id)
+        {
+            myCommand.CommandText = "UPDATE " + table + " SET Swimlane_ID=" + swimlane_id + ", [Position]=" + pos + "  WHERE " + table + "_ID=" + id;
+            myCommand.ExecuteNonQuery();
+            return "Done";
+        }
+
+        //a.1 Search member name in a project
+        public string searchAssignee(string projectID, string keyword, string type)
+        {
+            myCommand.CommandText = "SELECT TOP 3 User_ID, Name FROM Project_User " +
+                                    "WHERE Project_ID = " + projectID +
+                                    " AND Name LIKE '%" + keyword + "%'";
+            StringBuilder result = new StringBuilder();
+
+            myReader = myCommand.ExecuteReader();
+            bool available = myReader.Read();
+            if (available == false) result.Append("No record found.");
+            else
+            {
+                while (available)
+                {
+                    result.Append(getAssigneeDisplay(myReader[0].ToString(), myReader[1].ToString(), type));
+                    available = myReader.Read();
+                }
+            }
+            return result.ToString();
+        }
+
+        protected string getAssigneeDisplay(string ID, string name, string type)
+        {
+            string display = "<div class='resultline' data-id='" + ID + "' onclick=\"addAssignee(this,'" + type + "')\">" + name + "</div>";
+            return display;
         }
     }
 }

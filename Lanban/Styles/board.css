@@ -108,22 +108,23 @@
 .boxAssign {
     background-color: white;
     width: 100%;
-    padding: 5px 0px;
+    padding: 3px 0px;
     border-radius: 6px;
     border: solid 1px rgb(128, 128, 128);
+    cursor: text;
 }
 
 .inputAssignee {
     border: none;
     margin-left: 5px;
     font-size: 15px;
-    height: 24px;
+    height: 30px;
     min-width: 60px;
 }
 
 div.assignee-name-active {
     display: inline-block;
-    margin: 3px 5px;
+    margin: 2px 5px;
     height: 24px;
     line-height: 24px;
     font-size: 14px;

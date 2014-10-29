@@ -17,7 +17,6 @@
     <div id="kanbanWindow" class="window view show" style="display: block;">
         <div class="title-bar">Project 1</div>
         <div class="window-content">
-            <div onclick="console.log('Test')" style="width: 20px; height: 20px;"></div>
             <table id="kanban" border="1">
                 <colgroup></colgroup>
                 <tr>
@@ -62,7 +61,7 @@
                 <div id="assigneeSearchResult"></div>
                 <br />
                 Description:
-                        <asp:TextBox CssClass="inputDescription inputBox" runat="server" TextMode="MultiLine" ID="txtBacklogDescription"></asp:TextBox>
+                <asp:TextBox CssClass="inputDescription inputBox" runat="server" TextMode="MultiLine" ID="txtBacklogDescription"></asp:TextBox>
 
             </div>
             <div class="panelAdd-right">
@@ -79,8 +78,8 @@
                         <td>Color</td>
                         <td>
                             <asp:DropDownList runat="server" ID="ddlBacklogColor">
-                                <asp:ListItem Text="Red" Value="1"></asp:ListItem>
-                                <asp:ListItem Text="White" Value="2"></asp:ListItem>
+                                <asp:ListItem Text="Red" Value="Red"></asp:ListItem>
+                                <asp:ListItem Text="White" Value="White"></asp:ListItem>
                             </asp:DropDownList>
                         </td>
                     </tr>
@@ -97,9 +96,7 @@
                     <tr>
                         <td></td>
                         <td>
-                            <asp:Button runat="server" ID="btnAddBacklog"
-                                CssClass="button medium btnSave" Text="Add"
-                                OnClientClick="" OnClick="btnAddBacklog_Click" />
+                            <input type="button" class="button medium btnSave" value="Add" onclick="insertItem('Backlog')" />
                             <input type="button" class="button medium btnCancel" value="Close" onclick="hideWindow('backlogWindow')" />
                         </td>
                     </tr>
@@ -126,7 +123,8 @@
         </div>
     </div>
 
-    <asp:TextBox runat="server" ID="txtSwimlaneID" CssClass="hidden" AutoPostBack="true"></asp:TextBox>
-    <asp:TextBox runat="server" ID="txtSwimlanePosition" CssClass="hidden" AutoPostBack="true"></asp:TextBox>
-    <asp:TextBox runat="server" ID="txtNoteIndex" CssClass="hidden" AutoPostBack="true"></asp:TextBox>
+    <asp:TextBox runat="server" ID="txtProjectID" CssClass="hidden"></asp:TextBox>
+    <asp:TextBox runat="server" ID="txtSwimlaneID" CssClass="hidden"></asp:TextBox>
+    <asp:TextBox runat="server" ID="txtSwimlanePosition" CssClass="hidden"></asp:TextBox>
+    <asp:TextBox runat="server" ID="txtNoteIndex" CssClass="hidden"></asp:TextBox>
 </asp:Content>

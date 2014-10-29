@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using System.Data.OleDb;
 using System.Text;
-
+using Newtonsoft.Json;
 namespace Lanban
 {
     /// <summary>
@@ -12,43 +11,49 @@ namespace Lanban
     /// </summary>
     public class Handler : IHttpHandler
     {
-        string myConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=D:\Programming\Source code\ASP.NET\Lanban\Lanban\Lanban.accdb";
-        OleDbConnection myConnection;
-        OleDbCommand myCommand;
-        OleDbDataReader myReader;
- 
+        Query myQuery;
+
         public void ProcessRequest(HttpContext context)
         {
-            myConnection = new OleDbConnection(myConnectionString);
-            myCommand = new OleDbCommand();
-            myCommand.Connection = myConnection;
-            myCommand.CommandText = "SELECT TOP 3 User_ID, Name FROM Users WHERE Name LIKE '" +
-                                    context.Request.Params[1] + "%'";
-
-            StringBuilder result = new StringBuilder();
-            myConnection.Open();
-            myReader = myCommand.ExecuteReader();
-            context.Response.ContentType = "text/plain";
-            bool available = myReader.Read();
-            if (available == false) result.Append("No record found.");
-            else
+            myQuery = new Query();
+            var param = context.Request.Params;
+            string action = param["action"];
+            string projectID;
+            string swimlaneID;
+            string table;
+            string id;
+            string pos;
+            string result = "";
+            switch (action)
             {
-                while (available)
-                {
-                    result.Append(getDataDisplay(myReader[0].ToString(), myReader[1].ToString(), context.Request.Params[0]));
-                    available = myReader.Read();
-                }
+                case "searchAssignee":
+                    projectID = param["projectID"];
+                    result = myQuery.searchAssignee(projectID, param["keyword"], param["type"]);
+                    break;
+                case "insertBacklog":
+                    Backlog backlog = JsonConvert.DeserializeObject<Backlog>(param["backlog"]);
+                    result = myQuery.insertNewBacklog(backlog.getStringArray());
+                    break;
+                case "updatePosition":
+                    table = param["table"];
+                    id = param["id"];
+                    pos = param["pos"];
+                    result = myQuery.updatePosition(id, pos, table);
+                    break;
+                case "changeSwimlane":
+                    table = param["table"];
+                    id = param["id"];
+                    pos = param["pos"];
+                    swimlaneID = param["swimlane"];
+                    result = myQuery.changeSwimlane(id, pos, table, swimlaneID);
+                    break;
+                default:
+                    break;
             }
-            context.Response.Write(result.ToString());
-            myConnection.Close();
+            context.Response.ContentType = "text/plain";
+            context.Response.Write(result);
         }
 
-        protected string getDataDisplay(string ID, string name, string type)
-        {
-            string display = "<div class='resultline' data-id='" + ID + "' onclick=\"addAssignee(this,'" + type + "')\">" + name + "</div>";
-            return display;
-        }
-        
 
         public bool IsReusable
         {
@@ -58,4 +63,35 @@ namespace Lanban
             }
         }
     }
+}
+
+class Backlog
+{
+    public string Project_ID { get; set; }
+    public string Swimlane_ID { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public string Complexity { get; set; }
+    public string Color { get; set; }
+    public string Position { get; set; }
+
+    public string[] getStringArray()
+    {
+        string[] result = {this.Project_ID, this.Swimlane_ID, this.Title, this.Description, 
+                             this.Complexity, this.Color, this.Position};
+        return result;
+    }
+}
+
+class Task
+{
+    public string Project_ID { get; set; }
+    public string Swimlane_ID { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public string Backlog_ID { get; set; }
+    public string Work_estimation { get; set; }
+    public string Color { get; set; }
+    public string Position { get; set; }
+
 }
