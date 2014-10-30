@@ -20,7 +20,7 @@ namespace Lanban
             string action = param["action"];
             string projectID;
             string swimlaneID;
-            string table;
+            string type;
             string id;
             string pos;
             string result = "";
@@ -35,19 +35,29 @@ namespace Lanban
                     result = myQuery.insertNewBacklog(backlog.getStringArray());
                     break;
                 case "updatePosition":
-                    table = param["table"];
+                    type = param["type"];
                     id = param["id"];
                     pos = param["pos"];
-                    result = myQuery.updatePosition(id, pos, table);
+                    result = myQuery.updatePosition(id, pos, type);
                     break;
                 case "changeSwimlane":
-                    table = param["table"];
+                    type = param["type"];
                     id = param["id"];
                     pos = param["pos"];
                     swimlaneID = param["swimlane"];
-                    result = myQuery.changeSwimlane(id, pos, table, swimlaneID);
+                    myQuery.changeSwimlane(id, pos, type, swimlaneID);
                     break;
-                default:
+                case "saveAssignee":
+                    id = param["id"];
+                    type = param["type"];
+                    string aID = param["assigneeID"];
+                    string aName = param["assigneeName"];
+                    myQuery.saveAssignee(type, id, aID, aName);
+                    break;
+                case "deleteAssignee":
+                    id = param["id"];
+                    type = param["type"];
+                    myQuery.deleteAssignee(type, id);
                     break;
             }
             context.Response.ContentType = "text/plain";

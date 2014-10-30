@@ -5,6 +5,7 @@ using System.Web;
 using System.Data.OleDb;
 using System.Data;
 using System.Text;
+using System.Web.UI;
 
 namespace Lanban
 {
@@ -79,11 +80,25 @@ namespace Lanban
         }
 
         //2.4 Change swimlane of sticky note
-        public string changeSwimlane(string id, string pos, string table, string swimlane_id)
+        public void changeSwimlane(string id, string pos, string table, string swimlane_id)
         {
             myCommand.CommandText = "UPDATE " + table + " SET Swimlane_ID=" + swimlane_id + ", [Position]=" + pos + "  WHERE " + table + "_ID=" + id;
             myCommand.ExecuteNonQuery();
-            return "Done";
+        }
+
+        //2.5 Save assignee of a task or backlog
+        public void saveAssignee(string type, string id, string uid, string name)
+        {
+            myCommand.CommandText = "INSERT INTO " + type + "_User (" + type + "_ID, User_ID, [Name])" +
+                "VALUES (" + id + "," + uid + ",'" + name + "');";
+            myCommand.ExecuteNonQuery();
+        }
+
+        //2.6 Delete all assignee of a task or backlog
+        public void deleteAssignee(string type, string id)
+        {
+            myCommand.CommandText = "DELETE FROM " + type + "_User WHERE " + type + "_ID=" + id;
+            myCommand.ExecuteNonQuery();
         }
 
         //a.1 Search member name in a project

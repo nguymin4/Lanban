@@ -61,7 +61,7 @@ namespace Lanban
                 Image img = new Image();
                 img.ImageUrl = "images/sidebar/add_item.png";
                 img.CssClass = "btnAddItem";
-                string function = (type == 1) ? "showWindow('backlogWindow'" : "showWindow('taskWindow'";
+                string function = (type == 1) ? "showInsertWindow('backlogWindow'" : "showInsertWindow('taskWindow'";
                 function += "," + i + "," + swimlane_id + ")";
                 img.Attributes.Add("onclick", function);
                 th.Controls.Add(img);
@@ -110,19 +110,12 @@ namespace Lanban
             div.Attributes.Add("class", "note");
             div.Attributes.Add("data-type", type);
             div.Attributes.Add("data-swimlane-id", row["Swimlane_ID"].ToString());
-            string divID;
-            if (type.Equals("1"))
-            {
-                divID = row["Backlog_ID"].ToString();
-            }
-            else
-            {
-                div.Attributes.Add("data-id", row["Task_ID"].ToString());
-                divID = row["Task_ID"].ToString();
-            }
+            
+            // Although ID value is repeatable but it's needed for updatePosition and changeSwimlane
+            string divID = (type.Equals("1")) ? row["Backlog_ID"].ToString() : row["Task_ID"].ToString();
             string id = tableName + "." + divID;
             div.Attributes.Add("id", id);
-            div.Attributes.Add("data-id", divID);
+            div.Attributes.Add("data-id", divID); 
             div.Attributes.Add("ondblclick", "viewDetailNote('" + tableName.ToLower() + "Window'," + divID + ")");
             div.InnerHtml = divID + " - " + row["Title"].ToString();
             return div;

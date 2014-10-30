@@ -101,7 +101,7 @@ $(document).ready(function () {
 });
 
 /*1. Create new sticky note and add it on server */
-function insertItem(type) {
+function insertBacklogItem() {
     var backlog = {
         Project_ID: $("#txtProjectID").val(),
         Swimlane_ID: $("#txtSwimlaneID").val(),
@@ -111,19 +111,65 @@ function insertItem(type) {
         Color: $("#ddlBacklogColor").val(),
         Position: $("#txtNoteIndex").val()
     };
-    console.log(JSON.stringify(backlog));
+
     $.ajax({
         url: "Handler.ashx",
         data: {
-            action: "insert" + type,
+            action: "insertBacklog",
             backlog: JSON.stringify(backlog)
         },
         global: false,
         type: "post",
         success: function (result) {
-            console.log(result);
+            saveAssignee(result, "backlog");
+            var objtext = "<div class='note' style='background-color:" + backlog.Color + ";' data-type='1' " +
+                "data-swimlane-id='" + backlog.Swimlane_ID + "' id='Backlog." + result + "' data-id='" + result + "' " +
+                "ondblclick=\"viewDetailNote('backlogWindow',1)\">" + result + " - " + backlog.Title + "</div>";
+            var swimlanePosition = parseInt($("#txtSwimlanePosition").val());
+            $(objtext).appendTo($(".connected")[swimlanePosition]);
         }
     });
+}
+
+// Update assignee including delete old records and save new ones
+function updateAssignee(id, type) {
+    //Delete old records
+    $.ajax({
+        url: "Handler.ashx",
+        data: {
+            action: "deleteAssignee",
+            type: type,
+            id: id
+        },
+        global: false,
+        type: "get",
+        success: function () {
+            //Save new records
+            saveAssignee(id, type);
+        }
+    });
+}
+
+// After insert new item and get the item ID, then save the assignee of that item to database
+function saveAssignee(id, type) {
+    var assignee = document.getElementById(type + "Assign").getElementsByTagName("div");
+    for (var i = 0; i < assignee.length; i++) {
+        $.ajax({
+            url: "Handler.ashx",
+            data: {
+                action: "saveAssignee",
+                type: type,
+                id: id,
+                assigneeID: assignee[i].getAttribute("data-id"),
+                assigneeName: assignee[i].innerHTML
+            },
+            global: false,
+            type: "get",
+            success: function (result) {
+                console.log(result);
+            }
+        });
+    }
 }
 
 function showInsertWindow(windowName, i, swimlaneID) {
@@ -144,7 +190,7 @@ function updatePosition(id, pos, type) {
         url: "Handler.ashx",
         data: {
             action: "updatePosition",
-            table: table,
+            type: table,
             id: id,
             pos: pos
         },
@@ -166,7 +212,7 @@ function changeLane(id, type, swimlane_id, pos) {
         url: "Handler.ashx",
         data: {
             action: "changeSwimlane",
-            table: table,
+            type: table,
             id: id,
             swimlane: swimlane_id,
             pos: pos
@@ -181,7 +227,8 @@ function changeLane(id, type, swimlane_id, pos) {
 
 /*3. Using AJAX to search name of member to assign to a task or backlog */
 function addAssignee(obj, type) {
-    var objtext = "<div class='assignee-name-active' onclick='removeAssignee(this)'>" + obj.innerHTML + "</div>";
+    var id = obj.getAttribute("data-id");
+    var objtext = "<div class='assignee-name-active' data-id='"+id+"' onclick='removeAssignee(this)'>" + obj.innerHTML + "</div>";
     var searchBox = document.getElementById(type + "Assign").getElementsByTagName("input")[0];
     $(objtext).insertBefore($(searchBox));
     $(searchBox).val("");

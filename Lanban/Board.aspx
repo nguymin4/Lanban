@@ -96,7 +96,7 @@
                     <tr>
                         <td></td>
                         <td>
-                            <input type="button" class="button medium btnSave" value="Add" onclick="insertItem('Backlog')" />
+                            <input type="button" class="button medium btnSave" value="Add" onclick="insertBacklogItem()" />
                             <input type="button" class="button medium btnCancel" value="Close" onclick="hideWindow('backlogWindow')" />
                         </td>
                     </tr>
