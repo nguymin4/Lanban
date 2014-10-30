@@ -112,6 +112,7 @@
     <Compile Include="Handler.ashx.cs">
       <DependentUpon>Handler.ashx</DependentUpon>
     </Compile>
+    <Compile Include="HandlerOperation.cs" />
     <Compile Include="Lanban.Master.cs">
       <DependentUpon>Lanban.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

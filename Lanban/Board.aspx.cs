@@ -116,7 +116,7 @@ namespace Lanban
             string id = tableName + "." + divID;
             div.Attributes.Add("id", id);
             div.Attributes.Add("data-id", divID); 
-            div.Attributes.Add("ondblclick", "viewDetailNote('" + tableName.ToLower() + "Window'," + divID + ")");
+            div.Attributes.Add("ondblclick", "viewDetailNote('" + tableName.ToLower() + "'," + divID + ")");
             div.InnerHtml = divID + " - " + row["Title"].ToString();
             return div;
         }

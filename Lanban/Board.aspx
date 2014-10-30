@@ -115,10 +115,19 @@
     <!-- End - Task window  -->
 
     <!-- Error diaglog -->
-    <div class="window diaglog">
+    <div class="window diaglog error">
         <div class="title-bar">Error</div>
         <div class="diaglog-content">
-            Cannot drop that item because it is not the same type with the items in column.
+            <div class="content-holder"></div>
+            <input type="button" class="btnOK" value="OK" />
+        </div>
+    </div>
+
+    <!-- Successful diaglog -->
+    <div class="window diaglog success">
+        <div class="title-bar">Operation successful</div>
+        <div class="diaglog-content">
+            <div class="content-holder"></div>
             <input type="button" class="btnOK" value="OK" />
         </div>
     </div>

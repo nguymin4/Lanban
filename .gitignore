@@ -154,3 +154,8 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+/Lanban/packages/Newtonsoft.Json.6.0.6
+/Lanban/packages/jQuery.2.1.1/Content/Scripts
+/Lanban/packages/jQuery.2.1.1/Tools
+/Lanban/packages
+*.laccdb

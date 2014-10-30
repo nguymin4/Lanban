@@ -1,11 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using System.Data.OleDb;
 using System.Data;
 using System.Text;
 using System.Web.UI;
+using Newtonsoft.Json;
 
 namespace Lanban
 {
@@ -53,7 +54,28 @@ namespace Lanban
             myDataSet.Tables[tableName].DefaultView.Sort = "Position";
         }
 
-
+        //Get all information of an item based on it
+        public string viewItem(string id, string type)
+        {
+            StringBuilder result = new StringBuilder();
+            myCommand.CommandText = "SELECT * FROM " + type + " WHERE " + type + "_ID=" + id;
+            myReader = myCommand.ExecuteReader();
+            bool available = myReader.Read();
+            if (available == false) result.Append("");
+            else
+            {
+                StringWriter sw = new StringWriter(result);
+                JsonTextWriter myWriter = new JsonTextWriter(sw);
+                myWriter.WriteStartObject();
+                for (int i = 0; i < myReader.FieldCount; i++)
+                {
+                    myWriter.WritePropertyName(myReader.GetName(i));
+                    myWriter.WriteValue(myReader.GetValue(i));
+                }
+                myWriter.WriteEndObject();
+            }
+            return result.ToString();
+        }
         //2.2 Insert new data
         public string insertNewBacklog(string[] data)
         {
@@ -72,11 +94,10 @@ namespace Lanban
         }
 
         //2.3 Update position of sticky note
-        public string updatePosition(string id, string pos, string table)
+        public void updatePosition(string id, string pos, string table)
         {
             myCommand.CommandText = "UPDATE " + table + " SET [Position]=" + pos + "  WHERE " + table + "_ID=" + id;
             myCommand.ExecuteNonQuery();
-            return "Updated " + id + " in " + table + " at " + pos;
         }
 
         //2.4 Change swimlane of sticky note
@@ -87,7 +108,7 @@ namespace Lanban
         }
 
         //2.5 Save assignee of a task or backlog
-        public void saveAssignee(string type, string id, string uid, string name)
+        public void saveAssignee(string id, string type, string uid, string name)
         {
             myCommand.CommandText = "INSERT INTO " + type + "_User (" + type + "_ID, User_ID, [Name])" +
                 "VALUES (" + id + "," + uid + ",'" + name + "');";
@@ -95,10 +116,38 @@ namespace Lanban
         }
 
         //2.6 Delete all assignee of a task or backlog
-        public void deleteAssignee(string type, string id)
+        public void deleteAssignee(string id, string type)
         {
             myCommand.CommandText = "DELETE FROM " + type + "_User WHERE " + type + "_ID=" + id;
             myCommand.ExecuteNonQuery();
+        }
+
+        //2.7 View assignee of a task or backlog
+        public string viewAssignee(string id, string type)
+        {
+            myCommand.CommandText = "SELECT * FROM " + type + "_User WHERE " + type + "_ID=" + id;
+            StringBuilder result = new StringBuilder();
+
+            myReader = myCommand.ExecuteReader();
+            bool available = myReader.Read();
+            if (available == false) result.Append("");
+            else
+            {
+                while (available)
+                {
+                    result.Append(getAssigneeDisplay(myReader[1].ToString(), myReader[2].ToString()));
+                    available = myReader.Read();
+                }
+            }
+            myReader.Close();
+            return result.ToString();
+        }
+
+        //2.7.1 Helper 2.7
+        protected string getAssigneeDisplay(string id, string name)
+        {
+            string display = "<div class='assignee-name-active' data-id='" + id + "' onclick='removeAssignee(this)'>" + name + "</div>";
+            return display;
         }
 
         //a.1 Search member name in a project
@@ -116,14 +165,16 @@ namespace Lanban
             {
                 while (available)
                 {
-                    result.Append(getAssigneeDisplay(myReader[0].ToString(), myReader[1].ToString(), type));
+                    result.Append(getAssigneeResultDisplay(myReader[0].ToString(), myReader[1].ToString(), type));
                     available = myReader.Read();
                 }
             }
+            myReader.Close();
             return result.ToString();
         }
 
-        protected string getAssigneeDisplay(string ID, string name, string type)
+        //a.1.1 Helper a.1
+        protected string getAssigneeResultDisplay(string ID, string name, string type)
         {
             string display = "<div class='resultline' data-id='" + ID + "' onclick=\"addAssignee(this,'" + type + "')\">" + name + "</div>";
             return display;

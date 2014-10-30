@@ -44,6 +44,32 @@ function hideWindow() {
     $("#btnRefresh").trigger("click");
 }
 
+// Show error diaglog  - content taken from an array based on parameter
+var errorMsg = ["Cannot drop that item because it is not the same type with the items in column."];
+function showErrorDialog(i) {
+    $(".diaglog.error .content-holder").text(errorMsg[i]);
+    $(".diaglog.error").addClass("show");
+}
+
+// Show success diaglog - content taken from an array based on parameter
+var successMsg = ["New backlog created"];
+function showSuccessDiaglog(i) {
+    $(".diaglog.success .title-bar").text("Success");
+    $(".diaglog.success .content-holder").text(successMsg[i]);
+    $(".diaglog.success input").css("display", "block");
+    if (!($(".diaglog.success").hasClass("show")))
+        $(".diaglog.success").addClass("show");
+}
+
+//Show processing message
+function showProcessingDiaglog() {
+    $(".diaglog.success .title-bar").text("Processing");
+    $(".diaglog.success .content-holder").text("In progress. Please wait.");
+    $(".diaglog.success input").css("display", "none");
+    $(".diaglog.success").addClass("show");
+}
+
+
 $(document).ready(function () {
     /*Add customized scroll bar*/
     $(".window-content").perfectScrollbar({
@@ -76,7 +102,7 @@ $(document).ready(function () {
             }
             else {
                 $(ui.sender).sortable("cancel");
-                document.getElementsByClassName("diaglog")[0].setAttribute("class", "window diaglog show");
+                showErrorDialog(0);
             }
         },
         start: function (event, ui) {
@@ -92,9 +118,7 @@ $(document).ready(function () {
                 var targetId = this.getElementsByTagName("div")[startPos].getAttribute("data-id");
                 var type2 = this.getElementsByTagName("div")[startPos].getAttribute("data-type");
                 updatePosition(ui.item.id, ui.item.index(), type1);
-                console.log(ui.item.id +" " +ui.item.index() +" "+type1)
                 updatePosition(targetId, startPos, type2);
-                console.log(targetId + " " + startPos + " " + type2)
             }
         }
     }).disableSelection();
@@ -124,53 +148,14 @@ function insertBacklogItem() {
             saveAssignee(result, "backlog");
             var objtext = "<div class='note' style='background-color:" + backlog.Color + ";' data-type='1' " +
                 "data-swimlane-id='" + backlog.Swimlane_ID + "' id='Backlog." + result + "' data-id='" + result + "' " +
-                "ondblclick=\"viewDetailNote('backlogWindow',1)\">" + result + " - " + backlog.Title + "</div>";
+                "ondblclick=\"viewDetailNote('backlog'," + result + ")\">" + result + " - " + backlog.Title + "</div>";
             var swimlanePosition = parseInt($("#txtSwimlanePosition").val());
             $(objtext).appendTo($(".connected")[swimlanePosition]);
+            showSuccessDiaglog(0);
         }
     });
 }
 
-// Update assignee including delete old records and save new ones
-function updateAssignee(id, type) {
-    //Delete old records
-    $.ajax({
-        url: "Handler.ashx",
-        data: {
-            action: "deleteAssignee",
-            type: type,
-            id: id
-        },
-        global: false,
-        type: "get",
-        success: function () {
-            //Save new records
-            saveAssignee(id, type);
-        }
-    });
-}
-
-// After insert new item and get the item ID, then save the assignee of that item to database
-function saveAssignee(id, type) {
-    var assignee = document.getElementById(type + "Assign").getElementsByTagName("div");
-    for (var i = 0; i < assignee.length; i++) {
-        $.ajax({
-            url: "Handler.ashx",
-            data: {
-                action: "saveAssignee",
-                type: type,
-                id: id,
-                assigneeID: assignee[i].getAttribute("data-id"),
-                assigneeName: assignee[i].innerHTML
-            },
-            global: false,
-            type: "get",
-            success: function (result) {
-                console.log(result);
-            }
-        });
-    }
-}
 
 function showInsertWindow(windowName, i, swimlaneID) {
     showWindow(windowName);
@@ -180,25 +165,20 @@ function showInsertWindow(windowName, i, swimlaneID) {
 }
 
 /*2. Change position of a stickynote*/
-
 /*2.1 In a swimlane, when two items swap positon to each other then
     - call AJAX function to save new position into the database */
-function updatePosition(id, pos, type) {
-    console.log("Swap");
+function updatePosition(itemID, pos, type) {
     var table = (type == 1) ? "Backlog" : "Task";
     $.ajax({
         url: "Handler.ashx",
         data: {
             action: "updatePosition",
             type: table,
-            id: id,
+            itemID: itemID,
             pos: pos
         },
         global: false,
-        type: "get",
-        success: function (result) {
-            console.log(result);
-        }
+        type: "get"
     });
 }
 
@@ -206,29 +186,83 @@ function updatePosition(id, pos, type) {
     call AJAX function to save new position of all items:
     - in the source lane with index <= old index of the moved item
     - in the target lane with index <= new index of the moved item */
-function changeLane(id, type, swimlane_id, pos) {
+function changeLane(itemID, type, swimlane_id, pos) {
     var table = (type == 1) ? "Backlog" : "Task";
     $.ajax({
         url: "Handler.ashx",
         data: {
             action: "changeSwimlane",
             type: table,
-            id: id,
+            itemID: itemID,
             swimlane: swimlane_id,
             pos: pos
         },
         global: false,
         type: "get",
+    });
+}
+
+/*3 Working with functionalities involving assignee*/
+// View all assignee of an item
+function viewAssignee(itemID, type) {
+    $.ajax({
+        url: "Handler.ashx",
+        data: {
+            action: "viewAssignee",
+            itemID: itemID,
+            type: type
+        },
+        global: false,
+        type: "get",
         success: function (result) {
             console.log(result);
+            $("#" + type + "Assign").prepend(result);
         }
     });
 }
 
-/*3. Using AJAX to search name of member to assign to a task or backlog */
+// Update assignee including delete old records and save new ones
+function updateAssignee(itemID, type) {
+    //Delete old records
+    $.ajax({
+        url: "Handler.ashx",
+        data: {
+            action: "deleteAssignee",
+            type: type,
+            itemID: itemID
+        },
+        global: false,
+        type: "get",
+        success: function () {
+            //Save new records
+            saveAssignee(itemID, type);
+        }
+    });
+}
+
+// After insert new item and get the item ID, then save the assignee of that item to database
+function saveAssignee(itemID, type) {
+    var assignee = document.getElementById(type + "Assign").getElementsByTagName("div");
+    for (var i = 0; i < assignee.length; i++) {
+        $.ajax({
+            url: "Handler.ashx",
+            data: {
+                action: "saveAssignee",
+                type: type,
+                itemID: itemID,
+                assigneeID: assignee[i].getAttribute("data-id"),
+                assigneeName: assignee[i].innerHTML
+            },
+            global: false,
+            type: "get"
+        });
+    }
+}
+
+/*3.2 Using AJAX to search name of member to assign to a task or backlog */
 function addAssignee(obj, type) {
     var id = obj.getAttribute("data-id");
-    var objtext = "<div class='assignee-name-active' data-id='"+id+"' onclick='removeAssignee(this)'>" + obj.innerHTML + "</div>";
+    var objtext = "<div class='assignee-name-active' data-id='" + id + "' onclick='removeAssignee(this)'>" + obj.innerHTML + "</div>";
     var searchBox = document.getElementById(type + "Assign").getElementsByTagName("input")[0];
     $(objtext).insertBefore($(searchBox));
     $(searchBox).val("");
@@ -275,7 +309,41 @@ function searchAssignee(searchBox, type) {
 }
 
 /*4. Double click on note to open corresponding window that allow user to edit content*/
-function viewDetailNote(windowName, id) {
-    showWindow(windowName);
+function viewDetailNote(type, itemID) {
+    showProcessingDiaglog(0);
+    showWindow(type + "Window");
+
+    //Get all data of that item
+    $.ajax({
+        url: "Handler.ashx",
+        data: {
+            action: "viewItem",
+            itemID: itemID,
+            type: type
+        },
+        global: false,
+        type: "get",
+        success: function (result) {
+            $(".diaglog.success").removeClass("show");
+            console.log(result);
+            (type == "backlog") ? displayBacklogDetail(result) : displayTaskDetail(result);
+        }
+    });
+
+    //View all assignee of that item
+    viewAssignee(itemID, type);
+}
+/*4.1 Display detail backlog */
+function displayBacklogDetail(data) {
+    $("#txtSwimlaneID").val(data.Swimlane_ID);
+    $("#txtBacklogTitle").val(data.Title);
+    $("#txtBacklogDescription").val(data.Description);
+    $("#ddlBacklogComplexity").val(data.Complexity);
+    $("#ddlBacklogColor").val(data.Color);
+}
+
+/*4.2 Display detail task */
+function displayTaskDetail(data) {
+
 }
 
