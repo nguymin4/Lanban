@@ -27,6 +27,7 @@ namespace Lanban
                 txtProjectID.Text = projectID.ToString();
                 int start = Environment.TickCount;
                 createKanban();
+                initDropdownList();
                 System.Diagnostics.Debug.WriteLine("Total load time: " + (Environment.TickCount - start));
             }
         }
@@ -110,15 +111,32 @@ namespace Lanban
             div.Attributes.Add("class", "note");
             div.Attributes.Add("data-type", type);
             div.Attributes.Add("data-swimlane-id", row["Swimlane_ID"].ToString());
-            
+
             // Although ID value is repeatable but it's needed for updatePosition and changeSwimlane
             string divID = (type.Equals("1")) ? row["Backlog_ID"].ToString() : row["Task_ID"].ToString();
             string id = tableName + "." + divID;
             div.Attributes.Add("id", id);
-            div.Attributes.Add("data-id", divID); 
+            div.Attributes.Add("data-id", divID);
             div.Attributes.Add("ondblclick", "viewDetailNote('" + tableName.ToLower() + "'," + divID + ")");
             div.InnerHtml = divID + " - " + row["Title"].ToString();
             return div;
+        }
+
+        //2. Init dropdown list value
+        string[] colorText = { "red", "orange", "yellow", "green", "cyan", "blue", "purple" };
+        string[] colorHex = { "#ff4b4b", "#ffa500", "#ffff4b", "#4bff4b", "#80ffff", "#6464ff", "#b64bff" };
+
+        protected void initDropdownList()
+        {
+            //Dropdown list Complexity - Backlog
+            for (int i = 1; i < 10; i++)
+                ddlBacklogComplexity.Items.Add(new ListItem(i.ToString(), i.ToString()));
+            ddlBacklogComplexity.SelectedIndex = 0;
+
+            //Dropdown list Color - Backlog
+            for (int i = 0; i < colorHex.Length; i++)
+                ddlBacklogColor.Items.Add(new ListItem(colorText[i], colorHex[i]));
+            ddlBacklogColor.SelectedIndex = 0;
         }
     }
 }

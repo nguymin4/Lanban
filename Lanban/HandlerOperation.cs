@@ -107,6 +107,7 @@ namespace Lanban
                     myQuery.deleteAssignee(itemID, type);
                     break;
             }
+            myQuery.Dispose();
             _context.Response.Write(result);
             _completed = true;
             _callback(this);

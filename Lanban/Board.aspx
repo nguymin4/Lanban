@@ -68,30 +68,19 @@
                 <table class="tblAddData">
                     <tr>
                         <td>Complexity:</td>
-                        <td>
-                            <asp:DropDownList runat="server" ID="ddlBacklogComplexity">
-                                <asp:ListItem Text="1" Value="1"></asp:ListItem>
-                            </asp:DropDownList>
-                        </td>
+                        <td><asp:DropDownList runat="server" ID="ddlBacklogComplexity"></asp:DropDownList></td>
                     </tr>
                     <tr>
-                        <td>Color</td>
-                        <td>
-                            <asp:DropDownList runat="server" ID="ddlBacklogColor">
-                                <asp:ListItem Text="Red" Value="Red"></asp:ListItem>
-                                <asp:ListItem Text="White" Value="White"></asp:ListItem>
-                            </asp:DropDownList>
-                        </td>
+                        <td>Color:</td>
+                        <td><asp:DropDownList runat="server" ID="ddlBacklogColor" Width="70"></asp:DropDownList></td>
                     </tr>
                     <tr>
                         <td>Start date:</td>
-                        <td>
-                            <asp:TextBox runat="server" ID="txtBacklogStart" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
+                        <td><asp:TextBox runat="server" ID="txtBacklogStart" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
                     </tr>
                     <tr>
                         <td>End date:</td>
-                        <td>
-                            <asp:TextBox runat="server" ID="txtBacklogEnd" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
+                        <td><asp:TextBox runat="server" ID="txtBacklogEnd" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
                     </tr>
                     <tr>
                         <td></td>

@@ -35,6 +35,15 @@ namespace Lanban
             myConnection.Open();
         }
 
+        public void Dispose()
+        {
+            myConnection.Close();
+            myDataSet.Dispose();
+            myAdapter.Dispose();
+            myCommand.Dispose();
+            myConnection.Dispose();
+        }
+
 
         //2. Methods
         //2.1 Query data

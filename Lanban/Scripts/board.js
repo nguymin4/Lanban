@@ -20,6 +20,7 @@
 // Show Add backlog/task window
 function showWindow(windowName) {
     $("#kanbanWindow").removeClass("show");
+    (windowName == "backlogWindow") ? clearBacklogWindow() : clearTaskWindow();
     setTimeout(function () {
         $("#kanbanWindow").css("display", "none");
         $("#" + windowName).css("display", "block").addClass("show");
@@ -39,9 +40,6 @@ function hideWindow() {
         $("#kanbanWindow").css("display", "block").addClass("show");
         $(viewIndicator[0]).addClass("show");
     }, 250);
-
-    //Testing
-    $("#btnRefresh").trigger("click");
 }
 
 // Show error diaglog  - content taken from an array based on parameter
@@ -152,19 +150,20 @@ function insertBacklogItem() {
             var swimlanePosition = parseInt($("#txtSwimlanePosition").val());
             $(objtext).appendTo($(".connected")[swimlanePosition]);
             showSuccessDiaglog(0);
+            clearBacklogWindow();
         }
     });
 }
 
-
 function showInsertWindow(windowName, i, swimlaneID) {
     showWindow(windowName);
+    $("#" + windowName + " .btnSave").val("Add").attr("onclick", "insertBacklogItem()");
     $("#txtSwimlanePosition").val(i);
     $("#txtNoteIndex").val($(".connected")[i].getElementsByTagName("div").length);
     $("#txtSwimlaneID").val(swimlaneID);
 }
 
-/*2. Change position of a stickynote*/
+/*2. Change position of a sticky note*/
 /*2.1 In a swimlane, when two items swap positon to each other then
     - call AJAX function to save new position into the database */
 function updatePosition(itemID, pos, type) {
@@ -215,7 +214,6 @@ function viewAssignee(itemID, type) {
         global: false,
         type: "get",
         success: function (result) {
-            console.log(result);
             $("#" + type + "Assign").prepend(result);
         }
     });
@@ -260,27 +258,7 @@ function saveAssignee(itemID, type) {
 }
 
 /*3.2 Using AJAX to search name of member to assign to a task or backlog */
-function addAssignee(obj, type) {
-    var id = obj.getAttribute("data-id");
-    var objtext = "<div class='assignee-name-active' data-id='" + id + "' onclick='removeAssignee(this)'>" + obj.innerHTML + "</div>";
-    var searchBox = document.getElementById(type + "Assign").getElementsByTagName("input")[0];
-    $(objtext).insertBefore($(searchBox));
-    $(searchBox).val("");
-    searchBox.focus();
-}
-
-function removeAssignee(obj) {
-    var parent = obj.parentElement;
-    parent.removeChild(obj);
-}
-
-function clearResult(obj) {
-    setTimeout(function () {
-        $(obj).val("");
-        $("#assigneeSearchResult").html("").css("display", "none");
-    }, 250);
-}
-
+// Search assignee name
 var assigneeSearch;
 function searchAssignee(searchBox, type) {
     clearInterval(assigneeSearch);
@@ -308,10 +286,38 @@ function searchAssignee(searchBox, type) {
     }
 }
 
+// Add assignee name result
+function addAssignee(obj, type) {
+    var id = obj.getAttribute("data-id");
+    var objtext = "<div class='assignee-name-active' data-id='" + id + "' onclick='removeAssignee(this)'>" + obj.innerHTML + "</div>";
+    var searchBox = document.getElementById(type + "Assign").getElementsByTagName("input")[0];
+    $(objtext).insertBefore($(searchBox));
+    $(searchBox).val("");
+    searchBox.focus();
+}
+
+// When click on active assignee then it's removed
+function removeAssignee(obj) {
+    var parent = obj.parentElement;
+    parent.removeChild(obj);
+}
+
+// Clear search result
+function clearResult(obj) {
+    setTimeout(function () {
+        $(obj).val("");
+        $("#assigneeSearchResult").html("").css("display", "none");
+    }, 250);
+}
+
+
 /*4. Double click on note to open corresponding window that allow user to edit content*/
 function viewDetailNote(type, itemID) {
     showProcessingDiaglog(0);
     showWindow(type + "Window");
+    var onclick = (type == "backlog") ? "saveBacklogItem("+itemID+")" : "saveTaskItem("+itemID+")";
+    var btnSave = $("#" + type + "Window .btnSave");
+    $(btnSave).val("Save").attr("onclick", onclick);
 
     //Get all data of that item
     $.ajax({
@@ -333,7 +339,8 @@ function viewDetailNote(type, itemID) {
     //View all assignee of that item
     viewAssignee(itemID, type);
 }
-/*4.1 Display detail backlog */
+
+/*4.1.1 Display detail backlog */
 function displayBacklogDetail(data) {
     $("#txtSwimlaneID").val(data.Swimlane_ID);
     $("#txtBacklogTitle").val(data.Title);
@@ -342,8 +349,27 @@ function displayBacklogDetail(data) {
     $("#ddlBacklogColor").val(data.Color);
 }
 
-/*4.2 Display detail task */
+/*4.1.2 Clear backlog window */
+function clearBacklogWindow() {
+    $("#backlogWindow .inputbox").val("");
+    $("#backlogWindow textarea").val("");
+    $("#backlogWindow .assignee-name-active").remove();
+}
+
+/*4.2.1 Display detail task */
 function displayTaskDetail(data) {
 
 }
 
+/*4.2.2 Clear task Window */
+function clearTaskWindow() {
+    $("#taskWindow .inputbox").val("");
+    $("#taskWindow textarea").val("");
+    $("#taskWindow .assignee-name-active").remove();
+}
+
+
+/*5.1 Save changes of the current backlog item to database*/
+function saveBacklogItem(itemID) {
+
+}
