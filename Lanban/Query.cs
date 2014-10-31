@@ -58,9 +58,8 @@ namespace Lanban
         //Fill dataset with data from either Task table or Backlog table based on parameter
         public void fetchNote(string tableName, int projectID, int swimlaneID)
         {
-            myCommand.CommandText = "SELECT * FROM " + tableName + " WHERE Project_ID=" + projectID + " AND Swimlane_ID=" + swimlaneID;
+            myCommand.CommandText = "SELECT * FROM " + tableName + " WHERE Project_ID=" + projectID + " AND Swimlane_ID=" + swimlaneID + " ORDER BY [Position]";
             myAdapter.Fill(myDataSet, tableName);
-            myDataSet.Tables[tableName].DefaultView.Sort = "Position";
         }
 
         //Get all information of an item based on it
@@ -97,7 +96,7 @@ namespace Lanban
             command.Append("'" + data[data.Length - 1] + "')");
             myCommand.CommandText = command.ToString();
             myCommand.ExecuteNonQuery();
-            myCommand.CommandText = "SELECT LAST(Backlog_ID) FROM Backlog";
+            myCommand.CommandText = "SELECT MAX(Backlog_ID) FROM Backlog";
             result = myCommand.ExecuteScalar().ToString();
             return result;
         }
@@ -120,7 +119,7 @@ namespace Lanban
         public void saveAssignee(string id, string type, string uid, string name)
         {
             myCommand.CommandText = "INSERT INTO " + type + "_User (" + type + "_ID, User_ID, [Name])" +
-                "VALUES (" + id + "," + uid + ",'" + name + "');";
+                " VALUES (" + id + "," + uid + ",'" + name + "');";
             myCommand.ExecuteNonQuery();
         }
 

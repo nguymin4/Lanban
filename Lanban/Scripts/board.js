@@ -143,10 +143,15 @@ function insertBacklogItem() {
         global: false,
         type: "post",
         success: function (result) {
+            console.log(result);
             saveAssignee(result, "backlog");
-            var objtext = "<div class='note' style='background-color:" + backlog.Color + ";' data-type='1' " +
-                "data-swimlane-id='" + backlog.Swimlane_ID + "' id='Backlog." + result + "' data-id='" + result + "' " +
-                "ondblclick=\"viewDetailNote('backlog'," + result + ")\">" + result + " - " + backlog.Title + "</div>";
+            var objtext = "<div class='note' data-type='1' data-swimlane-id='" + backlog.Swimlane_ID + "' id='Backlog." + result +
+                "' data-id='" + result + "' ondblclick=\"viewDetailNote('backlog'," + result + ")\">" +
+                "<div class='note-header' style='background-color:" + backlog.Color.substr(0, 7) + ";'>" +
+                "<span class='item-id'>"+result+"</span><img class='note-button' onclick=\"viewDetailNote('backlog',"+result+")\" src='images/sidebar/edit_note.png'>" +
+                "<img class='note-button' onclick='deleteItem('backlog',"+result+")' src='images/sidebar/delete_note.png'></div>" +
+                "<div class='note-content' style='background-color:" + backlog.Color.substr(8, 7) + ";'>" + backlog.Title + "</div>" +
+                "</div>";
             var swimlanePosition = parseInt($("#txtSwimlanePosition").val());
             $(objtext).appendTo($(".connected")[swimlanePosition]);
             showSuccessDiaglog(0);
@@ -159,7 +164,7 @@ function showInsertWindow(windowName, i, swimlaneID) {
     showWindow(windowName);
     $("#" + windowName + " .btnSave").val("Add").attr("onclick", "insertBacklogItem()");
     $("#txtSwimlanePosition").val(i);
-    $("#txtNoteIndex").val($(".connected")[i].getElementsByTagName("div").length);
+    $("#txtNoteIndex").val($(".connected")[i].getElementsByClassName("note").length);
     $("#txtSwimlaneID").val(swimlaneID);
 }
 
@@ -315,7 +320,7 @@ function clearResult(obj) {
 function viewDetailNote(type, itemID) {
     showProcessingDiaglog(0);
     showWindow(type + "Window");
-    var onclick = (type == "backlog") ? "saveBacklogItem("+itemID+")" : "saveTaskItem("+itemID+")";
+    var onclick = (type == "backlog") ? "saveBacklogItem(" + itemID + ")" : "saveTaskItem(" + itemID + ")";
     var btnSave = $("#" + type + "Window .btnSave");
     $(btnSave).val("Save").attr("onclick", onclick);
 

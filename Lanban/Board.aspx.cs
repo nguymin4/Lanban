@@ -107,7 +107,6 @@ namespace Lanban
         protected HtmlGenericControl createNote(DataRow row, string type, string tableName)
         {
             HtmlGenericControl div = new HtmlGenericControl("div");
-            div.Style.Add("background-color", row["Color"].ToString());
             div.Attributes.Add("class", "note");
             div.Attributes.Add("data-type", type);
             div.Attributes.Add("data-swimlane-id", row["Swimlane_ID"].ToString());
@@ -117,15 +116,50 @@ namespace Lanban
             string id = tableName + "." + divID;
             div.Attributes.Add("id", id);
             div.Attributes.Add("data-id", divID);
-            div.Attributes.Add("ondblclick", "viewDetailNote('" + tableName.ToLower() + "'," + divID + ")");
-            div.InnerHtml = divID + " - " + row["Title"].ToString();
+            string editFunction = "viewDetailNote('" + tableName.ToLower() + "'," + divID + ")";
+            div.Attributes.Add("ondblclick", editFunction);
+
+            string color = row["Color"].ToString();
+            // note-header
+            HtmlGenericControl header = new HtmlGenericControl("div");
+            header.Attributes.Add("class", "note-header");
+            header.Style.Add("background-color", color.Substring(0, 7));
+            HtmlGenericControl item_id = new HtmlGenericControl("span");
+            item_id.Attributes.Add("class", "item-id");
+            item_id.InnerHtml = divID;
+            header.Controls.Add(item_id);
+            // Add edit button
+            Image edit = new Image();
+            edit.ImageUrl = "images/sidebar/edit_note.png";
+            edit.CssClass = "note-button";
+            edit.Attributes.Add("onclick", editFunction);
+            header.Controls.Add(edit);
+            // Add delete button
+            Image delete = new Image();
+            delete.ImageUrl = "images/sidebar/delete_note.png";
+            delete.CssClass = "note-button";
+            string deleteFunction = "deleteItem('" + tableName.ToLower() + "'," + divID + ")";
+            delete.Attributes.Add("onclick", deleteFunction);
+            header.Controls.Add(delete);
+            div.Controls.Add(header);
+
+
+            // note-content
+            HtmlGenericControl content = new HtmlGenericControl("div");
+            content.Attributes.Add("class", "note-content");
+            content.Style.Add("background-color", color.Substring(8));
+            content.InnerHtml = row["Title"].ToString();
+            div.Controls.Add(content);
+            
             return div;
         }
 
         //2. Init dropdown list value
-        string[] colorText = { "red", "orange", "yellow", "green", "cyan", "blue", "purple" };
-        string[] colorHex = { "#ff4b4b", "#ffa500", "#ffff4b", "#4bff4b", "#80ffff", "#6464ff", "#b64bff" };
-
+        string[] colorText = { "red", "orange", "yellow", "green", "cyan", "blue", "purple"};
+        string[,] colorHex = {
+                                {"#ff9898", "#ffc864", "#ffff95", "#98ff98", "#caffff", "#adadff", "#d598ff" },
+                                { "#ff4b4b", "#ffa500", "#ffff4b", "#4bff4b", "#80ffff", "#6464ff", "#b64bff" }
+                             };
         protected void initDropdownList()
         {
             //Dropdown list Complexity - Backlog
@@ -134,8 +168,8 @@ namespace Lanban
             ddlBacklogComplexity.SelectedIndex = 0;
 
             //Dropdown list Color - Backlog
-            for (int i = 0; i < colorHex.Length; i++)
-                ddlBacklogColor.Items.Add(new ListItem(colorText[i], colorHex[i]));
+            for (int i = 0; i < colorText.Length; i++)
+                ddlBacklogColor.Items.Add(new ListItem(colorText[i], colorHex[0,i]+"."+colorHex[1,i]));
             ddlBacklogColor.SelectedIndex = 0;
         }
     }

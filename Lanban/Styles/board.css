@@ -31,17 +31,55 @@
     height: 500px;
 }
 
+/*Note*/
 .note {
-    background: white;
-    height: 100px;
+    position: relative;
     width: 200px;
     margin: 10px auto 10px auto;
     color: white;
     box-shadow: 0px 0px 10px #222222;
-    border-radius: 5px;
     cursor: pointer;
+    background: transparent;
 }
 
+.note-header {
+    text-align: right;
+    font-size: 16px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    height: 28px;
+    line-height: 28px;
+}
+
+.note-content {
+    height: 100px;
+    text-align: left;
+    padding: 5px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+span.item-id {
+    position: absolute;
+    left: 5px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.note-button {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.note-button:hover {
+    width: 26px;
+    height: 26px;
+}
+
+
+/*btnAddItem*/
 .btnAddItem {
     position: absolute;
     left: 10px;
@@ -150,20 +188,20 @@ div.assignee-name-active {
 }
 
 .resultline {
-            width: 182px;
-            color: black;
-            height: 30px;
-            border: solid 1px rgba(128, 128, 128, 0.2);
-            margin: 0px auto;
-            line-height: 30px;
-            cursor: pointer;
-            font-weight: normal;
-        }
+    width: 182px;
+    color: black;
+    height: 30px;
+    border: solid 1px rgba(128, 128, 128, 0.2);
+    margin: 0px auto;
+    line-height: 30px;
+    cursor: pointer;
+    font-weight: normal;
+}
 
-            .resultline:hover {
-                background-color: #5e87f8;
-                color: white;
-            }
+    .resultline:hover {
+        background-color: #5e87f8;
+        color: white;
+    }
 /**/
 .tblAddData {
     color: white;
