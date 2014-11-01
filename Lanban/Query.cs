@@ -12,7 +12,7 @@ namespace Lanban
 {
     public class Query
     {
-        string myConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=D:\Programming\Source code\ASP.NET\Lanban\Lanban\Lanban.accdb";
+        string myConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=|DataDirectory|\Lanban.accdb";
         private OleDbConnection myConnection;
         private OleDbCommand myCommand;
         private OleDbDataAdapter myAdapter;
@@ -84,7 +84,8 @@ namespace Lanban
             }
             return result.ToString();
         }
-        //2.2 Insert new data
+        
+        //2.2.1 Insert new backlog
         public string insertNewBacklog(string[] data)
         {
             string result;
@@ -101,21 +102,57 @@ namespace Lanban
             return result;
         }
 
-        //2.3 Update position of sticky note
+        //2.2.2 Insert new task
+        public string insertNewTask(string[] data)
+        {
+            string result = "";
+            return result;
+        }
+
+        //2.3.1 Save editted data of a backlog
+        public void updateBacklog(string id, string[] data)
+        {
+            StringBuilder command = new StringBuilder("UPDATE Backlog SET ");
+            command.Append("Title='").Append(data[2]).Append("', ");
+            command.Append("Title='").Append(data[3]).Append("', ");
+            command.Append("Title='").Append(data[4]).Append("', ");
+            command.Append("Title='").Append(data[5]).Append("' ");
+            command.Append("WHERE Backlog_ID=").Append(id);
+            myCommand.CommandText = command.ToString();
+            myCommand.ExecuteNonQuery();
+        }
+        
+        //2.3.2 save editted data of a task
+        public void updateTask(string id, string[] data)
+        {
+
+        }
+
+        //2.4 Delete an item
+        public void deleteItem(string id, string type)
+        {
+            myCommand.CommandText = "DELETE FROM " + type + " WHERE " + type + "_ID=" + id;
+            myCommand.ExecuteNonQuery();
+            
+            //Cascade deleting
+            deleteAssignee(id, type);
+        }
+
+        //2.5.1 Update position of sticky note
         public void updatePosition(string id, string pos, string table)
         {
             myCommand.CommandText = "UPDATE " + table + " SET [Position]=" + pos + "  WHERE " + table + "_ID=" + id;
             myCommand.ExecuteNonQuery();
         }
 
-        //2.4 Change swimlane of sticky note
+        //2.5.2 Change swimlane of sticky note
         public void changeSwimlane(string id, string pos, string table, string swimlane_id)
         {
             myCommand.CommandText = "UPDATE " + table + " SET Swimlane_ID=" + swimlane_id + ", [Position]=" + pos + "  WHERE " + table + "_ID=" + id;
             myCommand.ExecuteNonQuery();
         }
 
-        //2.5 Save assignee of a task or backlog
+        //2.6.1 Save assignee of a task or backlog
         public void saveAssignee(string id, string type, string uid, string name)
         {
             myCommand.CommandText = "INSERT INTO " + type + "_User (" + type + "_ID, User_ID, [Name])" +
@@ -123,7 +160,7 @@ namespace Lanban
             myCommand.ExecuteNonQuery();
         }
 
-        //2.6 Delete all assignee of a task or backlog
+        //2.6.2 Delete all assignee of a task or backlog
         public void deleteAssignee(string id, string type)
         {
             myCommand.CommandText = "DELETE FROM " + type + "_User WHERE " + type + "_ID=" + id;

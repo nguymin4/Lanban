@@ -60,6 +60,7 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App_Data\Lanban.accdb" />
     <Content Include="Board.aspx" />
     <Content Include="Global.asax" />
     <Content Include="images\background.JPG" />

@@ -42,69 +42,79 @@ namespace Lanban
             _context.Response.ContentType = "text/plain";
             var param = _context.Request.Params;
             string action = param["action"];
-            string projectID, swimlaneID, itemID, type, pos;
             string result = "";
             
             switch (action)
             {
                 // Insert new data
-                case "insertBacklog":
-                    Backlog backlog = JsonConvert.DeserializeObject<Backlog>(param["backlog"]);
-                    result = myQuery.insertNewBacklog(backlog.getStringArray());
+                case "insertItem":
+                    if (param["type"].Equals("backlog"))
+                    {
+                        Backlog backlog = JsonConvert.DeserializeObject<Backlog>(param["item"]);
+                        result = myQuery.insertNewBacklog(backlog.getStringArray());
+                    }
+                    else
+                    {
+                        Task task = JsonConvert.DeserializeObject<Task>(param["item"]);
+                        result = myQuery.insertNewBacklog(task.getStringArray());
+                    }
                     break;
                 
                 // Get all data of an item
                 case "viewItem":
-                    itemID = param["itemID"];
-                    type = param["type"];
-                    result = myQuery.viewItem(itemID, type);
+                    result = myQuery.viewItem(param["itemID"], param["type"]);
                     _context.Response.ContentType = "application/json";
                     break;
                 
+                // Update an item
+                case "saveItem":
+                    if (param["type"].Equals("backlog"))
+                    {
+                        Backlog backlog = JsonConvert.DeserializeObject<Backlog>(param["item"]);
+                        myQuery.updateBacklog(param["itemID"], backlog.getStringArray());
+                    }
+                    else
+                    {
+                        Task task = JsonConvert.DeserializeObject<Task>(param["item"]);
+                        myQuery.updateTask(param["itemID"], task.getStringArray());
+                    }
+                    break;
+                
+                // Delete an item
+                case "deleteItem":
+                    myQuery.deleteItem(param["itemID"], param["type"]);
+                    break;
+
                 // Update position of an item in a swimlane
                 case "updatePosition":
-                    type = param["type"];
-                    itemID = param["itemID"];
-                    pos = param["pos"];
-                    myQuery.updatePosition(itemID, pos, type);
+                    myQuery.updatePosition(param["itemID"], param["pos"], param["type"]);
                     break;
                 
                 // Change swimlane of an item
                 case "changeSwimlane":
-                    type = param["type"];
-                    itemID = param["itemID"];
-                    pos = param["pos"];
-                    swimlaneID = param["swimlane"];
-                    myQuery.changeSwimlane(itemID, pos, type, swimlaneID);
+                    myQuery.changeSwimlane(param["itemID"], param["pos"], param["type"], param["swimlane"]);
                     break;
                 
                 // Search name of members in a project
                 case "searchAssignee":
-                    projectID = param["projectID"];
-                    result = myQuery.searchAssignee(projectID, param["keyword"], param["type"]);
+                    result = myQuery.searchAssignee(param["projectID"], param["keyword"], param["type"]);
                     break;
                 
                 // View all assignee of an item
                 case "viewAssignee":
-                    type = param["type"];
-                    itemID = param["itemID"];
-                    result = myQuery.viewAssignee(itemID, type);
+                    result = myQuery.viewAssignee(param["itemID"], param["type"]);
                     break;
                 
                 // Save assignee of an item
                 case "saveAssignee":
-                    itemID = param["itemID"];
-                    type = param["type"];
                     string aID = param["assigneeID"];
                     string aName = param["assigneeName"];
-                    myQuery.saveAssignee(itemID, type, aID, aName);
+                    myQuery.saveAssignee(param["itemID"], param["type"], aID, aName);
                     break;
                 
                 // Delete all assignees of an item
                 case "deleteAssignee":
-                    itemID = param["itemID"];
-                    type = param["type"];
-                    myQuery.deleteAssignee(itemID, type);
+                    myQuery.deleteAssignee(param["itemID"], param["type"]);
                     break;
             }
             myQuery.Dispose();
@@ -144,4 +154,10 @@ class Task
     public string Color { get; set; }
     public string Position { get; set; }
 
+    public string[] getStringArray()
+    {
+        string[] result = {this.Project_ID, this.Swimlane_ID, this.Title, this.Description, 
+                             this.Color, this.Position};
+        return result;
+    }
 }

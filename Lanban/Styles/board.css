@@ -39,24 +39,25 @@
     color: white;
     box-shadow: 0px 0px 10px #222222;
     cursor: pointer;
-    background: transparent;
+    border-radius: 8px;
 }
 
 .note-header {
     text-align: right;
     font-size: 16px;
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
     height: 28px;
     line-height: 28px;
+    padding: 3px 5px 0px 5px;
 }
 
 .note-content {
     height: 100px;
     text-align: left;
-    padding: 5px;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
+    padding: 6px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
 span.item-id {

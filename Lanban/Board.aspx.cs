@@ -106,17 +106,18 @@ namespace Lanban
         //1.4 Create sticky notes based on retrieved data from database
         protected HtmlGenericControl createNote(DataRow row, string type, string tableName)
         {
+            tableName = tableName.ToLower();
+            
             HtmlGenericControl div = new HtmlGenericControl("div");
             div.Attributes.Add("class", "note");
             div.Attributes.Add("data-type", type);
-            div.Attributes.Add("data-swimlane-id", row["Swimlane_ID"].ToString());
 
             // Although ID value is repeatable but it's needed for updatePosition and changeSwimlane
             string divID = (type.Equals("1")) ? row["Backlog_ID"].ToString() : row["Task_ID"].ToString();
             string id = tableName + "." + divID;
             div.Attributes.Add("id", id);
             div.Attributes.Add("data-id", divID);
-            string editFunction = "viewDetailNote('" + tableName.ToLower() + "'," + divID + ")";
+            string editFunction = "viewDetailNote(" + divID + ",'" + tableName + "')";
             div.Attributes.Add("ondblclick", editFunction);
 
             string color = row["Color"].ToString();
@@ -138,7 +139,7 @@ namespace Lanban
             Image delete = new Image();
             delete.ImageUrl = "images/sidebar/delete_note.png";
             delete.CssClass = "note-button";
-            string deleteFunction = "deleteItem('" + tableName.ToLower() + "'," + divID + ")";
+            string deleteFunction = "deleteItem(" + divID + ",'" + tableName + "')";
             delete.Attributes.Add("onclick", deleteFunction);
             header.Controls.Add(delete);
             div.Controls.Add(header);
