@@ -8,6 +8,8 @@
     /*Recalibrate other elements*/
     document.getElementById("content").style.width = windowWidth - 61;
     document.getElementById("kanbanWindow").style.width = windowWidth - 90;
+
+    $(".connected").css("height", 0.9 * 0.98 * windowHeight - 35);
     var columncount = document.getElementById("kanban").getElementsByTagName("th").length;
     var colgroup = document.getElementsByTagName("colgroup")[0];
     colgroup.innerHTML = "";
@@ -28,6 +30,16 @@ function showWindow(windowName) {
             hideWindow();
         });
     }, 250);
+
+    // If window is taskWindow then load drop down list of all current backlogs in the project
+    var note = $(".note[data-type='1']");
+    var backloglist = document.getElementById("ddlTaskBacklog");
+    backloglist.innerHTML = "";
+    for (var i = 0; i < note.length; i++) {
+        var id = note[i].getAttribute("data-id");
+        var content = id + " - " + note[i].getElementsByClassName("note-content")[0].innerHTML;
+        backloglist.innerHTML += "<option value='" + id + "'>" + content + "</option>";
+    }
 }
 
 // Hide Add backlog/task window
@@ -44,13 +56,15 @@ function hideWindow() {
 
 // Show error diaglog  - content taken from an array based on parameter
 var errorMsg = ["Cannot drop that item because it is not the same type with the items in column."];
+
 function showErrorDialog(i) {
     $(".diaglog.error .content-holder").text(errorMsg[i]);
     $(".diaglog.error").addClass("show");
 }
 
 // Show success diaglog - content taken from an array based on parameter
-var successMsg = ["New backlog created", "Data updated"];
+var successMsg = ["New item created", "Data updated"];
+
 function showSuccessDiaglog(i) {
     $(".diaglog.success .title-bar").text("Success");
     $(".diaglog.success .content-holder").text(successMsg[i]);
@@ -121,31 +135,33 @@ $(document).ready(function () {
     }).disableSelection();
 });
 
+/* Class: Backlog */
+function Backlog() {
+    this.Project_ID = $("#txtProjectID").val();
+    this.Swimlane_ID = $("#txtSwimlaneID").val();
+    this.Title = $("#txtBacklogTitle").val();
+    this.Description = $("#txtBacklogDescription").val();
+    this.Complexity = $("#ddlBacklogComplexity").val();
+    this.Color = $("#ddlBacklogColor").val();
+}
+
+/* Class: Task */
+function Task() {
+    this.Project_ID = $("#txtProjectID").val();
+    this.Swimlane_ID = $("#txtSwimlaneID").val();
+    this.Backlog_ID = $("#ddlTaskBacklog").val();
+    this.Title = $("#txtTaskTitle").val();
+    this.Description = $("#txtTaskDescription").val();
+    this.Work_estimation = $("#txtTaskWorkEstimation").val();
+    this.Color = $("#ddlTaskColor").val();
+    this.Due_date = formatDate($("#txtTaskDueDate").val());
+    //this.Due_date = $("#txtTaskDueDate").val();
+}
+
+
 /*1. Create new sticky note and save it to database*/
 function insertItem(type) {
-    var item;
-    if (type == "backlog") {
-        item = {
-            Project_ID: $("#txtProjectID").val(),
-            Swimlane_ID: $("#txtSwimlaneID").val(),
-            Title: $("#txtBacklogTitle").val(),
-            Description: $("#txtBacklogDescription").val(),
-            Complexity: $("#ddlBacklogComplexity").val(),
-            Color: $("#ddlBacklogColor").val(),
-            Position: $("#txtNoteIndex").val()
-        };
-    }
-    else {
-        item = {
-            Project_ID: $("#txtProjectID").val(),
-            Swimlane_ID: $("#txtSwimlaneID").val(),
-            Title: $("#txtBacklogTitle").val(),
-            Description: $("#txtBacklogDescription").val(),
-            Complexity: $("#ddlBacklogComplexity").val(),
-            Color: $("#ddlBacklogColor").val(),
-            Position: $("#txtNoteIndex").val()
-        };
-    }
+    var item = (type == "backlog")? new Backlog(): new Task();
 
     $.ajax({
         url: "Handler.ashx",
@@ -157,12 +173,10 @@ function insertItem(type) {
         global: false,
         type: "post",
         success: function (result) {
-            console.log(result);
             saveAssignee(result, type);
             var objtext = getVisualNote(result, type, item.Swimlane_ID, item.Title, item.Color);
             var swimlanePosition = parseInt($("#txtSwimlanePosition").val());
             $(objtext).appendTo($(".connected")[swimlanePosition]);
-            $("#txtNoteIndex").val(parseInt(item.Position) + 1);
             showSuccessDiaglog(0);
             clearBacklogWindow();
         }
@@ -193,8 +207,8 @@ function showInsertWindow(windowName, i, swimlaneID) {
         $("#" + windowName + " .btnSave").val("Add").attr("onclick", "insertItem('task')");
     }
 
+    // Store swimlame position so that we can add new sticky note into correct column
     $("#txtSwimlanePosition").val(i);
-    $("#txtNoteIndex").val($(".connected")[i].getElementsByClassName("note").length);
     $("#txtSwimlaneID").val(swimlaneID);
 }
 
@@ -312,8 +326,9 @@ function searchAssignee(searchBox, type) {
                 success: function (result) {
                     var searchResult = document.getElementById("assigneeSearchResult");
                     searchResult.style.display = "block";
-                    searchResult.style.top = searchBox.style.top + 120;
-                    searchResult.style.left = searchBox.style.left;
+                    var pos = searchBox.getBoundingClientRect();
+                    searchResult.style.top = pos.top + 30;
+                    searchResult.style.left = pos.left;
                     searchResult.innerHTML = result;
                 }
             });
@@ -345,14 +360,13 @@ function clearResult(obj) {
     }, 250);
 }
 
-
 /*4. Double click on note to open corresponding window that allow user to edit content*/
 function viewDetailNote(itemID, type) {
     showProcessingDiaglog(0);
     showWindow(type + "Window");
     $("#" + type + "Window .title-bar").html("Edit " + type + " item");
     var btnSave = $("#" + type + "Window .btnSave");
-    $(btnSave).val("Save").attr("onclick", "saveItem("+itemID+",'"+type+"')");
+    $(btnSave).val("Save").attr("onclick", "saveItem(" + itemID + ",'" + type + "')");
 
     //Get all data of that item
     $.ajax({
@@ -375,6 +389,23 @@ function viewDetailNote(itemID, type) {
     viewAssignee(itemID, type);
 }
 
+//
+function parseJSONDate(jsonDate) {
+    var y = jsonDate.substr(0, 4);
+    var m = jsonDate.substr(5, 2);
+    var d = jsonDate.substr(8, 2);
+    return d+"."+m+"."+y;
+}
+
+//
+function formatDate(date) {
+    var d = date.substr(0, 2);
+    var m = date.substr(3, 2);
+    var y = date.substr(6, 4);
+    return d+"/"+m+"/"+y;
+}
+
+
 /*4.1.1 Display detail backlog */
 function displayBacklogDetail(data) {
     $("#txtSwimlaneID").val(data.Swimlane_ID);
@@ -382,18 +413,28 @@ function displayBacklogDetail(data) {
     $("#txtBacklogDescription").val(data.Description);
     $("#ddlBacklogComplexity").val(data.Complexity);
     $("#ddlBacklogColor").val(data.Color);
+    $("#txtBacklogStart").val(data.Start_date);
+    $("#txtBacklogComplete").val(data.Completion_date);
 }
 
 /*4.1.2 Clear backlog window */
 function clearBacklogWindow() {
     $("#backlogWindow .inputbox").val("");
     $("#backlogWindow textarea").val("");
+    $("#backlogWindow #ddlBacklogComplexity").val("1");
     $("#backlogWindow .assignee-name-active").remove();
 }
 
 /*4.2.1 Display detail task */
 function displayTaskDetail(data) {
-
+    $("#txtSwimlaneID").val(data.Swimlane_ID);
+    $("#txtTaskTitle").val(data.Title);
+    $("#txtTaskDescription").val(data.Description);
+    $("#ddlTaskBacklog").val(data.Backlog_ID);
+    $("#ddlTaskWorkEstimation").val(data.Work_estimation);
+    $("#ddlTaskColor").val(data.Color);
+    $("#txtTaskDueDate").val(parseJSONDate(data.Due_date));
+    $("#txtTaskCompletionDate").val(data.Completion_date);
 }
 
 /*4.2.2 Clear task Window */
@@ -405,29 +446,7 @@ function clearTaskWindow() {
 
 /*5 Save changes of the current backlog item to database*/
 function saveItem(itemID, type) {
-    var item;
-    if (type == "backlog") {
-        item = {
-            Project_ID: $("#txtProjectID").val(),
-            Swimlane_ID: $("#txtSwimlaneID").val(),
-            Title: $("#txtBacklogTitle").val(),
-            Description: $("#txtBacklogDescription").val(),
-            Complexity: $("#ddlBacklogComplexity").val(),
-            Color: $("#ddlBacklogColor").val(),
-            Position: ""
-        };
-    }
-    else {
-        item = {
-            Project_ID: $("#txtProjectID").val(),
-            Swimlane_ID: $("#txtSwimlaneID").val(),
-            Title: $("#txtBacklogTitle").val(),
-            Description: $("#txtBacklogDescription").val(),
-            Complexity: $("#ddlBacklogComplexity").val(),
-            Color: $("#ddlBacklogColor").val(),
-            Position: ""
-        };
-    }
+    var item = (type == "backlog") ? new Backlog() : new Task();
 
     $.ajax({
         url: "Handler.ashx",
@@ -440,7 +459,7 @@ function saveItem(itemID, type) {
         global: false,
         type: "post",
         success: function (result) {
-            var note = document.getElementById(type+"." + itemID);
+            var note = document.getElementById(type + "." + itemID);
             var header = note.getElementsByClassName("note-header")[0];
             header.style.background = item.Color.substr(0, 7);
             var content = note.getElementsByClassName("note-content")[0];

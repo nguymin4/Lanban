@@ -46,6 +46,9 @@
     </div>
     <!-- End - The window for Board layout  -->
 
+    <!-- Box display search result of assignee for an item by name -->
+    <div id="assigneeSearchResult"></div>
+
     <!-- Start - Backlog item window-->
     <div id="backlogWindow" class="window view">
         <div class="title-bar">Add backlog item</div>
@@ -58,7 +61,7 @@
                     <input type="text" id="txtbacklogAssignee" class="inputAssignee" autocomplete="off"
                         onkeyup="searchAssignee(this, 'backlog')" onblur="clearResult(this)" />
                 </div>
-                <div id="assigneeSearchResult"></div>
+                
                 <br />
                 Description:
                 <asp:TextBox CssClass="inputDescription inputBox" runat="server" TextMode="MultiLine" ID="txtBacklogDescription"></asp:TextBox>
@@ -79,8 +82,8 @@
                         <td><asp:TextBox runat="server" ID="txtBacklogStart" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
                     </tr>
                     <tr>
-                        <td>End date:</td>
-                        <td><asp:TextBox runat="server" ID="txtBacklogEnd" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
+                        <td>Completion date:</td>
+                        <td><asp:TextBox runat="server" ID="txtBacklogComplete" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
                     </tr>
                     <tr>
                         <td></td>
@@ -99,6 +102,51 @@
     <div id="taskWindow" class="window view">
         <div class="title-bar">Add new task</div>
         <div class="window-content">
+            <div class="panelAdd-left">
+                Title:
+                <asp:TextBox CssClass="inputTitle inputBox" runat="server" ID="txtTaskTitle"></asp:TextBox>
+                Assignee:
+                <div id="taskAssign" class="boxAssign" onclick="$('#txttaskAssignee').trigger('focus')">
+                    <input type="text" id="txttaskAssignee" class="inputAssignee" autocomplete="off"
+                        onkeyup="searchAssignee(this, 'task')" onblur="clearResult(this)" />
+                </div>
+                <br />
+                Description:
+                <asp:TextBox CssClass="inputDescription inputBox" runat="server" TextMode="MultiLine" ID="txtTaskDescription"></asp:TextBox>
+            </div>
+            <div class="panelAdd-right">
+                <table class="tblAddData">
+                    <tr>
+                        <td>Backlog:</td>
+                        <td><asp:DropDownList runat="server" ID="ddlTaskBacklog" Width="98%"></asp:DropDownList></td>
+                    </tr>
+                    <tr>
+                        <td>Work estimation:</td>
+                        <td><asp:TextBox CssClass="inputBox" runat="server" ID="txtTaskWorkEstimation"></asp:TextBox></td>
+                    </tr>
+                    <tr>
+                        <td>Color:</td>
+                        <td><asp:DropDownList runat="server" ID="ddlTaskColor" Width="70"></asp:DropDownList></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Due date:<br />(dd.mm.yyyy)
+                        </td>
+                        <td><asp:TextBox runat="server" ID="txtTaskDueDate" CssClass="inputBox"></asp:TextBox></td>
+                    </tr>
+                    <tr>
+                        <td>Completion date:</td>
+                        <td><asp:TextBox runat="server" ID="txtCompletionDate" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <input type="button" class="button medium btnSave" value="Add" onclick="insertItem('task')" />
+                            <input type="button" class="button medium btnCancel" value="Close" onclick="hideWindow('taskWindow')" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
     <!-- End - Task window  -->
@@ -124,5 +172,4 @@
     <asp:TextBox runat="server" ID="txtProjectID" CssClass="hidden"></asp:TextBox>
     <asp:TextBox runat="server" ID="txtSwimlaneID" CssClass="hidden"></asp:TextBox>
     <asp:TextBox runat="server" ID="txtSwimlanePosition" CssClass="hidden"></asp:TextBox>
-    <asp:TextBox runat="server" ID="txtNoteIndex" CssClass="hidden"></asp:TextBox>
 </asp:Content>

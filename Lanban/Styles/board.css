@@ -27,9 +27,6 @@
         vertical-align: top;
     }
 
-.connected {
-    height: 500px;
-}
 
 /*Note*/
 .note {
@@ -74,10 +71,10 @@ span.item-id {
     transition: 0.25s ease;
 }
 
-.note-button:hover {
-    width: 26px;
-    height: 26px;
-}
+    .note-button:hover {
+        width: 26px;
+        height: 26px;
+    }
 
 
 /*btnAddItem*/
@@ -217,8 +214,13 @@ div.assignee-name-active {
     }
 
     .tblAddData select {
-        vertical-align: top;
-        height: 25px;
-        line-height: 25px;
-        width: 40px;
+        height: 30px;
+        min-width: 200px;
+        padding: 2px 5px;
+        border-top-left-radius: 6px;
+        border-bottom-left-radius: 6px;
+        border: solid 1px rgb(128, 128, 128);
+        color: gray;
+        font-size: 15px;
+        margin-bottom: 20px;
     }

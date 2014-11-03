@@ -56,7 +56,7 @@ namespace Lanban
                     else
                     {
                         Task task = JsonConvert.DeserializeObject<Task>(param["item"]);
-                        result = myQuery.insertNewBacklog(task.getStringArray());
+                        result = myQuery.insertNewTask(task.getStringArray());
                     }
                     break;
                 
@@ -67,7 +67,7 @@ namespace Lanban
                     break;
                 
                 // Update an item
-                case "saveItem":
+                case "updateItem":
                     if (param["type"].Equals("backlog"))
                     {
                         Backlog backlog = JsonConvert.DeserializeObject<Backlog>(param["item"]);
@@ -133,12 +133,11 @@ class Backlog
     public string Description { get; set; }
     public string Complexity { get; set; }
     public string Color { get; set; }
-    public string Position { get; set; }
 
     public string[] getStringArray()
     {
         string[] result = {this.Project_ID, this.Swimlane_ID, this.Title, this.Description, 
-                             this.Complexity, this.Color, this.Position};
+                             this.Complexity, this.Color};
         return result;
     }
 }
@@ -147,17 +146,17 @@ class Task
 {
     public string Project_ID { get; set; }
     public string Swimlane_ID { get; set; }
+    public string Backlog_ID { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
-    public string Backlog_ID { get; set; }
     public string Work_estimation { get; set; }
     public string Color { get; set; }
-    public string Position { get; set; }
+    public string Due_date { get; set; }
 
     public string[] getStringArray()
     {
-        string[] result = {this.Project_ID, this.Swimlane_ID, this.Title, this.Description, 
-                             this.Color, this.Position};
+        string[] result = {this.Project_ID, this.Swimlane_ID, this.Backlog_ID, this.Title, this.Description, 
+                             this.Work_estimation, this.Color, this.Due_date};
         return result;
     }
 }

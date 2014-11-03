@@ -7,6 +7,7 @@ using System.Data;
 using System.Text;
 using System.Web.UI;
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace Lanban
 {
@@ -84,29 +85,49 @@ namespace Lanban
             }
             return result.ToString();
         }
-        
+
         //2.2.1 Insert new backlog
         public string insertNewBacklog(string[] data)
         {
-            string result;
             StringBuilder command = new StringBuilder("INSERT INTO Backlog (Project_ID, Swimlane_ID," +
-               "Title, Description, Complexity, Color, [Position]) VALUES (");
-            for (int i = 0; i < data.Length - 1; i++)
+               "Title, Description, Complexity, Color, [Position], Status) VALUES (");
+            for (int i = 0; i < data.Length; i++)
                 command.Append("'" + data[i] + "',");
 
-            command.Append("'" + data[data.Length - 1] + "')");
+            // The new position is the current number of item
+            command.Append(countItem(data[1], "Backlog") + ",");
+
+            // The status is based on the data status in swimlane
+            command.Append("'" + getDataStatus(data[1]) + "')");
             myCommand.CommandText = command.ToString();
             myCommand.ExecuteNonQuery();
+
+            // Get the ID just inserted -- Change later with @@SCOPE_IDENTITY in SQL SERVER
             myCommand.CommandText = "SELECT MAX(Backlog_ID) FROM Backlog";
-            result = myCommand.ExecuteScalar().ToString();
-            return result;
+            string id = myCommand.ExecuteScalar().ToString();
+            return id;
         }
 
         //2.2.2 Insert new task
         public string insertNewTask(string[] data)
         {
-            string result = "";
-            return result;
+            StringBuilder command = new StringBuilder("INSERT INTO Task (Project_ID, Swimlane_ID, Backlog_ID, " +
+               "Title, Description, Work_estimation, Color, [Position], Status) VALUES (");
+            for (int i = 0; i < data.Length - 1; i++)
+                command.Append("'" + data[i] + "',");
+
+            // The new position is the current number of item
+            command.Append(countItem(data[1], "Task") + ",");
+
+            // The status is based on the data status in swimlane
+            command.Append("'" + getDataStatus(data[1]) + "')");
+            myCommand.CommandText = command.ToString();
+            myCommand.ExecuteNonQuery();
+
+            // Get the ID just inserted -- Change later with @@SCOPE_IDENTITY in SQL SERVER
+            myCommand.CommandText = "SELECT MAX(Task_ID) FROM Task";
+            string id = myCommand.ExecuteScalar().ToString();
+            return id;
         }
 
         //2.3.1 Save editted data of a backlog
@@ -114,18 +135,28 @@ namespace Lanban
         {
             StringBuilder command = new StringBuilder("UPDATE Backlog SET ");
             command.Append("Title='").Append(data[2]).Append("', ");
-            command.Append("Title='").Append(data[3]).Append("', ");
-            command.Append("Title='").Append(data[4]).Append("', ");
-            command.Append("Title='").Append(data[5]).Append("' ");
+            command.Append("Description='").Append(data[3]).Append("', ");
+            command.Append("Complexity='").Append(data[4]).Append("', ");
+            command.Append("Color='").Append(data[5]).Append("' ");
             command.Append("WHERE Backlog_ID=").Append(id);
             myCommand.CommandText = command.ToString();
             myCommand.ExecuteNonQuery();
         }
-        
+
         //2.3.2 save editted data of a task
         public void updateTask(string id, string[] data)
         {
-
+            StringBuilder command = new StringBuilder("UPDATE Task SET ");
+            command.Append("Backlog_ID='").Append(data[2]).Append("', ");
+            command.Append("Title='").Append(data[3]).Append("', ");
+            command.Append("Description='").Append(data[4]).Append("', ");
+            command.Append("Work_estimation='").Append(data[5]).Append("', ");
+            command.Append("Color='").Append(data[6]).Append("', ");
+            //command.Append("Due_date= CONVERT(DATETIME, '").Append(data[7]).Append("', 104) ");
+            command.Append("Due_date='#").Append(data[7]).Append("#' ");
+            command.Append("WHERE Task_ID=").Append(id);
+            myCommand.CommandText = command.ToString();
+            myCommand.ExecuteNonQuery();
         }
 
         //2.4 Delete an item
@@ -133,7 +164,7 @@ namespace Lanban
         {
             myCommand.CommandText = "DELETE FROM " + type + " WHERE " + type + "_ID=" + id;
             myCommand.ExecuteNonQuery();
-            
+
             //Cascade deleting
             deleteAssignee(id, type);
         }
@@ -148,7 +179,10 @@ namespace Lanban
         //2.5.2 Change swimlane of sticky note
         public void changeSwimlane(string id, string pos, string table, string swimlane_id)
         {
-            myCommand.CommandText = "UPDATE " + table + " SET Swimlane_ID=" + swimlane_id + ", [Position]=" + pos + "  WHERE " + table + "_ID=" + id;
+            string status = getDataStatus(swimlane_id);
+            myCommand.CommandText = "UPDATE " + table + " SET " +
+                                    "Swimlane_ID=" + swimlane_id + ", [Position]=" + pos + ", Status='" + status +
+                                    "' WHERE " + table + "_ID=" + id;
             myCommand.ExecuteNonQuery();
         }
 
@@ -223,6 +257,20 @@ namespace Lanban
         {
             string display = "<div class='resultline' data-id='" + ID + "' onclick=\"addAssignee(this,'" + type + "')\">" + name + "</div>";
             return display;
+        }
+
+        //a.2 Get Data_status field of a swimlane in Swimlane table
+        protected string getDataStatus(string swimlane_id)
+        {
+            myCommand.CommandText = "SELECT Data_status FROM Swimlane WHERE Swimlane_ID=" + swimlane_id;
+            return myCommand.ExecuteScalar().ToString();
+        }
+
+        //a.3 Get number of item in a swimlane
+        protected string countItem(string swimlane_id, string type)
+        {
+            myCommand.CommandText = "SELECT COUNT(*) FROM " + type + " WHERE Swimlane_ID=" + swimlane_id;
+            return myCommand.ExecuteScalar().ToString();
         }
     }
 }

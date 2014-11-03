@@ -11,7 +11,6 @@ namespace Lanban
     /// </summary>
     public class Handler : IHttpAsyncHandler
     {
-        
         public bool IsReusable { get { return false; } }
 
         public IAsyncResult BeginProcessRequest(HttpContext context, AsyncCallback callback, Object state)

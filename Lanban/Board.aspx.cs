@@ -156,22 +156,27 @@ namespace Lanban
         }
 
         //2. Init dropdown list value
-        string[] colorText = { "red", "orange", "yellow", "green", "cyan", "blue", "purple"};
+        string[] colorText = { "Red", "Orange", "Yellow", "Green", "Cyan", "Blue", "Purple"};
         string[,] colorHex = {
                                 {"#ff9898", "#ffc864", "#ffff95", "#98ff98", "#caffff", "#adadff", "#d598ff" },
                                 { "#ff4b4b", "#ffa500", "#ffff4b", "#4bff4b", "#80ffff", "#6464ff", "#b64bff" }
                              };
+
         protected void initDropdownList()
         {
             //Dropdown list Complexity - Backlog
-            for (int i = 1; i < 10; i++)
+            for (int i = 1; i <= 10; i++)
                 ddlBacklogComplexity.Items.Add(new ListItem(i.ToString(), i.ToString()));
             ddlBacklogComplexity.SelectedIndex = 0;
 
-            //Dropdown list Color - Backlog
+            //Dropdown list Color - Backlog and Task
             for (int i = 0; i < colorText.Length; i++)
-                ddlBacklogColor.Items.Add(new ListItem(colorText[i], colorHex[0,i]+"."+colorHex[1,i]));
+            {
+                ddlBacklogColor.Items.Add(new ListItem(colorText[i], colorHex[0, i] + "." + colorHex[1, i]));
+                ddlTaskColor.Items.Add(new ListItem(colorText[i], colorHex[0, i] + "." + colorHex[1, i]));
+            }
             ddlBacklogColor.SelectedIndex = 0;
+            ddlTaskColor.SelectedIndex = 0;
         }
     }
 }
