@@ -36,38 +36,40 @@ namespace Lanban
             myConnection.Open();
         }
 
-        public void Dispose()
+        // Add parameter for myCommand
+        protected void addParameter<T>(string parameter, OleDbType type, T value)
         {
-            myConnection.Close();
-            myDataSet.Dispose();
-            myAdapter.Dispose();
-            myCommand.Dispose();
-            myConnection.Dispose();
+            myCommand.Parameters.Add(parameter, type);
+            myCommand.Parameters[parameter].Value = value;
         }
-
 
         //2. Methods
         //2.1 Query data
         public void fetchSwimlane(int projectID)
         {
             //Retrieve Swimlane data
-            myCommand.CommandText = "SELECT * FROM Swimlane WHERE Project_ID=" + projectID;
+            myCommand.CommandText = "SELECT * FROM Swimlane WHERE Project_ID=@projectID ORDER BY [Position]";
+            addParameter<int>("@projectID", OleDbType.Integer, projectID);
             myAdapter.Fill(myDataSet, "Swimlane");
-            myDataSet.Tables["Swimlane"].DefaultView.Sort = "Position";
+            myCommand.Parameters.Clear();
         }
 
         //Fill dataset with data from either Task table or Backlog table based on parameter
         public void fetchNote(string tableName, int projectID, int swimlaneID)
         {
-            myCommand.CommandText = "SELECT * FROM " + tableName + " WHERE Project_ID=" + projectID + " AND Swimlane_ID=" + swimlaneID + " ORDER BY [Position]";
+            myCommand.CommandText = "SELECT * FROM " + tableName + " WHERE Project_ID=@projectID AND Swimlane_ID=@swimlaneID ORDER BY [Position]";
+            addParameter<int>("@projectID", OleDbType.Integer, projectID);
+            addParameter<int>("@swimlaneID", OleDbType.Integer, swimlaneID);
             myAdapter.Fill(myDataSet, tableName);
+            myCommand.Parameters.Clear();
         }
 
         //Get all information of an item based on it
         public string viewItem(string id, string type)
         {
             StringBuilder result = new StringBuilder();
-            myCommand.CommandText = "SELECT * FROM " + type + " WHERE " + type + "_ID=" + id;
+            myCommand.CommandText = "SELECT * FROM " + type + " WHERE " + type + "_ID=@id";
+            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
             myReader = myCommand.ExecuteReader();
             bool available = myReader.Read();
             if (available == false) result.Append("");
@@ -83,25 +85,27 @@ namespace Lanban
                 }
                 myWriter.WriteEndObject();
             }
+            myCommand.Parameters.Clear();
             return result.ToString();
         }
 
         //2.2.1 Insert new backlog
-        public string insertNewBacklog(string[] data)
+        public string insertNewBacklog(Backlog backlog)
         {
-            StringBuilder command = new StringBuilder("INSERT INTO Backlog (Project_ID, Swimlane_ID," +
-               "Title, Description, Complexity, Color, [Position], Status) VALUES (");
-            for (int i = 0; i < data.Length; i++)
-                command.Append("'" + data[i] + "',");
-
-            // The new position is the current number of item
-            command.Append(countItem(data[1], "Backlog") + ",");
-
-            // The status is based on the data status in swimlane
-            command.Append("'" + getDataStatus(data[1]) + "')");
+            StringBuilder command = new StringBuilder();
+            command.Append("INSERT INTO Backlog (Project_ID, Swimlane_ID, Title, Description, Complexity, Color, [Position], Status) ");
+            command.Append("VALUES (@Project_ID, @Swimlane_ID, @Title, @Description, @Complexity, @Color, @Position, @Status)");
+            addParameter<int>("@Project_ID", OleDbType.Integer, backlog.Project_ID);
+            addParameter<int>("@Swimlane_ID", OleDbType.Integer, backlog.Swimlane_ID);
+            addParameter<string>("@Title", OleDbType.LongVarChar, backlog.Title);
+            addParameter<string>("@Description", OleDbType.LongVarChar, backlog.Description);
+            addParameter<int>("@Complexity", OleDbType.Integer, backlog.Complexity);
+            addParameter<string>("@Color", OleDbType.VarChar, backlog.Color);
+            addParameter<int>("@Position", OleDbType.VarChar, countItem(backlog.Swimlane_ID, "Task"));
+            addParameter<string>("@Status", OleDbType.VarChar, getDataStatus(backlog.Swimlane_ID.ToString()));
             myCommand.CommandText = command.ToString();
             myCommand.ExecuteNonQuery();
-
+            myCommand.Parameters.Clear();
             // Get the ID just inserted -- Change later with @@SCOPE_IDENTITY in SQL SERVER
             myCommand.CommandText = "SELECT MAX(Backlog_ID) FROM Backlog";
             string id = myCommand.ExecuteScalar().ToString();
@@ -109,21 +113,28 @@ namespace Lanban
         }
 
         //2.2.2 Insert new task
-        public string insertNewTask(string[] data)
+        public string insertNewTask(Task task)
         {
-            StringBuilder command = new StringBuilder("INSERT INTO Task (Project_ID, Swimlane_ID, Backlog_ID, " +
-               "Title, Description, Work_estimation, Color, [Position], Status) VALUES (");
-            for (int i = 0; i < data.Length - 1; i++)
-                command.Append("'" + data[i] + "',");
+            StringBuilder command = new StringBuilder();
+            command.Append("INSERT INTO Task (Project_ID, Swimlane_ID, Backlog_ID, Title, ");
+            command.Append("Description, Work_estimation, Color, [Position], Status, Due_date) ");
+            command.Append("VALUES (@Project_ID, @Swimlane_ID, @Backlog_ID, @Title, ");
+            command.Append("@Description, @Work_estimation, @Color, @Position, @Status, @Due_date)");
 
-            // The new position is the current number of item
-            command.Append(countItem(data[1], "Task") + ",");
-
-            // The status is based on the data status in swimlane
-            command.Append("'" + getDataStatus(data[1]) + "')");
+            addParameter<int>("@Project_ID", OleDbType.Integer, task.Project_ID);
+            addParameter<int>("@Swimlane_ID", OleDbType.Integer, task.Swimlane_ID);
+            addParameter<int>("@Backlog_ID", OleDbType.Integer, task.Backlog_ID);
+            addParameter<string>("@Title", OleDbType.LongVarChar, task.Title);
+            addParameter<string>("@Description", OleDbType.LongVarChar, task.Description);
+            addParameter<int>("@Work_estimation", OleDbType.Integer, task.Work_estimation);
+            addParameter<string>("@Color", OleDbType.VarChar, task.Color);
+            addParameter<int>("@Position", OleDbType.VarChar, countItem(task.Swimlane_ID, "Task"));
+            addParameter<string>("@Status", OleDbType.VarChar, getDataStatus(task.Swimlane_ID.ToString()));
+            addParameter<DateTime>("@Due_date", OleDbType.DBDate, DateTime.ParseExact(task.Due_date, "dd.MM.yyyy", null));
+            
             myCommand.CommandText = command.ToString();
             myCommand.ExecuteNonQuery();
-
+            myCommand.Parameters.Clear();
             // Get the ID just inserted -- Change later with @@SCOPE_IDENTITY in SQL SERVER
             myCommand.CommandText = "SELECT MAX(Task_ID) FROM Task";
             string id = myCommand.ExecuteScalar().ToString();
@@ -131,40 +142,48 @@ namespace Lanban
         }
 
         //2.3.1 Save editted data of a backlog
-        public void updateBacklog(string id, string[] data)
+        public void updateBacklog(string id, Backlog backlog)
         {
-            StringBuilder command = new StringBuilder("UPDATE Backlog SET ");
-            command.Append("Title='").Append(data[2]).Append("', ");
-            command.Append("Description='").Append(data[3]).Append("', ");
-            command.Append("Complexity='").Append(data[4]).Append("', ");
-            command.Append("Color='").Append(data[5]).Append("' ");
-            command.Append("WHERE Backlog_ID=").Append(id);
-            myCommand.CommandText = command.ToString();
+            string command = "UPDATE Backlog SET Title=@Title, Description=@Description, " +
+                "Complexity=@Complexity, Color=@Color WHERE Backlog_ID=@Backlog_ID";
+
+            addParameter<string>("@Title", OleDbType.LongVarChar, backlog.Title);
+            addParameter<string>("@Description", OleDbType.LongVarChar, backlog.Description);
+            addParameter<int>("@Complexity", OleDbType.Integer, backlog.Complexity);
+            addParameter<string>("@Color", OleDbType.VarChar, backlog.Color);
+            addParameter("@Backlog_ID", OleDbType.Integer, Convert.ToInt32(id));
+
+            myCommand.CommandText = command;
             myCommand.ExecuteNonQuery();
+            myCommand.Parameters.Clear();
         }
 
         //2.3.2 save editted data of a task
-        public void updateTask(string id, string[] data)
+        public void updateTask(string id, Task task)
         {
-            StringBuilder command = new StringBuilder("UPDATE Task SET ");
-            command.Append("Backlog_ID='").Append(data[2]).Append("', ");
-            command.Append("Title='").Append(data[3]).Append("', ");
-            command.Append("Description='").Append(data[4]).Append("', ");
-            command.Append("Work_estimation='").Append(data[5]).Append("', ");
-            command.Append("Color='").Append(data[6]).Append("', ");
-            //command.Append("Due_date= CONVERT(DATETIME, '").Append(data[7]).Append("', 104) ");
-            command.Append("Due_date='#").Append(data[7]).Append("#' ");
-            command.Append("WHERE Task_ID=").Append(id);
-            myCommand.CommandText = command.ToString();
+            string command = "UPDATE Task SET Backlog_ID=@Backlog_ID, Title=@Title, Description=@Description, " +
+                "Work_estimation=@Work_estimation, Color=@Color, Due_date=@Due_date WHERE Task_ID=@Task_ID";
+            
+            addParameter<int>("@Backlog_ID", OleDbType.Integer, task.Backlog_ID);
+            addParameter<string>("@Title", OleDbType.LongVarChar, task.Title);
+            addParameter<string>("@Description", OleDbType.LongVarChar, task.Description);
+            addParameter<int>("@Work_estimation", OleDbType.Integer, task.Work_estimation);
+            addParameter<string>("@Color", OleDbType.VarChar, task.Color);
+            addParameter<DateTime>("@Due_date", OleDbType.DBDate, DateTime.ParseExact(task.Due_date, "dd.MM.yyyy", null));
+            addParameter("@Task_ID", OleDbType.Integer, Convert.ToInt32(id));
+
+            myCommand.CommandText = command;
             myCommand.ExecuteNonQuery();
+            myCommand.Parameters.Clear();
         }
 
         //2.4 Delete an item
         public void deleteItem(string id, string type)
         {
-            myCommand.CommandText = "DELETE FROM " + type + " WHERE " + type + "_ID=" + id;
+            myCommand.CommandText = "DELETE FROM " + type + " WHERE " + type + "_ID=@id";
+            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
             myCommand.ExecuteNonQuery();
-
+            myCommand.Parameters.Clear();
             //Cascade deleting
             deleteAssignee(id, type);
         }
@@ -172,41 +191,54 @@ namespace Lanban
         //2.5.1 Update position of sticky note
         public void updatePosition(string id, string pos, string table)
         {
-            myCommand.CommandText = "UPDATE " + table + " SET [Position]=" + pos + "  WHERE " + table + "_ID=" + id;
+            myCommand.CommandText = "UPDATE " + table + " SET [Position]=@Position  WHERE " + table + "_ID=@id";
+            addParameter<int>("@Position", OleDbType.Integer, Convert.ToInt32(pos));
+            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
             myCommand.ExecuteNonQuery();
+            myCommand.Parameters.Clear();
         }
 
         //2.5.2 Change swimlane of sticky note
         public void changeSwimlane(string id, string pos, string table, string swimlane_id)
         {
             string status = getDataStatus(swimlane_id);
-            myCommand.CommandText = "UPDATE " + table + " SET " +
-                                    "Swimlane_ID=" + swimlane_id + ", [Position]=" + pos + ", Status='" + status +
-                                    "' WHERE " + table + "_ID=" + id;
+            myCommand.CommandText = "UPDATE " + table + " SET Swimlane_ID= @Swimlane_ID, [Position]=@Position, Status=@Status WHERE " + table + "_ID=@id";
+            addParameter<int>("@Swimlane_ID", OleDbType.Integer, Convert.ToInt32(swimlane_id));
+            addParameter<int>("@Position", OleDbType.Integer, Convert.ToInt32(pos));
+            addParameter<string>("@Status", OleDbType.VarChar, getDataStatus(swimlane_id));
+            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
             myCommand.ExecuteNonQuery();
+            myCommand.Parameters.Clear();
         }
 
         //2.6.1 Save assignee of a task or backlog
         public void saveAssignee(string id, string type, string uid, string name)
         {
             myCommand.CommandText = "INSERT INTO " + type + "_User (" + type + "_ID, User_ID, [Name])" +
-                " VALUES (" + id + "," + uid + ",'" + name + "');";
+                " VALUES (@id, @uid, @name)";
+            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
+            addParameter<int>("@uid", OleDbType.Integer, Convert.ToInt32(uid));
+            addParameter<string>("@name", OleDbType.Integer, name);
             myCommand.ExecuteNonQuery();
+            myCommand.Parameters.Clear();
         }
 
         //2.6.2 Delete all assignee of a task or backlog
         public void deleteAssignee(string id, string type)
         {
-            myCommand.CommandText = "DELETE FROM " + type + "_User WHERE " + type + "_ID=" + id;
+            myCommand.CommandText = "DELETE FROM " + type + "_User WHERE " + type + "_ID=@id";
+            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
             myCommand.ExecuteNonQuery();
+            myCommand.Parameters.Clear();
         }
 
         //2.7 View assignee of a task or backlog
         public string viewAssignee(string id, string type)
         {
-            myCommand.CommandText = "SELECT * FROM " + type + "_User WHERE " + type + "_ID=" + id;
+            myCommand.CommandText = "SELECT * FROM " + type + "_User WHERE " + type + "_ID=@id";
+            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
+            
             StringBuilder result = new StringBuilder();
-
             myReader = myCommand.ExecuteReader();
             bool available = myReader.Read();
             if (available == false) result.Append("");
@@ -219,6 +251,7 @@ namespace Lanban
                 }
             }
             myReader.Close();
+            myCommand.Parameters.Clear();
             return result.ToString();
         }
 
@@ -267,10 +300,10 @@ namespace Lanban
         }
 
         //a.3 Get number of item in a swimlane
-        protected string countItem(string swimlane_id, string type)
+        protected int countItem(int swimlane_id, string type)
         {
             myCommand.CommandText = "SELECT COUNT(*) FROM " + type + " WHERE Swimlane_ID=" + swimlane_id;
-            return myCommand.ExecuteScalar().ToString();
+            return Convert.ToInt32(myCommand.ExecuteScalar());
         }
     }
 }

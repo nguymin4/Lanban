@@ -154,8 +154,7 @@ function Task() {
     this.Description = $("#txtTaskDescription").val();
     this.Work_estimation = $("#txtTaskWorkEstimation").val();
     this.Color = $("#ddlTaskColor").val();
-    this.Due_date = formatDate($("#txtTaskDueDate").val());
-    //this.Due_date = $("#txtTaskDueDate").val();
+    this.Due_date = $("#txtTaskDueDate").val();
 }
 
 
@@ -187,7 +186,7 @@ function insertItem(type) {
 function getVisualNote(id, type, swimlane_id, title, color) {
     var objtext;
     var typeNum = (type == "backlog") ? 1 : 2;
-    objtext = "<div class='note' data-type='" + typeNum + "' id='" + type + "." + id + "' data-id='" + id + "' ondblclick=\"viewDetailNote('" + type + "'," + id + ")\">" +
+    objtext = "<div class='note' data-type='" + typeNum + "' id='" + type + "." + id + "' data-id='" + id + "' ondblclick=\"viewDetailNote(" + id + ",'" + type + "')\">" +
                 "<div class='note-header' style='background-color:" + color.substr(0, 7) + ";'>" +
                 "<span class='item-id'>" + id + "</span><img class='note-button' onclick=\"viewDetailNote(" + id + ",'" + type + "')\" src='images/sidebar/edit_note.png'>" +
                 "<img class='note-button' onclick='deleteItem(" + id + ",'" + type + "')' src='images/sidebar/delete_note.png'></div>" +
@@ -389,20 +388,12 @@ function viewDetailNote(itemID, type) {
     viewAssignee(itemID, type);
 }
 
-//
+// Format JSonDate to dd.mm.yyyy
 function parseJSONDate(jsonDate) {
     var y = jsonDate.substr(0, 4);
     var m = jsonDate.substr(5, 2);
     var d = jsonDate.substr(8, 2);
     return d+"."+m+"."+y;
-}
-
-//
-function formatDate(date) {
-    var d = date.substr(0, 2);
-    var m = date.substr(3, 2);
-    var y = date.substr(6, 4);
-    return d+"/"+m+"/"+y;
 }
 
 
@@ -431,7 +422,7 @@ function displayTaskDetail(data) {
     $("#txtTaskTitle").val(data.Title);
     $("#txtTaskDescription").val(data.Description);
     $("#ddlTaskBacklog").val(data.Backlog_ID);
-    $("#ddlTaskWorkEstimation").val(data.Work_estimation);
+    $("#txtTaskWorkEstimation").val(data.Work_estimation);
     $("#ddlTaskColor").val(data.Color);
     $("#txtTaskDueDate").val(parseJSONDate(data.Due_date));
     $("#txtTaskCompletionDate").val(data.Completion_date);

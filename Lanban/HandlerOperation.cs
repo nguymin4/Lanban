@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading;
-using System.Collections.Generic;
+using System.Collections;
 using System.Web;
 using System.Text;
 using Newtonsoft.Json;
@@ -51,12 +51,12 @@ namespace Lanban
                     if (param["type"].Equals("backlog"))
                     {
                         Backlog backlog = JsonConvert.DeserializeObject<Backlog>(param["item"]);
-                        result = myQuery.insertNewBacklog(backlog.getStringArray());
+                        result = myQuery.insertNewBacklog(backlog);
                     }
                     else
                     {
                         Task task = JsonConvert.DeserializeObject<Task>(param["item"]);
-                        result = myQuery.insertNewTask(task.getStringArray());
+                        result = myQuery.insertNewTask(task);
                     }
                     break;
                 
@@ -71,12 +71,12 @@ namespace Lanban
                     if (param["type"].Equals("backlog"))
                     {
                         Backlog backlog = JsonConvert.DeserializeObject<Backlog>(param["item"]);
-                        myQuery.updateBacklog(param["itemID"], backlog.getStringArray());
+                        myQuery.updateBacklog(param["itemID"], backlog);
                     }
                     else
                     {
                         Task task = JsonConvert.DeserializeObject<Task>(param["item"]);
-                        myQuery.updateTask(param["itemID"], task.getStringArray());
+                        myQuery.updateTask(param["itemID"], task);
                     }
                     break;
                 
@@ -117,46 +117,38 @@ namespace Lanban
                     myQuery.deleteAssignee(param["itemID"], param["type"]);
                     break;
             }
-            myQuery.Dispose();
             _context.Response.Write(result);
             _completed = true;
             _callback(this);
         }
     }
-}
 
-class Backlog
-{
-    public string Project_ID { get; set; }
-    public string Swimlane_ID { get; set; }
-    public string Title { get; set; }
-    public string Description { get; set; }
-    public string Complexity { get; set; }
-    public string Color { get; set; }
 
-    public string[] getStringArray()
+    public class Backlog
     {
-        string[] result = {this.Project_ID, this.Swimlane_ID, this.Title, this.Description, 
-                             this.Complexity, this.Color};
-        return result;
+        public int Project_ID { get; set; }
+        public int Swimlane_ID { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public int Complexity { get; set; }
+        public string Color { get; set; }
+
     }
-}
 
-class Task
-{
-    public string Project_ID { get; set; }
-    public string Swimlane_ID { get; set; }
-    public string Backlog_ID { get; set; }
-    public string Title { get; set; }
-    public string Description { get; set; }
-    public string Work_estimation { get; set; }
-    public string Color { get; set; }
-    public string Due_date { get; set; }
-
-    public string[] getStringArray()
+    public class Task
     {
-        string[] result = {this.Project_ID, this.Swimlane_ID, this.Backlog_ID, this.Title, this.Description, 
-                             this.Work_estimation, this.Color, this.Due_date};
-        return result;
+        public int Project_ID { get; set; }
+        public int Swimlane_ID { get; set; }
+        public int Backlog_ID { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public int Work_estimation { get; set; }
+        public string Color { get; set; }
+        public string Due_date { get; set; }
+
+        public Task()
+        {
+            this.Work_estimation = 0;
+        }
     }
 }
