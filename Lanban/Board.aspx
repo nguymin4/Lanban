@@ -3,6 +3,7 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="contentHead" runat="server">
     <script src="Scripts/board.js"></script>
     <link href="Styles/board.css" rel="stylesheet" />
+    <script src="Scripts/Chart.min.js"></script>
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="contentPanel" runat="server">
@@ -31,10 +32,43 @@
     <!-- End - Kanban board -->
 
     <!-- Start - Chart -->
-    <div class="window view">
+    <div id="chartWindow" class="window view">
         <div class="title-bar">Chart</div>
         <div class="window-content">
+            <canvas id="canvas" width="500" height="400"></canvas>
         </div>
+        <script>
+            var randomScalingFactor = function () { return Math.round(Math.random() * 10) };
+
+            var barChartData = {
+                labels: ["January", "February", "March", "April", "May", "June", "July"],
+                datasets: [
+                    {
+                        fillColor: "rgba(220,220,220,0.5)",
+                        strokeColor: "rgba(220,220,220,0.8)",
+                        highlightFill: "rgba(220,220,220,0.75)",
+                        highlightStroke: "rgba(220,220,220,1)",
+                        data: [randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor()]
+                    },
+                    {
+                        fillColor: "rgba(151,187,205,0.5)",
+                        strokeColor: "rgba(151,187,205,0.8)",
+                        highlightFill: "rgba(151,187,205,0.75)",
+                        highlightStroke: "rgba(151,187,205,1)",
+                        data: [randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor()]
+                    }
+                ]
+
+            }
+            $(document).ready(function () {
+                var ctx = document.getElementById("canvas").getContext("2d");
+                var myBarChart = new Chart(ctx).Bar(barChartData, {
+                    responsive: false,
+                    scaleFontColor: "#FFFFFF",
+                    scaleGridLineColor: "rgba(128, 128, 128, 0.2)"
+                });
+            });
+        </script>
     </div>
     <!-- End - Chart  -->
 
@@ -46,8 +80,7 @@
     </div>
     <!-- End - The window for Board layout  -->
 
-    <!-- Box display search result of assignee for an item by name -->
-    <div id="assigneeSearchResult"></div>
+    
 
     <!-- Start - Backlog item window-->
     <div id="backlogWindow" class="window view">
@@ -136,7 +169,7 @@
                     </tr>
                     <tr>
                         <td>Completion date:</td>
-                        <td><asp:TextBox runat="server" ID="txtCompletionDate" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
+                        <td><asp:TextBox runat="server" ID="txtTaskCompletionDate" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
                     </tr>
                     <tr>
                         <td></td>
@@ -169,6 +202,10 @@
         </div>
     </div>
 
+    <!-- Box display search result of assignee for an item by name -->
+    <div id="assigneeSearchResult"></div>
+
+    <!-- Hidden field to store some temporary data -->
     <asp:TextBox runat="server" ID="txtProjectID" CssClass="hidden"></asp:TextBox>
     <asp:TextBox runat="server" ID="txtSwimlaneID" CssClass="hidden"></asp:TextBox>
     <asp:TextBox runat="server" ID="txtSwimlanePosition" CssClass="hidden"></asp:TextBox>

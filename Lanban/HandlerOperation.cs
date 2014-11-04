@@ -142,13 +142,9 @@ namespace Lanban
         public int Backlog_ID { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public int Work_estimation { get; set; }
+        public Nullable<int> Work_estimation { get; set; }
         public string Color { get; set; }
         public string Due_date { get; set; }
 
-        public Task()
-        {
-            this.Work_estimation = 0;
-        }
     }
 }

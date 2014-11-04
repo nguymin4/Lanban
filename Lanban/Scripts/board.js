@@ -73,7 +73,7 @@ function showSuccessDiaglog(i) {
         $(".diaglog.success").addClass("show");
 }
 
-//Show processing message
+// Show processing message
 function showProcessingDiaglog() {
     $(".diaglog.success .title-bar").text("Processing");
     $(".diaglog.success .content-holder").text("In progress. Please wait.");
@@ -81,7 +81,7 @@ function showProcessingDiaglog() {
     $(".diaglog.success").addClass("show");
 }
 
-
+/*A. When document is ready*/
 $(document).ready(function () {
     /*Add customized scroll bar*/
     $(".window-content").perfectScrollbar({
@@ -100,7 +100,7 @@ $(document).ready(function () {
         receive: function (event, ui) {
             var type = this.getAttribute("data-lane-type");
             var laneID = this.getAttribute("data-id");
-            if ((type == 3) || (ui.item.type == type)) {
+            if ((type == 3)||(ui.item.type == type)||(ui.item.type == 3)) {
                 ui.item.targetLane = laneID;
                 //Update sticky note new swimlane id and position
                 changeLane(ui.item.id, type, laneID, ui.item.index());
@@ -160,7 +160,7 @@ function Task() {
 
 /*1. Create new sticky note and save it to database*/
 function insertItem(type) {
-    var item = (type == "backlog")? new Backlog(): new Task();
+    var item = (type == "backlog") ? new Backlog() : new Task();
 
     $.ajax({
         url: "Handler.ashx",
@@ -390,10 +390,14 @@ function viewDetailNote(itemID, type) {
 
 // Format JSonDate to dd.mm.yyyy
 function parseJSONDate(jsonDate) {
-    var y = jsonDate.substr(0, 4);
-    var m = jsonDate.substr(5, 2);
-    var d = jsonDate.substr(8, 2);
-    return d+"."+m+"."+y;
+    if (jsonDate != null) {
+        var y = jsonDate.substr(0, 4);
+        var m = jsonDate.substr(5, 2);
+        var d = jsonDate.substr(8, 2);
+        return d + "." + m + "." + y;
+    }
+    else
+        return "";
 }
 
 
@@ -404,8 +408,8 @@ function displayBacklogDetail(data) {
     $("#txtBacklogDescription").val(data.Description);
     $("#ddlBacklogComplexity").val(data.Complexity);
     $("#ddlBacklogColor").val(data.Color);
-    $("#txtBacklogStart").val(data.Start_date);
-    $("#txtBacklogComplete").val(data.Completion_date);
+    $("#txtBacklogStart").val(parseJSONDate(data.Start_date));
+    $("#txtBacklogComplete").val(parseJSONDate(data.Completion_date));
 }
 
 /*4.1.2 Clear backlog window */
@@ -425,7 +429,7 @@ function displayTaskDetail(data) {
     $("#txtTaskWorkEstimation").val(data.Work_estimation);
     $("#ddlTaskColor").val(data.Color);
     $("#txtTaskDueDate").val(parseJSONDate(data.Due_date));
-    $("#txtTaskCompletionDate").val(data.Completion_date);
+    $("#txtTaskCompletionDate").val(parseJSONDate(data.Completion_date));
 }
 
 /*4.2.2 Clear task Window */
@@ -437,6 +441,7 @@ function clearTaskWindow() {
 
 /*5 Save changes of the current backlog item to database*/
 function saveItem(itemID, type) {
+    showProcessingDiaglog();
     var item = (type == "backlog") ? new Backlog() : new Task();
 
     $.ajax({
@@ -450,6 +455,7 @@ function saveItem(itemID, type) {
         global: false,
         type: "post",
         success: function (result) {
+            $(".diaglog.success").removeClass("show");
             var note = document.getElementById(type + "." + itemID);
             var header = note.getElementsByClassName("note-header")[0];
             header.style.background = item.Color.substr(0, 7);

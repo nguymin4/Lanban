@@ -31,7 +31,8 @@
 /*Note*/
 .note {
     position: relative;
-    width: 200px;
+    min-width: 200px;
+    width: 80%;
     margin: 10px auto 10px auto;
     color: white;
     box-shadow: 0px 0px 10px #222222;
@@ -224,3 +225,17 @@ div.assignee-name-active {
         font-size: 15px;
         margin-bottom: 20px;
     }
+
+/*Chart window*/
+#chartWindow {
+    background: url("../images/top-bg.png") repeat-x, url("../images/main_background.jpg") no-repeat;
+    width: 90%;
+    height: 98%;
+    margin: 0.5% 5%;
+}
+
+
+#chartWindow .window-content {
+    /*background-color: white;*/
+    margin: 0px 6px;
+}

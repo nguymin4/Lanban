@@ -86,6 +86,7 @@
     <Content Include="Project.aspx" />
     <Content Include="Scripts\board.js" />
     <Content Include="packages.config" />
+    <Content Include="Scripts\Chart.min.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
     <Content Include="Scripts\jquery-ui.min.js" />
     <Content Include="Scripts\jquery.mousewheel.js" />
