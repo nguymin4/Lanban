@@ -2,12 +2,13 @@
 #kanbanWindow {
     height: 98%;
     margin: 5px 0.5% 5px 0.5%;
+    text-align: center;
 }
 
 #kanban {
     border-collapse: collapse;
     color: white;
-    margin: 0px 15px;
+    margin: auto;
 }
 
     #kanban colgroup {
@@ -27,6 +28,10 @@
         vertical-align: top;
     }
 
+.connected {
+    min-width: 210px;
+    text-align: center;
+}
 
 /*Note*/
 .note {
@@ -98,7 +103,8 @@ span.item-id {
 
 /*Add item window*/
 #backlogWindow, #taskWindow {
-    width: 800px;
+    max-width: 800px;
+    width: 80%;
     padding-left: 30px;
     font-weight: 600;
     min-height: 450px;

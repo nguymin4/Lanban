@@ -7,7 +7,6 @@ using System.Data;
 using System.Text;
 using System.Web.UI;
 using Newtonsoft.Json;
-using System.Globalization;
 
 namespace Lanban
 {
@@ -24,7 +23,7 @@ namespace Lanban
         {
             get { return myDataSet; }
         }
-
+        
         //1. Constructor
         public Query()
         {
@@ -34,6 +33,13 @@ namespace Lanban
             myDataSet = new DataSet();
             myAdapter = new OleDbDataAdapter(myCommand);
             myConnection.Open();
+        }
+
+        public void Dipose()
+        {
+            myConnection.Close();
+            // Suppress finalization.
+            GC.SuppressFinalize(this);
         }
 
         // Add parameter for myCommand
@@ -102,13 +108,15 @@ namespace Lanban
             addParameter<int>("@Complexity", OleDbType.Integer, backlog.Complexity);
             addParameter<string>("@Color", OleDbType.VarChar, backlog.Color);
             addParameter<int>("@Position", OleDbType.VarChar, countItem(backlog.Swimlane_ID, "Task"));
-            addParameter<string>("@Status", OleDbType.VarChar, getDataStatus(backlog.Swimlane_ID.ToString()));
+            string status = getDataStatus(backlog.Swimlane_ID.ToString());
+            addParameter<string>("@Status", OleDbType.VarChar, status);
             myCommand.CommandText = command.ToString();
             myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
             // Get the ID just inserted -- Change later with @@SCOPE_IDENTITY in SQL SERVER
             myCommand.CommandText = "SELECT MAX(Backlog_ID) FROM Backlog";
             string id = myCommand.ExecuteScalar().ToString();
+            updateDate(id, "Backlog", status);
             return id;
         }
 
@@ -133,7 +141,9 @@ namespace Lanban
 
             addParameter<string>("@Color", OleDbType.VarChar, task.Color);
             addParameter<int>("@Position", OleDbType.VarChar, countItem(task.Swimlane_ID, "Task"));
-            addParameter<string>("@Status", OleDbType.VarChar, getDataStatus(task.Swimlane_ID.ToString()));
+
+            string status = getDataStatus(task.Swimlane_ID.ToString());
+            addParameter<string>("@Status", OleDbType.VarChar, status);
 
             // Due date is nullable field - the user can skip input data of that field
             if (task.Due_date.Equals("")) addParameter<DBNull>("@Due_date", OleDbType.DBDate, DBNull.Value);
@@ -145,6 +155,7 @@ namespace Lanban
             // Get the ID just inserted -- Change later with @@SCOPE_IDENTITY in SQL SERVER
             myCommand.CommandText = "SELECT MAX(Task_ID) FROM Task";
             string id = myCommand.ExecuteScalar().ToString();
+            updateDate(id, "Task", status);
             return id;
         }
 

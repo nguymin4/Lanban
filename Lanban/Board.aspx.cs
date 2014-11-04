@@ -25,10 +25,8 @@ namespace Lanban
                 //projectID = Convert.ToInt32(Session["projectID"]);
                 projectID = 1;
                 txtProjectID.Text = projectID.ToString();
-                int start = Environment.TickCount;
                 createKanban();
                 initDropdownList();
-                System.Diagnostics.Debug.WriteLine("Total load time: " + (Environment.TickCount - start));
             }
         }
 

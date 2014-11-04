@@ -17,11 +17,15 @@
         colgroup.innerHTML += "<col />";
     }
     colgroup.style.width = parseInt((windowWidth - 86) / columncount) - 2;
+
+    $(".window-content").perfectScrollbar("update");
 }
 
 // Show Add backlog/task window
 function showWindow(windowName) {
     $("#kanbanWindow").removeClass("show");
+    $(".window-content").scrollTop(0);
+    $(".window-content").perfectScrollbar("update");
     (windowName == "backlogWindow") ? clearBacklogWindow() : clearTaskWindow();
     setTimeout(function () {
         $("#kanbanWindow").css("display", "none");
@@ -104,11 +108,18 @@ $(document).ready(function () {
                 ui.item.targetLane = laneID;
                 //Update sticky note new swimlane id and position
                 changeLane(ui.item.id, type, laneID, ui.item.index());
-                //Update positon of all old sticky notes in that lane based on new insertation position
-                var index = ui.item.index;
-                var note = this.getElementsByTagName("div");
-                for (var i = index; i < note.length; i++) {
-                    updatePosition($(note[i]).attr("data-id"), i + 1, type);
+
+                //Update positon of all old sticky notes in destination lane based on new insertation position
+                var index = ui.item.index();
+                var note = this.getElementsByClassName("note");
+                for (var i = index + 1; i < note.length; i++) {
+                    updatePosition($(note[i]).attr("data-id"), i, type);
+                }
+
+                // Update position of sticky notes in the source lane.
+                note = ui.item.startLane.getElementsByClassName("note");
+                for (var i = ui.item.startPos; i < note.length; i++) {
+                    updatePosition($(note[i]).attr("data-id"), i, type);
                 }
             }
             else {
@@ -117,7 +128,7 @@ $(document).ready(function () {
             }
         },
         start: function (event, ui) {
-            ui.item.startLane = this.id;
+            ui.item.startLane = this;
             ui.item.startPos = ui.item.index();
             ui.item.id = $(ui.item).attr("data-id");
             ui.item.type = $(ui.item).attr("data-type");
@@ -126,8 +137,8 @@ $(document).ready(function () {
             if ((ui.item.targetLane == null) && (ui.item.startPos != ui.item.index())) {
                 var type1 = ui.item.type;
                 var startPos = ui.item.startPos;
-                var targetId = this.getElementsByTagName("div")[startPos].getAttribute("data-id");
-                var type2 = this.getElementsByTagName("div")[startPos].getAttribute("data-type");
+                var targetId = this.getElementsByClassName("note")[startPos].getAttribute("data-id");
+                var type2 = this.getElementsByClassName("note")[startPos].getAttribute("data-type");
                 updatePosition(ui.item.id, ui.item.index(), type1);
                 updatePosition(targetId, startPos, type2);
             }
@@ -177,7 +188,7 @@ function insertItem(type) {
             var swimlanePosition = parseInt($("#txtSwimlanePosition").val());
             $(objtext).appendTo($(".connected")[swimlanePosition]);
             showSuccessDiaglog(0);
-            clearBacklogWindow();
+            (type == "backlog") ? clearBacklogWindow() : clearTaskWindow();
         }
     });
 }
@@ -379,7 +390,6 @@ function viewDetailNote(itemID, type) {
         type: "get",
         success: function (result) {
             $(".diaglog.success").removeClass("show");
-            console.log(result);
             (type == "backlog") ? displayBacklogDetail(result) : displayTaskDetail(result);
         }
     });

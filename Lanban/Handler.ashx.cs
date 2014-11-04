@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Web;
 using System.Threading;
+using System.Web.SessionState;
 
 
 namespace Lanban
@@ -9,7 +10,7 @@ namespace Lanban
     /// <summary>
     /// Async handler for request from client
     /// </summary>
-    public class Handler : IHttpAsyncHandler
+    public class Handler : IHttpAsyncHandler, IReadOnlySessionState //IRequiresSessionState
     {
         public bool IsReusable { get { return false; } }
 

@@ -6,6 +6,7 @@ body {
     background: url("../images/background.jpg") no-repeat transparent;
     background-size: cover;
     font-family: "Open Sans",sans-serif;
+    overflow: hidden;
 }
 
 #container {
@@ -13,7 +14,6 @@ body {
     height: 100%;
     padding: 0px;
     margin: 0px;
-    overflow: hidden;
 }
 
 #sidebar, #content {

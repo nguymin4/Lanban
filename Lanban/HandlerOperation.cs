@@ -120,6 +120,7 @@ namespace Lanban
             _context.Response.Write(result);
             _completed = true;
             _callback(this);
+            myQuery.Dipose();
         }
     }
 
