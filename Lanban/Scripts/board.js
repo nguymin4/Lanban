@@ -104,11 +104,12 @@ $(document).ready(function () {
                     updatePosition($(note[i]).attr("data-id"), i, type);
                 }
 
+                // DBMS overload when view item immediately
                 // Update position of sticky notes in the source lane.
-                note = ui.item.startLane.getElementsByClassName("note");
-                for (var i = ui.item.startPos; i < note.length; i++) {
-                    updatePosition($(note[i]).attr("data-id"), i, type);
-                }
+                //note = ui.item.startLane.getElementsByClassName("note");
+                //for (var i = ui.item.startPos; i < note.length; i++) {
+                //    updatePosition($(note[i]).attr("data-id"), i, type);
+                //}
             }
             else {
                 $(ui.sender).sortable("cancel");
@@ -182,12 +183,14 @@ function insertItem(type) {
 }
 
 //Create visual note
-function getVisualNote(id, type, swimlane_id, title, color) {
+function getVisualNote(dataID, type, swimlane_id, title, color) {
+    var idArray = dataID.split(".");
+    var id = idArray[0];
     var objtext;
     var typeNum = (type == "backlog") ? 1 : 2;
     objtext = "<div class='note' data-type='" + typeNum + "' id='" + type + "." + id + "' data-id='" + id + "' ondblclick=\"viewDetailNote(" + id + ",'" + type + "')\">" +
                 "<div class='note-header' style='background-color:" + color.substr(0, 7) + ";'>" +
-                "<span class='item-id'>" + id + "</span><img class='note-button' onclick=\"viewDetailNote(" + id + ",'" + type + "')\" src='images/sidebar/edit_note.png'>" +
+                "<span class='item-id'>" + idArray[1] + "</span><img class='note-button' onclick=\"viewDetailNote(" + id + ",'" + type + "')\" src='images/sidebar/edit_note.png'>" +
                 "<img class='note-button' onclick='deleteItem(" + id + ",'" + type + "')' src='images/sidebar/delete_note.png'></div>" +
                 "<div class='note-content' style='background-color:" + color.substr(8, 7) + ";'>" + title + "</div></div>";
     return objtext;
@@ -493,7 +496,8 @@ function createCurrentBacklogList() {
     backloglist.innerHTML = "";
     for (var i = 0; i < note.length; i++) {
         var id = note[i].getAttribute("data-id");
-        var content = id + " - " + note[i].getElementsByClassName("note-content")[0].innerHTML;
+        var content = note[i].getElementsByClassName("item-id")[0].innerHTML + " - " 
+            + note[i].getElementsByClassName("note-content")[0].innerHTML;
         backloglist.innerHTML += "<option value='" + id + "'>" + content + "</option>";
     }
 }

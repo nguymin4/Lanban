@@ -110,7 +110,8 @@ namespace Lanban
             div.Attributes.Add("class", "note");
             div.Attributes.Add("data-type", type);
 
-            // Although ID value is repeatable but it's needed for updatePosition and changeSwimlane
+            // Although ID value is repeatable 
+            // but it's needed for updatePosition, changeSwimlane and delete a note
             string divID = (type.Equals("1")) ? row["Backlog_ID"].ToString() : row["Task_ID"].ToString();
             string id = tableName + "." + divID;
             div.Attributes.Add("id", id);
@@ -125,7 +126,7 @@ namespace Lanban
             header.Style.Add("background-color", color.Substring(0, 7));
             HtmlGenericControl item_id = new HtmlGenericControl("span");
             item_id.Attributes.Add("class", "item-id");
-            item_id.InnerHtml = divID;
+            item_id.InnerHtml = row["Relative_ID"].ToString();
             header.Controls.Add(item_id);
             // Add edit button
             Image edit = new Image();

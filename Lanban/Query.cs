@@ -23,7 +23,7 @@ namespace Lanban
         {
             get { return myDataSet; }
         }
-        
+
         //1. Constructor
         public Query()
         {
@@ -99,25 +99,37 @@ namespace Lanban
         public string insertNewBacklog(Backlog backlog)
         {
             StringBuilder command = new StringBuilder();
-            command.Append("INSERT INTO Backlog (Project_ID, Swimlane_ID, Title, Description, Complexity, Color, [Position], Status) ");
-            command.Append("VALUES (@Project_ID, @Swimlane_ID, @Title, @Description, @Complexity, @Color, @Position, @Status)");
+            command.Append("INSERT INTO Backlog (Project_ID, Swimlane_ID, Title, Description, Complexity, Color) ");
+            command.Append("VALUES (@Project_ID, @Swimlane_ID, @Title, @Description, @Complexity, @Color)");
             addParameter<int>("@Project_ID", OleDbType.Integer, backlog.Project_ID);
             addParameter<int>("@Swimlane_ID", OleDbType.Integer, backlog.Swimlane_ID);
             addParameter<string>("@Title", OleDbType.LongVarChar, backlog.Title);
             addParameter<string>("@Description", OleDbType.LongVarChar, backlog.Description);
             addParameter<int>("@Complexity", OleDbType.Integer, backlog.Complexity);
             addParameter<string>("@Color", OleDbType.VarChar, backlog.Color);
-            addParameter<int>("@Position", OleDbType.VarChar, countItem(backlog.Swimlane_ID, "Task"));
-            string status = getDataStatus(backlog.Swimlane_ID.ToString());
-            addParameter<string>("@Status", OleDbType.VarChar, status);
             myCommand.CommandText = command.ToString();
             myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
+
             // Get the ID just inserted -- Change later with @@SCOPE_IDENTITY in SQL SERVER
             myCommand.CommandText = "SELECT MAX(Backlog_ID) FROM Backlog";
             string id = myCommand.ExecuteScalar().ToString();
+
+            // Update data in some field of just inserted row
+            string status = getDataStatus(backlog.Swimlane_ID.ToString());
+            int position = countItem(backlog.Swimlane_ID, "Backlog") - 1;
+            int relativeID = getRelativeID(backlog.Project_ID, "Backlog");
+            myCommand.CommandText = "UPDATE Backlog SET [Status]=@Status, [Position]=@Position, Relative_ID=@Relative_ID WHERE Backlog_ID=@id";
+            addParameter<string>("@Status", OleDbType.VarChar, status);
+            addParameter<int>("@Position", OleDbType.Integer, position );
+            addParameter<int>("@Relative_ID", OleDbType.Integer, relativeID);
+            addParameter("@id", OleDbType.Integer, Convert.ToInt32(id));
+            myCommand.ExecuteNonQuery();
+            myCommand.Parameters.Clear();
+
+            // Upate the date fields based on item status
             updateDate(id, "Backlog", status);
-            return id;
+            return id + "." + relativeID.ToString();
         }
 
         //2.2.2 Insert new task
@@ -125,25 +137,20 @@ namespace Lanban
         {
             StringBuilder command = new StringBuilder();
             command.Append("INSERT INTO Task (Project_ID, Swimlane_ID, Backlog_ID, Title, ");
-            command.Append("Description, Work_estimation, Color, [Position], Status, Due_date) ");
+            command.Append("Description, Color, Work_estimation, Due_date) ");
             command.Append("VALUES (@Project_ID, @Swimlane_ID, @Backlog_ID, @Title, ");
-            command.Append("@Description, @Work_estimation, @Color, @Position, @Status, @Due_date)");
+            command.Append("@Description, @Color, @Work_estimation, @Due_date)");
 
             addParameter<int>("@Project_ID", OleDbType.Integer, task.Project_ID);
             addParameter<int>("@Swimlane_ID", OleDbType.Integer, task.Swimlane_ID);
             addParameter<int>("@Backlog_ID", OleDbType.Integer, task.Backlog_ID);
             addParameter<string>("@Title", OleDbType.LongVarChar, task.Title);
             addParameter<string>("@Description", OleDbType.LongVarChar, task.Description);
+            addParameter<string>("@Color", OleDbType.VarChar, task.Color);
 
             // Work estimation can be null
             if (task.Work_estimation == null) addParameter<DBNull>("@Work_estimation", OleDbType.Integer, DBNull.Value);
             else addParameter("@Work_estimation", OleDbType.Integer, task.Work_estimation);
-
-            addParameter<string>("@Color", OleDbType.VarChar, task.Color);
-            addParameter<int>("@Position", OleDbType.VarChar, countItem(task.Swimlane_ID, "Task"));
-
-            string status = getDataStatus(task.Swimlane_ID.ToString());
-            addParameter<string>("@Status", OleDbType.VarChar, status);
 
             // Due date is nullable field - the user can skip input data of that field
             if (task.Due_date.Equals("")) addParameter<DBNull>("@Due_date", OleDbType.DBDate, DBNull.Value);
@@ -152,11 +159,26 @@ namespace Lanban
             myCommand.CommandText = command.ToString();
             myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
+
             // Get the ID just inserted -- Change later with @@SCOPE_IDENTITY in SQL SERVER
             myCommand.CommandText = "SELECT MAX(Task_ID) FROM Task";
             string id = myCommand.ExecuteScalar().ToString();
+
+            // Update data in some field of just inserted row
+            string status = getDataStatus(task.Swimlane_ID.ToString());
+            int position = countItem(task.Swimlane_ID, "Task") - 1;
+            int relativeID = getRelativeID(task.Project_ID, "Task");
+            myCommand.CommandText = "UPDATE Task SET Status=@Status, [Position]=@Position, Relative_ID=@Relative_ID WHERE Task_ID=@id";
+            addParameter<string>("@Status", OleDbType.VarChar, status);
+            addParameter<int>("@Position", OleDbType.Integer, position);
+            addParameter<int>("@Relative_ID", OleDbType.Integer, relativeID);
+            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
+            myCommand.ExecuteNonQuery();
+            myCommand.Parameters.Clear();
+
+            // Upate the date fields based on item status
             updateDate(id, "Task", status);
-            return id;
+            return id + "." + relativeID.ToString();
         }
 
         //2.3.1 Save editted data of a backlog
@@ -256,11 +278,17 @@ namespace Lanban
                     addParameter<DBNull>("@Completion_date", OleDbType.DBDate, DBNull.Value);
                     break;
                 case "Ongoing":
-                    myCommand.CommandText = "UPDATE Backlog SET Start_date= @Start_date WHERE Backlog_ID=@id";
-                    addParameter<DateTime>("@Start_date", OleDbType.DBDate, DateTime.Now.Date);
+                    if (table.Equals("Backlog"))
+                    {
+                        myCommand.CommandText = "UPDATE Backlog SET Start_date=@Start_date, Completion_date=@Completion_date WHERE Backlog_ID=@id";
+                        addParameter<DateTime>("@Start_date", OleDbType.DBDate, DateTime.Now.Date);
+                    }
+                    else
+                        myCommand.CommandText = "UPDATE Task SET Completion_date=@Completion_date WHERE Task_ID=@id";
+                    addParameter<DateTime>("@Completion_date", OleDbType.DBDate, DateTime.Now.Date);
                     break;
                 case "Done":
-                    myCommand.CommandText = "UPDATE "+table+" SET Completion_date= @Completion_date WHERE "+table+"_ID=@id";
+                    myCommand.CommandText = "UPDATE " + table + " SET Completion_date= @Completion_date WHERE " + table + "_ID=@id";
                     addParameter<DateTime>("@Completion_date", OleDbType.DBDate, DateTime.Now.Date);
                     break;
             }
@@ -364,6 +392,12 @@ namespace Lanban
             return Convert.ToInt32(myCommand.ExecuteScalar());
         }
 
+        //a.4 Get relative id of a type
+        protected int getRelativeID(int project_id, string type)
+        {
+            myCommand.CommandText = "SELECT COUNT(*) FROM " + type + " WHERE Project_ID=" + project_id;
+            return Convert.ToInt32(myCommand.ExecuteScalar());
+        }
 
         //3. Query data for building chart
         // Fetch all necessary data to dataset for fast
@@ -376,7 +410,7 @@ namespace Lanban
         {
             StringBuilder result = new StringBuilder("");
             myCommand.CommandText = "SELECT Count(*), [Name] FROM Task_User INNER JOIN " +
-                "(SELECT Task_ID FROM Task INNER JOIN (SELECT Backlog_ID FROM Backlog WHERE Project_ID=@projectID AND Status='Ongoing') AS A ON Task.Backlog_ID = A.Backlog_ID) "+
+                "(SELECT Task_ID FROM Task INNER JOIN (SELECT Backlog_ID FROM Backlog WHERE Project_ID=@projectID AND Status='Ongoing') AS A ON Task.Backlog_ID = A.Backlog_ID) " +
                 "AS B ON Task_User.Task_ID = B.Task_ID GROUP BY User_ID, [Name]";
             addParameter<int>("@projectID", OleDbType.Integer, projectID);
             myReader = myCommand.ExecuteReader();
@@ -385,7 +419,7 @@ namespace Lanban
             StringWriter sw = new StringWriter(result);
             JsonTextWriter myWriter = new JsonTextWriter(sw);
             myWriter.WriteStartArray();
-            while(available)
+            while (available)
             {
                 myWriter.WriteStartObject();
                 // Number of tasks of a person in the sprint
@@ -404,7 +438,7 @@ namespace Lanban
                 myWriter.WritePropertyName("label");
                 myWriter.WriteValue(myReader.GetValue(1));
                 myWriter.WriteEndObject();
-                
+
                 available = myReader.Read();
                 index++;
             }
