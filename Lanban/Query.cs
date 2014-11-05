@@ -49,7 +49,7 @@ namespace Lanban
             myCommand.Parameters[parameter].Value = value;
         }
 
-        //2. Methods
+        //2. Methods manipulate and query data
         //2.1 Query data
         public void fetchSwimlane(int projectID)
         {
@@ -321,7 +321,7 @@ namespace Lanban
         }
 
         //a.1 Search member name in a project
-        public string searchAssignee(string projectID, string keyword, string type)
+        public string searchAssignee(int projectID, string keyword, string type)
         {
             myCommand.CommandText = "SELECT TOP 3 User_ID, Name FROM Project_User " +
                                     "WHERE Project_ID = " + projectID +
@@ -362,6 +362,55 @@ namespace Lanban
         {
             myCommand.CommandText = "SELECT COUNT(*) FROM " + type + " WHERE Swimlane_ID=" + swimlane_id;
             return Convert.ToInt32(myCommand.ExecuteScalar());
+        }
+
+
+        //3. Query data for building chart
+        // Fetch all necessary data to dataset for fast
+        string[,] colorHex = {
+                                {"#ff9898", "#ffc864", "#ffff95", "#98ff98", "#caffff", "#adadff", "#d598ff" },
+                                { "#ff4b4b", "#ffa500", "#ffff4b", "#4bff4b", "#80ffff", "#6464ff", "#b64bff" }
+                             };
+
+        public string getPieChart(int projectID)
+        {
+            StringBuilder result = new StringBuilder("");
+            myCommand.CommandText = "SELECT Count(*), [Name] FROM Task_User INNER JOIN " +
+                "(SELECT Task_ID FROM Task INNER JOIN (SELECT Backlog_ID FROM Backlog WHERE Project_ID=@projectID AND Status='Ongoing') AS A ON Task.Backlog_ID = A.Backlog_ID) "+
+                "AS B ON Task_User.Task_ID = B.Task_ID GROUP BY User_ID, [Name]";
+            addParameter<int>("@projectID", OleDbType.Integer, projectID);
+            myReader = myCommand.ExecuteReader();
+            bool available = myReader.Read();
+            int index = 0;
+            StringWriter sw = new StringWriter(result);
+            JsonTextWriter myWriter = new JsonTextWriter(sw);
+            myWriter.WriteStartArray();
+            while(available)
+            {
+                myWriter.WriteStartObject();
+                // Number of tasks of a person in the sprint
+                myWriter.WritePropertyName("value");
+                myWriter.WriteValue(myReader.GetValue(0));
+
+                // Color represent for the corresponding part in pie chart
+                myWriter.WritePropertyName("color");
+                myWriter.WriteValue(colorHex[1, index]);
+
+                // Color when hovering on that part in pie chart
+                myWriter.WritePropertyName("highlight");
+                myWriter.WriteValue(colorHex[0, index]);
+
+                // Name of the person
+                myWriter.WritePropertyName("label");
+                myWriter.WriteValue(myReader.GetValue(1));
+                myWriter.WriteEndObject();
+                
+                available = myReader.Read();
+                index++;
+            }
+            myWriter.WriteEndArray();
+            myCommand.Parameters.Clear();
+            return result.ToString();
         }
     }
 }

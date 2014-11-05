@@ -9,7 +9,7 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="contentPanel" runat="server">
     <li style="background-image: url('images/logo.png')" onclick="window.location.href = 'Project.aspx'"></li>
     <li class="viewIndicator show" style="background-image: url('images/sidebar/dashboard.png')" data-view-indicator="0"></li>
-    <li class="viewIndicator" style="background-image: url('images/sidebar/chart.png')" data-view-indicator="1"></li>
+    <li class="viewIndicator" style="background-image: url('images/sidebar/chart.png')" data-view-indicator="1" onclick="showChartWindow()"></li>
     <li class="viewIndicator" style="background-image: url('images/sidebar/column.png')" data-view-indicator="2"></li>
 </asp:Content>
 
@@ -35,39 +35,21 @@
     <div id="chartWindow" class="window view">
         <div class="title-bar">Chart</div>
         <div class="window-content">
-            <canvas id="canvas" width="500" height="400"></canvas>
+            <div style="text-align: center">
+                <h3>Number of Tasks assigned <br /> by Person during Sprint</h3>
+                <canvas id="chartPie" width="300" height="300" style="margin: 10px auto;"></canvas>
+            </div>
+            
         </div>
         <script>
-            var randomScalingFactor = function () { return Math.round(Math.random() * 10) };
+            
 
-            var barChartData = {
-                labels: ["January", "February", "March", "April", "May", "June", "July"],
-                datasets: [
-                    {
-                        fillColor: "rgba(220,220,220,0.5)",
-                        strokeColor: "rgba(220,220,220,0.8)",
-                        highlightFill: "rgba(220,220,220,0.75)",
-                        highlightStroke: "rgba(220,220,220,1)",
-                        data: [randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor()]
-                    },
-                    {
-                        fillColor: "rgba(151,187,205,0.5)",
-                        strokeColor: "rgba(151,187,205,0.8)",
-                        highlightFill: "rgba(151,187,205,0.75)",
-                        highlightStroke: "rgba(151,187,205,1)",
-                        data: [randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor(), randomScalingFactor()]
-                    }
-                ]
+            //var myBarChart = new Chart(ctx).Bar(barChartData, {
+            //    responsive: false,
+            //    scaleFontColor: "#FFFFFF",
+            //    scaleGridLineColor: "rgba(128, 128, 128, 0.2)"
+            //});
 
-            }
-            $(document).ready(function () {
-                var ctx = document.getElementById("canvas").getContext("2d");
-                var myBarChart = new Chart(ctx).Bar(barChartData, {
-                    responsive: false,
-                    scaleFontColor: "#FFFFFF",
-                    scaleGridLineColor: "rgba(128, 128, 128, 0.2)"
-                });
-            });
         </script>
     </div>
     <!-- End - Chart  -->
@@ -80,7 +62,7 @@
     </div>
     <!-- End - The window for Board layout  -->
 
-    
+
 
     <!-- Start - Backlog item window-->
     <div id="backlogWindow" class="window view">
@@ -94,7 +76,7 @@
                     <input type="text" id="txtbacklogAssignee" class="inputAssignee" autocomplete="off"
                         onkeyup="searchAssignee(this, 'backlog')" onblur="clearResult(this)" />
                 </div>
-                
+
                 <br />
                 Description:
                 <asp:TextBox CssClass="inputDescription inputBox" runat="server" TextMode="MultiLine" ID="txtBacklogDescription"></asp:TextBox>
@@ -104,19 +86,23 @@
                 <table class="tblAddData">
                     <tr>
                         <td>Complexity:</td>
-                        <td><asp:DropDownList runat="server" ID="ddlBacklogComplexity"></asp:DropDownList></td>
+                        <td>
+                            <asp:DropDownList runat="server" ID="ddlBacklogComplexity"></asp:DropDownList></td>
                     </tr>
                     <tr>
                         <td>Color:</td>
-                        <td><asp:DropDownList runat="server" ID="ddlBacklogColor" Width="70"></asp:DropDownList></td>
+                        <td>
+                            <asp:DropDownList runat="server" ID="ddlBacklogColor" Width="70"></asp:DropDownList></td>
                     </tr>
                     <tr>
                         <td>Start date:</td>
-                        <td><asp:TextBox runat="server" ID="txtBacklogStart" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
+                        <td>
+                            <asp:TextBox runat="server" ID="txtBacklogStart" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
                     </tr>
                     <tr>
                         <td>Completion date:</td>
-                        <td><asp:TextBox runat="server" ID="txtBacklogComplete" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
+                        <td>
+                            <asp:TextBox runat="server" ID="txtBacklogComplete" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
                     </tr>
                     <tr>
                         <td></td>
@@ -151,25 +137,30 @@
                 <table class="tblAddData">
                     <tr>
                         <td>Backlog:</td>
-                        <td><asp:DropDownList runat="server" ID="ddlTaskBacklog" Width="98%"></asp:DropDownList></td>
+                        <td>
+                            <asp:DropDownList runat="server" ID="ddlTaskBacklog" Width="98%"></asp:DropDownList></td>
                     </tr>
                     <tr>
                         <td>Work estimation:</td>
-                        <td><asp:TextBox CssClass="inputBox" runat="server" ID="txtTaskWorkEstimation"></asp:TextBox></td>
+                        <td>
+                            <asp:TextBox CssClass="inputBox" runat="server" ID="txtTaskWorkEstimation"></asp:TextBox></td>
                     </tr>
                     <tr>
                         <td>Color:</td>
-                        <td><asp:DropDownList runat="server" ID="ddlTaskColor" Width="70"></asp:DropDownList></td>
+                        <td>
+                            <asp:DropDownList runat="server" ID="ddlTaskColor" Width="70"></asp:DropDownList></td>
                     </tr>
                     <tr>
-                        <td>
-                            Due date:<br />(dd.mm.yyyy)
+                        <td>Due date:<br />
+                            (dd.mm.yyyy)
                         </td>
-                        <td><asp:TextBox runat="server" ID="txtTaskDueDate" CssClass="inputBox"></asp:TextBox></td>
+                        <td>
+                            <asp:TextBox runat="server" ID="txtTaskDueDate" CssClass="inputBox"></asp:TextBox></td>
                     </tr>
                     <tr>
                         <td>Completion date:</td>
-                        <td><asp:TextBox runat="server" ID="txtTaskCompletionDate" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
+                        <td>
+                            <asp:TextBox runat="server" ID="txtTaskCompletionDate" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
                     </tr>
                     <tr>
                         <td></td>

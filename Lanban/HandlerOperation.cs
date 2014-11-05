@@ -3,12 +3,13 @@ using System.Threading;
 using System.Collections;
 using System.Web;
 using System.Text;
+using System.Web.SessionState;
 using Newtonsoft.Json;
 
 
 namespace Lanban
 {
-    public class HandlerOperation : IAsyncResult
+    public class HandlerOperation : IAsyncResult, IReadOnlySessionState
     {
         private bool _completed;
         private Object _state;
@@ -42,10 +43,12 @@ namespace Lanban
             _context.Response.ContentType = "text/plain";
             var param = _context.Request.Params;
             string action = param["action"];
+            int projectID = Convert.ToInt32(_context.Session["projectID"]);
             string result = "";
             
             switch (action)
             {
+                // Working with data query and manipulation from this part
                 // Insert new data
                 case "insertItem":
                     if (param["type"].Equals("backlog"))
@@ -97,7 +100,7 @@ namespace Lanban
                 
                 // Search name of members in a project
                 case "searchAssignee":
-                    result = myQuery.searchAssignee(param["projectID"], param["keyword"], param["type"]);
+                    result = myQuery.searchAssignee(projectID, param["keyword"], param["type"]);
                     break;
                 
                 // View all assignee of an item
@@ -115,6 +118,13 @@ namespace Lanban
                 // Delete all assignees of an item
                 case "deleteAssignee":
                     myQuery.deleteAssignee(param["itemID"], param["type"]);
+                    break;
+                
+                // Working with chart from this part
+                // Get Pie Chart data
+                case "getPieChart":
+                    result = myQuery.getPieChart(projectID);
+                    _context.Response.ContentType = "application/json";
                     break;
             }
             _context.Response.Write(result);

@@ -27,6 +27,7 @@ namespace Lanban
                 txtProjectID.Text = projectID.ToString();
                 createKanban();
                 initDropdownList();
+                Session["projectID"] = projectID;
             }
         }
 
@@ -45,7 +46,6 @@ namespace Lanban
                 createCell(row["Swimlane_ID"].ToString(), row["Type"].ToString(), i);
                 panelKanbanBody.Controls.Add(cell[i]);
             }
-            Session["projectID"] = projectID;
         }
 
         //1.1 Add header cell to kanban board

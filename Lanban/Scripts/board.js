@@ -24,8 +24,6 @@
 // Show Add backlog/task window
 function showWindow(windowName) {
     $("#kanbanWindow").removeClass("show");
-    $(".window-content").scrollTop(0);
-    $(".window-content").perfectScrollbar("update");
     (windowName == "backlogWindow") ? clearBacklogWindow() : clearTaskWindow();
     setTimeout(function () {
         $("#kanbanWindow").css("display", "none");
@@ -34,16 +32,6 @@ function showWindow(windowName) {
             hideWindow();
         });
     }, 250);
-
-    // If window is taskWindow then load drop down list of all current backlogs in the project
-    var note = $(".note[data-type='1']");
-    var backloglist = document.getElementById("ddlTaskBacklog");
-    backloglist.innerHTML = "";
-    for (var i = 0; i < note.length; i++) {
-        var id = note[i].getAttribute("data-id");
-        var content = id + " - " + note[i].getElementsByClassName("note-content")[0].innerHTML;
-        backloglist.innerHTML += "<option value='" + id + "'>" + content + "</option>";
-    }
 }
 
 // Hide Add backlog/task window
@@ -327,7 +315,6 @@ function searchAssignee(searchBox, type) {
                 url: "Handler.ashx",
                 data: {
                     action: "searchAssignee",
-                    projectID: $("#txtProjectID").val(),
                     type: type,
                     keyword: $(searchBox).val()
                 },
@@ -410,7 +397,6 @@ function parseJSONDate(jsonDate) {
         return "";
 }
 
-
 /*4.1.1 Display detail backlog */
 function displayBacklogDetail(data) {
     $("#txtSwimlaneID").val(data.Swimlane_ID);
@@ -447,6 +433,9 @@ function clearTaskWindow() {
     $("#taskWindow .inputbox").val("");
     $("#taskWindow textarea").val("");
     $("#taskWindow .assignee-name-active").remove();
+
+    //Update list of current backlog items 
+    createCurrentBacklogList();
 }
 
 /*5 Save changes of the current backlog item to database*/
@@ -496,3 +485,39 @@ function deleteItem(itemID, type) {
         }
     });
 }
+
+/*7.1 Creat a drop down list contains all current backlog items*/
+function createCurrentBacklogList() {
+    var note = $(".note[data-type='1']");
+    var backloglist = document.getElementById("ddlTaskBacklog");
+    backloglist.innerHTML = "";
+    for (var i = 0; i < note.length; i++) {
+        var id = note[i].getAttribute("data-id");
+        var content = id + " - " + note[i].getElementsByClassName("note-content")[0].innerHTML;
+        backloglist.innerHTML += "<option value='" + id + "'>" + content + "</option>";
+    }
+}
+
+/*B.Working with chart*/
+
+function showChartWindow() {
+    var chartPie = document.getElementById("chartPie").getContext("2d");
+    var myPie = new Chart(chartPie).Pie(pieChartData);
+}
+
+//Load pie chart data
+var pieChartData;
+function fetchPieChartData() {
+    $.ajax({
+        url: "Handler.ashx",
+        data: {
+            action: "getPieChart"
+        },
+        type: "get",
+        success: function (result) {
+            pieChartData = result;
+        }
+    });
+}
+
+fetchPieChartData();
