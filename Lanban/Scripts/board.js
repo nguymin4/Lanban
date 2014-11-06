@@ -92,7 +92,7 @@ $(document).ready(function () {
         receive: function (event, ui) {
             var type = this.getAttribute("data-lane-type");
             var laneID = this.getAttribute("data-id");
-            if ((type == 3)||(ui.item.type == type)||(ui.item.type == 3)) {
+            if ((type == 3) || (ui.item.type == type) || (ui.item.type == 3)) {
                 ui.item.targetLane = laneID;
                 //Update sticky note new swimlane id and position
                 changeLane(ui.item.id, type, laneID, ui.item.index());
@@ -106,10 +106,10 @@ $(document).ready(function () {
 
                 // DBMS overload when view item immediately
                 // Update position of sticky notes in the source lane.
-                //note = ui.item.startLane.getElementsByClassName("note");
-                //for (var i = ui.item.startPos; i < note.length; i++) {
-                //    updatePosition($(note[i]).attr("data-id"), i, type);
-                //}
+                note = ui.item.startLane.getElementsByClassName("note");
+                for (var i = ui.item.startPos; i < note.length; i++) {
+                    updatePosition($(note[i]).attr("data-id"), i, type);
+                }
             }
             else {
                 $(ui.sender).sortable("cancel");
@@ -496,7 +496,7 @@ function createCurrentBacklogList() {
     backloglist.innerHTML = "";
     for (var i = 0; i < note.length; i++) {
         var id = note[i].getAttribute("data-id");
-        var content = note[i].getElementsByClassName("item-id")[0].innerHTML + " - " 
+        var content = note[i].getElementsByClassName("item-id")[0].innerHTML + " - "
             + note[i].getElementsByClassName("note-content")[0].innerHTML;
         backloglist.innerHTML += "<option value='" + id + "'>" + content + "</option>";
     }
@@ -505,12 +505,13 @@ function createCurrentBacklogList() {
 /*B.Working with chart*/
 
 function showChartWindow() {
-    var chartPie = document.getElementById("chartPie").getContext("2d");
-    var myPie = new Chart(chartPie).Pie(pieChartData);
+    fetchPieChartData();
+    fetchBarChartData();
+    fetchLineGraphData();
 }
 
+
 //Load pie chart data
-var pieChartData;
 function fetchPieChartData() {
     $.ajax({
         url: "Handler.ashx",
@@ -518,10 +519,56 @@ function fetchPieChartData() {
             action: "getPieChart"
         },
         type: "get",
-        success: function (result) {
-            pieChartData = result;
+        success: function (pieChartData) {
+            var canvas = document.getElementById("chartPie");
+            var chartPie = canvas.getContext("2d");
+            chartPie.clearRect(0, 0, canvas.width, canvas.height);
+            var myPie = new Chart(chartPie).Pie(pieChartData);
         }
     });
 }
 
-fetchPieChartData();
+//Load bar chart data
+function fetchBarChartData() {
+    $.ajax({
+        url: "Handler.ashx",
+        data: {
+            action: "getBarChart"
+        },
+        type: "get",
+        success: function (barChartData) {
+            var canvas = document.getElementById("chartBar");
+            var chartBar = canvas.getContext("2d");
+            chartBar.clearRect(0, 0, canvas.width, canvas.height);
+
+            var myBarChart = new Chart(chartBar).Bar(barChartData, {
+                scaleFontColor: "#FFFFFF",
+                scaleGridLineColor: "rgba(128, 128, 128, 0.2)"
+            });
+        }
+    });
+}
+
+//Load bar chart data
+function fetchLineGraphData() {
+    $.ajax({
+        url: "Handler.ashx",
+        data: {
+            action: "getLineGraph"
+        },
+        type: "get",
+        success: function (lineGraphData) {
+            console.log(lineGraphData);
+            var canvas = document.getElementById("graphLine");
+            var graphLine = canvas.getContext("2d");
+            graphLine.clearRect(0, 0, canvas.width, canvas.height);
+
+            var myLineGraph = new Chart(graphLine).Line(lineGraphData, {
+                bezierCurve: false,
+                datasetFill: true,
+                scaleFontColor: "#FFFFFF",
+                scaleGridLineColor: "rgba(128, 128, 128, 0.2)"
+            });
+        }
+    });
+}

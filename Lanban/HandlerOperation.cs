@@ -126,6 +126,16 @@ namespace Lanban
                     result = myQuery.getPieChart(projectID);
                     _context.Response.ContentType = "application/json";
                     break;
+
+                // Get Bar Chart data
+                case "getBarChart":
+                    result = myQuery.getBarChart(projectID);
+                    _context.Response.ContentType = "application/json";
+                    break;
+                case "getLineGraph":
+                    result = myQuery.getLineGraph(projectID);
+                    _context.Response.ContentType = "application/json";
+                    break;
             }
             _context.Response.Write(result);
             _completed = true;

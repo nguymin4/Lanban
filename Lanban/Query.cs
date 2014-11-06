@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.IO;
 using System.Collections.Generic;
 using System.Web;
@@ -7,6 +8,8 @@ using System.Data;
 using System.Text;
 using System.Web.UI;
 using Newtonsoft.Json;
+
+
 
 namespace Lanban
 {
@@ -408,43 +411,210 @@ namespace Lanban
 
         public string getPieChart(int projectID)
         {
-            StringBuilder result = new StringBuilder("");
             myCommand.CommandText = "SELECT Count(*), [Name] FROM Task_User INNER JOIN " +
                 "(SELECT Task_ID FROM Task INNER JOIN (SELECT Backlog_ID FROM Backlog WHERE Project_ID=@projectID AND Status='Ongoing') AS A ON Task.Backlog_ID = A.Backlog_ID) " +
                 "AS B ON Task_User.Task_ID = B.Task_ID GROUP BY User_ID, [Name]";
             addParameter<int>("@projectID", OleDbType.Integer, projectID);
             myReader = myCommand.ExecuteReader();
+            
+            // Create a pie chart instance and then use JSON Convert to serialize it to JSON string
+            PieChart myPie = new PieChart();
+            var data = myPie.part;
             bool available = myReader.Read();
             int index = 0;
-            StringWriter sw = new StringWriter(result);
-            JsonTextWriter myWriter = new JsonTextWriter(sw);
-            myWriter.WriteStartArray();
             while (available)
             {
-                myWriter.WriteStartObject();
-                // Number of tasks of a person in the sprint
-                myWriter.WritePropertyName("value");
-                myWriter.WriteValue(myReader.GetValue(0));
-
-                // Color represent for the corresponding part in pie chart
-                myWriter.WritePropertyName("color");
-                myWriter.WriteValue(colorHex[1, index]);
-
-                // Color when hovering on that part in pie chart
-                myWriter.WritePropertyName("highlight");
-                myWriter.WriteValue(colorHex[0, index]);
-
-                // Name of the person
-                myWriter.WritePropertyName("label");
-                myWriter.WriteValue(myReader.GetValue(1));
-                myWriter.WriteEndObject();
-
+                PiePart temp = new PiePart();
+                temp.value = Convert.ToInt32(myReader.GetValue(0));
+                temp.color = colorHex[1, index];
+                temp.highlight = colorHex[0, index];
+                temp.label = myReader.GetValue(1).ToString();
+                data.Add(temp);
                 available = myReader.Read();
                 index++;
             }
-            myWriter.WriteEndArray();
             myCommand.Parameters.Clear();
-            return result.ToString();
+
+            //Serialize and return value
+            return JsonConvert.SerializeObject(myPie.part);
         }
+
+        public string getBarChart(int projectID)
+        {
+            myCommand.CommandText = "SELECT [Name], SUM(Work_estimation) FROM Task_User INNER JOIN "+
+                "(SELECT Task_ID, Work_estimation FROM Task INNER JOIN (SELECT Backlog_ID FROM Backlog WHERE Project_ID=@projectID AND Status='Ongoing') AS A "+
+                "ON Task.Backlog_ID = A.Backlog_ID WHERE Task.Status='Done' OR Task.Status='Ongoing') "+
+                "AS B ON Task_User.Task_ID = B.Task_ID GROUP BY User_ID, [Name]";
+            addParameter<int>("@projectID", OleDbType.Integer, projectID);
+            myAdapter.Fill(myDataSet, "temp");
+            var table = myDataSet.Tables["temp"];
+            myCommand.Parameters.Clear();
+
+            BarChart myBar = new BarChart();
+            var labels = myBar.labels;
+
+            // Random color - not necessary can be removed.
+            int colorIndex = 0;
+            for (int i = 0; i < 5; i++)
+            {
+                colorIndex = new Random().Next(0, 6);
+                Thread.Sleep(5);
+            }
+            BarChartDataset barDataset = new BarChartDataset(colorHex[1, colorIndex], colorHex[0, colorIndex]);
+            barDataset.label = "";
+
+            // Name of the person and Work estimation
+            foreach (DataRow temp in table.Rows)
+            {
+                labels.Add(temp["Name"].ToString());
+                barDataset.data.Add(Convert.ToInt32(temp[1]));
+            }
+            myBar.datasets.Add(barDataset);
+            return JsonConvert.SerializeObject(myBar);
+        }
+
+        public string getLineGraph(int projectID)
+        {
+            myCommand.CommandText = "SELECT [Completion_date], SUM(Work_estimation) FROM Task_User INNER JOIN "+
+                "(SELECT Task_ID, Work_estimation, Completion_date FROM Task WHERE Task.Status='Done') AS A ON Task_User.Task_ID = A.Task_ID "+
+                "GROUP BY [Completion_date] ORDER BY [Completion_date]";
+
+            addParameter<int>("@projectID", OleDbType.Integer, projectID);
+            myAdapter.Fill(myDataSet, "temp");
+            var table = myDataSet.Tables["temp"];
+            myCommand.Parameters.Clear();
+
+            // Manipulate data - add missing date
+            int i = 0;
+            while (i<table.Rows.Count -1)
+            {
+                DateTime date1 = (DateTime) table.Rows[i][0];
+                DateTime date2 = (DateTime) table.Rows[i+1][0];
+                if (date1.AddDays(1) != date2)
+                {
+                    DataRow row = table.NewRow();
+                    row[0] = date1.Date.AddDays(1);
+                    row[1] = 0;
+                    table.Rows.InsertAt(row, i + 1);
+                }
+                i++;
+            }
+
+            // Create graph
+            LineGraph myLine = new LineGraph();
+            var labels = myLine.labels;
+            var datasets = myLine.datasets;
+            int colorIndex = new Random().Next(0, 6);
+            LineGraphDataset dataset = new LineGraphDataset(colorHex[1, colorIndex], colorHex[0, colorIndex]);
+            dataset.label = "";
+
+            int cumulated = 0;
+            // Name of the person and Work estimation
+            foreach (DataRow temp in table.Rows)
+            {
+                DateTime date = (DateTime)temp[0];
+                labels.Add(date.ToString("dd.MM.yyyy"));
+                cumulated += Convert.ToInt32(temp[1]);
+                dataset.data.Add(cumulated);
+            }
+            datasets.Add(dataset);
+            return JsonConvert.SerializeObject(myLine);
+        }
+
+        protected int[] getOptimumLine(int startPoint, int endPoint, int range)
+        {
+            int[] point = new int[range+2];
+            point[0] = startPoint;
+            point[range + 1] = endPoint;
+            double a = (endPoint - startPoint) / range;
+            double b = startPoint;
+            for (int i = 1; i <= range; i++)
+                point[i] = Convert.ToInt32(a * i + b);
+            return point;
+        }
+    }
+}
+
+
+/* Class object for charts */
+
+// Pie chart
+public class PieChart
+{
+    public IList<PiePart> part { get; set; }
+
+    public PieChart()
+    {
+        part = new List<PiePart>();
+    }
+}
+
+public class PiePart
+{
+    public int value { get; set; }
+    public string color { get; set; }
+    public string highlight { get; set; }
+    public string label { get; set; }
+}
+
+// Bar chart
+public class BarChart
+{
+    public IList<string> labels { get; set; }
+    public IList<BarChartDataset> datasets { get; set; }
+
+    public BarChart()
+    {
+        labels = new List<string>();
+        datasets = new List<BarChartDataset>();
+    }
+}
+
+public class BarChartDataset
+{
+    public string label { get; set; }
+    public string fillColor { get; set; }
+    public string hightlightFill { get; set; }
+    public IList<int> data { get; set; }
+
+    public BarChartDataset(string fillColor, string highlightFill)
+    {
+        data = new List<int>();
+        this.fillColor = fillColor;
+        this.hightlightFill = highlightFill;
+    }
+}
+
+// Line graph
+public class LineGraph
+{
+    public IList<string> labels { get; set; }
+    public IList<LineGraphDataset> datasets { get; set; }
+
+    public LineGraph()
+    {
+        labels = new List<string>();
+        datasets = new List<LineGraphDataset>();
+    }
+}
+
+public class LineGraphDataset
+{
+    public string label { get; set; }
+    public string strokeColor { get; set; }
+    public string pointColor { get; set; }
+    public string pointStrokeColor { get; set; }
+    public string pointHighlightFill { get; set; }
+    public string fillColor { get; set; }
+    public IList<int> data { get; set; }
+
+    public LineGraphDataset(string strokeColor, string pointColor)
+    {
+        data = new List<int>();
+        this.strokeColor = strokeColor;
+        this.pointColor = pointColor;
+        this.pointStrokeColor = pointColor;
+        this.pointHighlightFill = "#fff";
+        this.fillColor = "rgba(0,0,0,0.2)";
     }
 }

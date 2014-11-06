@@ -35,22 +35,23 @@
     <div id="chartWindow" class="window view">
         <div class="title-bar">Chart</div>
         <div class="window-content">
-            <div style="text-align: center">
+            <div class="chart-box">
                 <h3>Number of Tasks assigned <br /> by Person during Sprint</h3>
-                <canvas id="chartPie" width="300" height="300" style="margin: 10px auto;"></canvas>
+                <canvas class="chart" id="chartPie" width="300" height="300"></canvas>
             </div>
-            
+
+            <div class="chart-box">
+                <h3>Number of estimation hour <br /> by Person during Sprint</h3>
+                <canvas class="chart" id="chartBar" width="500" height="300"></canvas>
+            </div>
+
+            <div class="chart-box">
+                <h3>Number of estimation hour
+                    <br />
+                    by Person during Sprint</h3>
+                <canvas class="chart" id="graphLine" width="500" height="300"></canvas>
+            </div>
         </div>
-        <script>
-            
-
-            //var myBarChart = new Chart(ctx).Bar(barChartData, {
-            //    responsive: false,
-            //    scaleFontColor: "#FFFFFF",
-            //    scaleGridLineColor: "rgba(128, 128, 128, 0.2)"
-            //});
-
-        </script>
     </div>
     <!-- End - Chart  -->
 

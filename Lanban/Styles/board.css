@@ -245,3 +245,21 @@ div.assignee-name-active {
     /*background-color: white;*/
     margin: 0px 6px;
 }
+
+.chart {
+    margin: 10px auto;
+}
+
+.chart-box {
+    float: left; 
+    min-width: 400px;
+    min-height: 400px;
+    text-align: center;
+    margin: 30px;
+}
+
+.chart-box h3 {
+    margin: auto;
+    font-size: 16px;
+    text-align: center;
+}
