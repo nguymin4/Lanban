@@ -24,6 +24,7 @@
 // Show Add backlog/task window
 function showWindow(windowName) {
     $("#kanbanWindow").removeClass("show");
+    changePageWindow(windowName, 0);
     (windowName == "backlogWindow") ? clearBacklogWindow() : clearTaskWindow();
     setTimeout(function () {
         $("#kanbanWindow").css("display", "none");
@@ -34,8 +35,7 @@ function showWindow(windowName) {
     }, 250);
 }
 
-// Hide Add backlog/task window
-// Open the kanban board
+// Hide Add backlog/task window and Open the kanban board
 function hideWindow() {
     var window = $(".window.show");
     $(window).removeClass("show");
@@ -45,6 +45,32 @@ function hideWindow() {
         $(viewIndicator[0]).addClass("show");
     }, 250);
 }
+
+//
+function changePageWindow(windowName, index) {
+    var page = document.getElementById(windowName).getElementsByClassName("page");
+    if (index == 1) {
+        page[0].style.left = "-100%";
+        page[1].style.display = "block";
+        setTimeout(function () {
+            page[1].style.left = "0";
+        }, 300);
+        setTimeout(function () {
+            page[0].style.display = "none";
+        }, 1000);
+    }
+    else {
+        page[1].style.left = "100%";
+        page[0].style.display = "block";
+        setTimeout(function () {
+            page[0].style.left = "0";
+        }, 300);
+        setTimeout(function () {
+            page[1].style.display = "none";
+        }, 1000);
+    }
+}
+
 
 // Show error diaglog  - content taken from an array based on parameter
 var errorMsg = ["Cannot drop that item because it is not the same type with the items in column."];
@@ -191,7 +217,7 @@ function getVisualNote(dataID, type, swimlane_id, title, color) {
     objtext = "<div class='note' data-type='" + typeNum + "' id='" + type + "." + id + "' data-id='" + id + "' ondblclick=\"viewDetailNote(" + id + ",'" + type + "')\">" +
                 "<div class='note-header' style='background-color:" + color.substr(0, 7) + ";'>" +
                 "<span class='item-id'>" + idArray[1] + "</span><img class='note-button' onclick=\"viewDetailNote(" + id + ",'" + type + "')\" src='images/sidebar/edit_note.png'>" +
-                "<img class='note-button' onclick='deleteItem(" + id + ",'" + type + "')' src='images/sidebar/delete_note.png'></div>" +
+                "<img class='note-button' onclick=\"deleteItem(" + id + ",'" + type + "')\" src='images/sidebar/delete_note.png'></div>" +
                 "<div class='note-content' style='background-color:" + color.substr(8, 7) + ";'>" + title + "</div></div>";
     return objtext;
 }

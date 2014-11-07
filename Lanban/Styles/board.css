@@ -105,21 +105,45 @@ span.item-id {
 #backlogWindow, #taskWindow {
     max-width: 800px;
     width: 80%;
-    padding-left: 30px;
     font-weight: 600;
     min-height: 450px;
+    position: relative;
+}
+
+.page {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    display: none;
+    transition: 1s ease;
+}
+
+.pageRibbon {
+    width: 100%;
+    line-height: 36px;
+    background: rgba(25, 15, 15, 0.79);
+    clear: both;
+}
+
+.btnNextPage, .btnBackPage {
+    width: 36px; 
+    height: 36px; 
+    cursor: pointer;
+    transition: 0.25s ease;
+    margin: auto auto auto 20px;
 }
 
 .panelAdd-left {
     float: left;
     width: 400px;
     margin-top: 10px;
+    margin-left: 20px;
 }
 
 .panelAdd-right {
     float: left;
     width: 360px;
-    margin-left: 40px;
+    margin-left: 20px;
     margin-top: 10px;
 }
 

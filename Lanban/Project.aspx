@@ -46,14 +46,6 @@
                     <strong>Project 1
                     </strong>
                 </div>
-                <div class="board" onclick="window.location.href = 'board.html'">
-                    <strong>Project 1
-                    </strong>
-                </div>
-                <div class="board" onclick="window.location.href = 'board.html'">
-                    <strong>Project 1
-                    </strong>
-                </div>
             </div>
             <!-- End list of all project -->
             <!-- Start - Project search and filter -->
