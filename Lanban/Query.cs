@@ -69,7 +69,18 @@ namespace Lanban
             myCommand.CommandText = "SELECT * FROM " + tableName + " WHERE Project_ID=@projectID AND Swimlane_ID=@swimlaneID ORDER BY [Position]";
             addParameter<int>("@projectID", OleDbType.Integer, projectID);
             addParameter<int>("@swimlaneID", OleDbType.Integer, swimlaneID);
-            myAdapter.Fill(myDataSet, tableName);
+            myAdapter.Fill(myDataSet, "init_temp");
+            myCommand.Parameters.Clear();
+        }
+
+        // Fill dataset with data status = done from both Task table and Backlog table
+        public void fetchDoneNote(int swimlaneID)
+        {
+            myCommand.CommandText = "SELECT Task_ID AS Item_ID, Task.Backlog_ID, Title, [Position], Color, Status, Relative_ID, 2 AS [Type] From Task " +
+                "WHERE Swimlane_ID = @swimlaneID UNION ALL SELECT Backlog_ID, Null, Title, [Position], Color, Status, Relative_ID, 1 From Backlog " +
+                "WHERE Swimlane_ID = @swimlaneID ORDER BY [Position]";
+            addParameter<int>("@swimlaneID", OleDbType.Integer, swimlaneID);
+            myAdapter.Fill(myDataSet, "init_temp");
             myCommand.Parameters.Clear();
         }
 
@@ -124,7 +135,7 @@ namespace Lanban
             int relativeID = getRelativeID(backlog.Project_ID, "Backlog");
             myCommand.CommandText = "UPDATE Backlog SET [Status]=@Status, [Position]=@Position, Relative_ID=@Relative_ID WHERE Backlog_ID=@id";
             addParameter<string>("@Status", OleDbType.VarChar, status);
-            addParameter<int>("@Position", OleDbType.Integer, position );
+            addParameter<int>("@Position", OleDbType.Integer, position);
             addParameter<int>("@Relative_ID", OleDbType.Integer, relativeID);
             addParameter("@id", OleDbType.Integer, Convert.ToInt32(id));
             myCommand.ExecuteNonQuery();
@@ -275,9 +286,7 @@ namespace Lanban
                         addParameter<DBNull>("@Start_date", OleDbType.DBDate, DBNull.Value);
                     }
                     else
-                    {
                         myCommand.CommandText = "UPDATE Task SET Completion_date=@Completion_date WHERE Task_ID=@id";
-                    }
                     addParameter<DBNull>("@Completion_date", OleDbType.DBDate, DBNull.Value);
                     break;
                 case "Ongoing":
@@ -288,7 +297,7 @@ namespace Lanban
                     }
                     else
                         myCommand.CommandText = "UPDATE Task SET Completion_date=@Completion_date WHERE Task_ID=@id";
-                    addParameter<DateTime>("@Completion_date", OleDbType.DBDate, DateTime.Now.Date);
+                    addParameter<DBNull>("@Completion_date", OleDbType.DBDate, DBNull.Value);
                     break;
                 case "Done":
                     myCommand.CommandText = "UPDATE " + table + " SET Completion_date= @Completion_date WHERE " + table + "_ID=@id";
@@ -416,7 +425,7 @@ namespace Lanban
                 "AS B ON Task_User.Task_ID = B.Task_ID GROUP BY User_ID, [Name]";
             addParameter<int>("@projectID", OleDbType.Integer, projectID);
             myReader = myCommand.ExecuteReader();
-            
+
             // Create a pie chart instance and then use JSON Convert to serialize it to JSON string
             PieChart myPie = new PieChart();
             var data = myPie.part;
@@ -441,9 +450,9 @@ namespace Lanban
 
         public string getBarChart(int projectID)
         {
-            myCommand.CommandText = "SELECT [Name], SUM(Work_estimation) FROM Task_User INNER JOIN "+
-                "(SELECT Task_ID, Work_estimation FROM Task INNER JOIN (SELECT Backlog_ID FROM Backlog WHERE Project_ID=@projectID AND Status='Ongoing') AS A "+
-                "ON Task.Backlog_ID = A.Backlog_ID WHERE Task.Status='Done' OR Task.Status='Ongoing') "+
+            myCommand.CommandText = "SELECT [Name], SUM(Work_estimation) FROM Task_User INNER JOIN " +
+                "(SELECT Task_ID, Work_estimation FROM Task INNER JOIN (SELECT Backlog_ID FROM Backlog WHERE Project_ID=@projectID AND Status='Ongoing') AS A " +
+                "ON Task.Backlog_ID = A.Backlog_ID WHERE Task.Status='Done' OR Task.Status='Ongoing') " +
                 "AS B ON Task_User.Task_ID = B.Task_ID GROUP BY User_ID, [Name]";
             addParameter<int>("@projectID", OleDbType.Integer, projectID);
             myAdapter.Fill(myDataSet, "temp");
@@ -475,8 +484,8 @@ namespace Lanban
 
         public string getLineGraph(int projectID)
         {
-            myCommand.CommandText = "SELECT [Completion_date], SUM(Work_estimation) FROM Task_User INNER JOIN "+
-                "(SELECT Task_ID, Work_estimation, Completion_date FROM Task WHERE Task.Status='Done') AS A ON Task_User.Task_ID = A.Task_ID "+
+            myCommand.CommandText = "SELECT [Completion_date], SUM(Work_estimation) FROM Task_User INNER JOIN " +
+                "(SELECT Task_ID, Work_estimation, Completion_date FROM Task WHERE Task.Status='Done') AS A ON Task_User.Task_ID = A.Task_ID " +
                 "GROUP BY [Completion_date] ORDER BY [Completion_date]";
 
             addParameter<int>("@projectID", OleDbType.Integer, projectID);
@@ -486,10 +495,10 @@ namespace Lanban
 
             // Manipulate data - add missing date
             int i = 0;
-            while (i<table.Rows.Count -1)
+            while (i < table.Rows.Count - 1)
             {
-                DateTime date1 = (DateTime) table.Rows[i][0];
-                DateTime date2 = (DateTime) table.Rows[i+1][0];
+                DateTime date1 = (DateTime)table.Rows[i][0];
+                DateTime date2 = (DateTime)table.Rows[i + 1][0];
                 if (date1.AddDays(1) != date2)
                 {
                     DataRow row = table.NewRow();
@@ -523,7 +532,7 @@ namespace Lanban
 
         protected int[] getOptimumLine(int startPoint, int endPoint, int range)
         {
-            int[] point = new int[range+2];
+            int[] point = new int[range + 2];
             point[0] = startPoint;
             point[range + 1] = endPoint;
             double a = (endPoint - startPoint) / range;

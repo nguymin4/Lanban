@@ -43,7 +43,7 @@ namespace Lanban
             {
                 var row = swimlane.Rows[i];
                 panelKanbanHeader.Controls.Add(createHeader(row, i));
-                createCell(row["Swimlane_ID"].ToString(), row["Type"].ToString(), i);
+                createCell(row, i);
                 panelKanbanBody.Controls.Add(cell[i]);
             }
         }
@@ -71,16 +71,18 @@ namespace Lanban
         }
 
         //1.2 Add table cell to kanban board with sticky note
-        protected void createCell(string swimlane_id, string type, int position)
+        protected void createCell(DataRow row, int position)
         {
+            int swimlane_id = Convert.ToInt32(row["Swimlane_ID"]);
+            string type = row["Type"].ToString();
             //Initialize
             cell[position] = new TableCell();
             var td = cell[position];
             td.CssClass = "connected";
-            td.Attributes.Add("data-id", swimlane_id);
+            td.Attributes.Add("data-id", swimlane_id.ToString());
             td.Attributes.Add("data-lane-type", type);
-            //td.Attributes.Add("data-position", position.ToString());
-            addNotes(Convert.ToInt32(swimlane_id), type, position);
+            td.Attributes.Add("data-status", row["Data_status"].ToString());
+            addNotes(swimlane_id, type, position);
         }
 
         //1.3 Add content to the cell at position [position]
@@ -89,37 +91,57 @@ namespace Lanban
             if (cell[position].HasControls()) cell[position].Controls.Clear();
 
             //Fetch data
-            string tableName = type.Equals("1") ? "Backlog" : "Task";
-            myQuery.fetchNote(tableName, projectID, Convert.ToInt32(swimlane_id));
-            var tempTable = myQuery.MyDataSet.Tables[tableName];
-
-            //Add notes to this cell
-            for (int i = 0; i < tempTable.Rows.Count; i++)
-                cell[position].Controls.Add(createNote(tempTable.Rows[i], type, tableName));
+            if (!type.Equals("3"))
+            {
+                string tableName = type.Equals("1") ? "Backlog" : "Task";
+                myQuery.fetchNote(tableName, projectID, swimlane_id);
+                var tempTable = myQuery.MyDataSet.Tables["init_temp"];
+                //Add notes to this cell
+                for (int i = 0; i < tempTable.Rows.Count; i++)
+                    cell[position].Controls.Add(createNote(tempTable.Rows[i], type));
+            }
+            else
+            {
+                myQuery.fetchDoneNote(swimlane_id);
+                //Add notes to this cell
+                foreach (DataRow row in myQuery.MyDataSet.Tables["init_temp"].Rows)
+                    cell[position].Controls.Add(createNote(row, row["Type"].ToString()));
+            }
 
             //Clear table for the next fetch
-            myQuery.MyDataSet.Tables[tableName].Clear();
+            myQuery.MyDataSet.Tables["init_temp"].Clear();
         }
 
         //1.4 Create sticky notes based on retrieved data from database
-        protected HtmlGenericControl createNote(DataRow row, string type, string tableName)
+        protected HtmlGenericControl createNote(DataRow row, string type)
         {
-            tableName = tableName.ToLower();
-            
+            string tableName = (type.Equals("1")) ? "backlog" : "task";
+
             HtmlGenericControl div = new HtmlGenericControl("div");
             div.Attributes.Add("class", "note");
             div.Attributes.Add("data-type", type);
+            div.Attributes.Add("data-status", row["Status"].ToString());
+            if (type.Equals("2")) div.Attributes.Add("data-backlog-id", row["Backlog_ID"].ToString());
 
             // Although ID value is repeatable 
             // but it's needed for updatePosition, changeSwimlane and delete a note
-            string divID = (type.Equals("1")) ? row["Backlog_ID"].ToString() : row["Task_ID"].ToString();
+
+            // In case the swimlane has mixture of both Task and Backlog items
+            string divID;
+            try
+            {
+                divID = row["Item_ID"].ToString();
+            }
+            catch (Exception)
+            {
+                divID = (type.Equals("1")) ? row["Backlog_ID"].ToString() : row["Task_ID"].ToString();
+            }
+
             string id = tableName + "." + divID;
             div.Attributes.Add("id", id);
             div.Attributes.Add("data-id", divID);
-            string editFunction = "viewDetailNote(" + divID + ",'" + tableName + "')";
-            div.Attributes.Add("ondblclick", editFunction);
-
             string color = row["Color"].ToString();
+
             // note-header
             HtmlGenericControl header = new HtmlGenericControl("div");
             header.Attributes.Add("class", "note-header");
@@ -128,21 +150,21 @@ namespace Lanban
             item_id.Attributes.Add("class", "item-id");
             item_id.InnerHtml = row["Relative_ID"].ToString();
             header.Controls.Add(item_id);
+
             // Add edit button
             Image edit = new Image();
             edit.ImageUrl = "images/sidebar/edit_note.png";
             edit.CssClass = "note-button";
-            edit.Attributes.Add("onclick", editFunction);
+            edit.Attributes.Add("onclick", "viewDetailNote(" + divID + ",'" + tableName + "')");
             header.Controls.Add(edit);
+
             // Add delete button
             Image delete = new Image();
             delete.ImageUrl = "images/sidebar/delete_note.png";
             delete.CssClass = "note-button";
-            string deleteFunction = "deleteItem(" + divID + ",'" + tableName + "')";
-            delete.Attributes.Add("onclick", deleteFunction);
+            delete.Attributes.Add("onclick", "deleteItem(" + divID + ",'" + tableName + "')");
             header.Controls.Add(delete);
             div.Controls.Add(header);
-
 
             // note-content
             HtmlGenericControl content = new HtmlGenericControl("div");
@@ -150,12 +172,12 @@ namespace Lanban
             content.Style.Add("background-color", color.Substring(8));
             content.InnerHtml = row["Title"].ToString();
             div.Controls.Add(content);
-            
+
             return div;
         }
 
         //2. Init dropdown list value
-        string[] colorText = { "Red", "Orange", "Yellow", "Green", "Cyan", "Blue", "Purple"};
+        string[] colorText = { "Red", "Orange", "Yellow", "Green", "Cyan", "Blue", "Purple" };
         string[,] colorHex = {
                                 {"#ff9898", "#ffc864", "#ffff95", "#98ff98", "#caffff", "#adadff", "#d598ff" },
                                 { "#ff4b4b", "#ffa500", "#ffff4b", "#4bff4b", "#80ffff", "#6464ff", "#b64bff" }

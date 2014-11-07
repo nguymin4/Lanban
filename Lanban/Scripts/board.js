@@ -46,7 +46,9 @@ function hideWindow() {
     }, 250);
 }
 
-//
+/* In backlogWindow and taskWindow there are 2 pages: */
+//1. For adding or viewing some data
+//2. For viewing history or tasks of that backlog, or adding document and comment to a task
 function changePageWindow(windowName, index) {
     var page = document.getElementById(windowName).getElementsByClassName("page");
     if (index == 1) {
@@ -116,25 +118,27 @@ $(document).ready(function () {
     $(".connected").sortable({
         connectWith: ".connected",
         receive: function (event, ui) {
-            var type = this.getAttribute("data-lane-type");
+            var laneType = this.getAttribute("data-lane-type");
             var laneID = this.getAttribute("data-id");
-            if ((type == 3) || (ui.item.type == type) || (ui.item.type == 3)) {
+            if ((laneType == 3) || (ui.item.type == laneType)) {
+                // To diferentiate between changing lane and updating position
                 ui.item.targetLane = laneID;
+
                 //Update sticky note new swimlane id and position
-                changeLane(ui.item.id, type, laneID, ui.item.index());
+                changeLane(ui.item.id, ui.item.type, laneID, ui.item.index());
 
                 //Update positon of all old sticky notes in destination lane based on new insertation position
                 var index = ui.item.index();
                 var note = this.getElementsByClassName("note");
                 for (var i = index + 1; i < note.length; i++) {
-                    updatePosition($(note[i]).attr("data-id"), i, type);
+                    updatePosition($(note[i]).attr("data-id"), i, $(note[i]).attr("data-type"));
                 }
 
                 // DBMS overload when view item immediately
                 // Update position of sticky notes in the source lane.
                 note = ui.item.startLane.getElementsByClassName("note");
                 for (var i = ui.item.startPos; i < note.length; i++) {
-                    updatePosition($(note[i]).attr("data-id"), i, type);
+                    updatePosition($(note[i]).attr("data-id"), i, ui.item.type);
                 }
             }
             else {
@@ -199,7 +203,7 @@ function insertItem(type) {
         type: "post",
         success: function (result) {
             saveAssignee(result, type);
-            var objtext = getVisualNote(result, type, item.Swimlane_ID, item.Title, item.Color);
+            var objtext = getVisualNote(result, type, item);
             var swimlanePosition = parseInt($("#txtSwimlanePosition").val());
             $(objtext).appendTo($(".connected")[swimlanePosition]);
             showSuccessDiaglog(0);
@@ -209,16 +213,28 @@ function insertItem(type) {
 }
 
 //Create visual note
-function getVisualNote(dataID, type, swimlane_id, title, color) {
+function getVisualNote(dataID, type, item) {
     var idArray = dataID.split(".");
     var id = idArray[0];
+    var backlog_id, typeNum;
+    var color = item.Color;
+    var status = $("#kanbanBoard td[data-id='" + item.Swimlane_ID + "'").attr("data-status");
+
+    if (type == "backlog") {
+        typeNum = 1;
+    }
+    else {
+        backlog_id = item.Backlog_ID;
+        typeNum = 2;
+    }
+
     var objtext;
-    var typeNum = (type == "backlog") ? 1 : 2;
-    objtext = "<div class='note' data-type='" + typeNum + "' id='" + type + "." + id + "' data-id='" + id + "' ondblclick=\"viewDetailNote(" + id + ",'" + type + "')\">" +
-                "<div class='note-header' style='background-color:" + color.substr(0, 7) + ";'>" +
-                "<span class='item-id'>" + idArray[1] + "</span><img class='note-button' onclick=\"viewDetailNote(" + id + ",'" + type + "')\" src='images/sidebar/edit_note.png'>" +
-                "<img class='note-button' onclick=\"deleteItem(" + id + ",'" + type + "')\" src='images/sidebar/delete_note.png'></div>" +
-                "<div class='note-content' style='background-color:" + color.substr(8, 7) + ";'>" + title + "</div></div>";
+    objtext = "<div class='note' data-type='" + typeNum + "' id='" + type + "." + id + "' data-id='" + id + "' " +
+    (type == "task") ? "data-backlog-id='" + backlog_id + "'" : "" + "data-status='" + status + "'>";
+    "<div class='note-header' style='background-color:" + color.substr(0, 7) + ";'><span class='item-id'>" + idArray[1] + "</span>" +
+    "<img class='note-button' onclick=\"viewDetailNote(" + id + ",'" + type + "')\" src='images/sidebar/edit_note.png'>" +
+    "<img class='note-button' onclick=\"deleteItem(" + id + ",'" + type + "')\" src='images/sidebar/delete_note.png'></div>" +
+    "<div class='note-content' style='background-color:" + color.substr(8, 7) + ";'>" + title + "</div></div>";
     return objtext;
 }
 
@@ -241,7 +257,7 @@ function showInsertWindow(windowName, i, swimlaneID) {
 
 /*2. Change position of a sticky note*/
 /*2.1 In a swimlane, when two items swap positon to each other then
-    - call AJAX function to save new position into the database */
+- call AJAX function to save new position into the database */
 function updatePosition(itemID, pos, type) {
     var table = (type == 1) ? "Backlog" : "Task";
     $.ajax({
@@ -273,7 +289,7 @@ function changeLane(itemID, type, swimlane_id, pos) {
             pos: pos
         },
         global: false,
-        type: "get",
+        type: "get"
     });
 }
 
@@ -412,6 +428,8 @@ function viewDetailNote(itemID, type) {
 
     //View all assignee of that item
     viewAssignee(itemID, type);
+
+    if (type == "backlog") { loadTaskBacklogTable(itemID); }
 }
 
 // Format JSonDate to dd.mm.yyyy
@@ -523,7 +541,7 @@ function createCurrentBacklogList() {
     for (var i = 0; i < note.length; i++) {
         var id = note[i].getAttribute("data-id");
         var content = note[i].getElementsByClassName("item-id")[0].innerHTML + " - "
-            + note[i].getElementsByClassName("note-content")[0].innerHTML;
+        + note[i].getElementsByClassName("note-content")[0].innerHTML;
         backloglist.innerHTML += "<option value='" + id + "'>" + content + "</option>";
     }
 }
@@ -584,7 +602,6 @@ function fetchLineGraphData() {
         },
         type: "get",
         success: function (lineGraphData) {
-            console.log(lineGraphData);
             var canvas = document.getElementById("graphLine");
             var graphLine = canvas.getContext("2d");
             graphLine.clearRect(0, 0, canvas.width, canvas.height);
@@ -597,4 +614,21 @@ function fetchLineGraphData() {
             });
         }
     });
+}
+
+
+/* Format tblTaskBacklog */
+function loadTaskBacklogTable(backlog_id) {
+    var task = $(".note[data-type='2'][data-backlog-id='" + backlog_id + "']");
+    var tbody = $("#tblTaskBacklog tbody");
+    $(tbody).html("");
+    for (var i = 0; i < task.length; i++) {
+        var relativeID = task[i].getElementsByClassName("item-id")[0].innerHTML;
+        var title = task[i].getElementsByClassName("note-content")[0].innerHTML;
+        var objtext = (i % 2 == 1) ? "<tr style='background: rgba(25, 15, 15, 0.19)'>" : "<tr>";
+        objtext += "<td>" + relativeID + "</td><td>" + title + "</td><td>" + task[i].getAttribute("data-status") + "</td>" +
+        "<td><img class='note-button' onclick=\"hideWindow(); viewDetailNote(" + task[i].getAttribute("data-id") + ",'task')\" src='images/sidebar/view.png' /></td></tr>";
+        console.log(objtext);
+        $(tbody).append(objtext);
+    }
 }

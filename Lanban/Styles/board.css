@@ -118,6 +118,12 @@ span.item-id {
     transition: 1s ease;
 }
 
+.page h3 {
+    font-size: 18px;
+    margin-top: 10px;
+    text-align: center;
+}
+
 .pageRibbon {
     width: 100%;
     line-height: 36px;
@@ -137,7 +143,7 @@ span.item-id {
     float: left;
     width: 400px;
     margin-top: 10px;
-    margin-left: 20px;
+    margin-left: 18px;
 }
 
 .panelAdd-right {
@@ -255,6 +261,27 @@ div.assignee-name-active {
         font-size: 15px;
         margin-bottom: 20px;
     }
+
+
+/*Table contains all tasks belong to a backlog */
+#tblTaskBacklog {
+    border-collapse: collapse;
+    color: white;
+}
+
+#tblTaskBacklog th {
+    text-align: left;
+}
+
+#tblTaskBacklog td, #tblTaskBacklog th {
+    border-bottom: solid 1px rgba(128, 128, 128, 0.5);
+    height: 28px;
+    line-height: 28px;
+    padding-right: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: top;
+}
 
 /*Chart window*/
 #chartWindow {

@@ -128,11 +128,29 @@
                 <div class="pageRibbon">
                     <img class="btnBackPage" src="images/sidebar/back.png" title="Back" onclick="changePageWindow('backlogWindow', 0)" />
                 </div>
-                <div class="panelAdd-left">
-                    Title:
+                <div class="panelAdd-left" style="width: 460px;">
+                    <h3>Tasks in this backlog</h3>
+                    <table id="tblTaskBacklog">
+                        <colgroup>
+                            <col style="width: 65px;" />
+                            <col style="width: 298px;" />
+                            <col style="width: 65px;" />
+                            <col style="width: 32px;" />
+                        </colgroup>
+                        <thead>
+                            <tr style="background: rgba(25, 15, 15, 0.49)">
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="panelAdd-right">
-                    History:
+                <div class="panelAdd-right" style="width: 300px;">
+                    <h3>Other info</h3>
                 </div>
             </div>
             <!-- End - Window content page 2 -->
@@ -207,10 +225,10 @@
                     <img class="btnBackPage" src="images/sidebar/back.png" title="Back" onclick="changePageWindow('taskWindow', 0)" />
                 </div>
                 <div class="panelAdd-left">
-                    Title:
+                    <h3>Comment</h3>
                 </div>
                 <div class="panelAdd-right">
-                    History:
+                    <h3>Document</h3>
                 </div>
             </div>
             <!-- End - Window content page 2 -->
