@@ -105,7 +105,7 @@ function showProcessingDiaglog() {
 $(document).ready(function () {
     /*Add customized scroll bar*/
     $(".window-content").perfectScrollbar({
-        wheelSpeed: 20,
+        wheelSpeed: 10,
         wheelPropagation: false,
         minScrollbarLength: 10
     });
@@ -202,7 +202,7 @@ function insertItem(type) {
         global: false,
         type: "post",
         success: function (result) {
-            saveAssignee(result, type);
+            saveAssignee(result.substring(0, result.indexOf(".")), type);
             var objtext = getVisualNote(result, type, item);
             var swimlanePosition = parseInt($("#txtSwimlanePosition").val());
             $(objtext).appendTo($(".connected")[swimlanePosition]);
@@ -547,6 +547,7 @@ function createCurrentBacklogList() {
 }
 
 /*B.Working with chart*/
+var myPie, myBarChart, myLineGraph;
 
 function showChartWindow() {
     fetchPieChartData();
@@ -564,10 +565,9 @@ function fetchPieChartData() {
         },
         type: "get",
         success: function (pieChartData) {
-            var canvas = document.getElementById("chartPie");
-            var chartPie = canvas.getContext("2d");
-            chartPie.clearRect(0, 0, canvas.width, canvas.height);
-            var myPie = new Chart(chartPie).Pie(pieChartData);
+            var chartPie = document.getElementById("chartPie").getContext("2d");
+            if (myPie != null) myPie.destroy();
+            myPie = new Chart(chartPie).Pie(pieChartData);
         }
     });
 }
@@ -581,11 +581,9 @@ function fetchBarChartData() {
         },
         type: "get",
         success: function (barChartData) {
-            var canvas = document.getElementById("chartBar");
-            var chartBar = canvas.getContext("2d");
-            chartBar.clearRect(0, 0, canvas.width, canvas.height);
-
-            var myBarChart = new Chart(chartBar).Bar(barChartData, {
+            var chartBar = document.getElementById("chartBar").getContext("2d");
+            if (myBarChart != null) myBarChart.destroy();
+            myBarChart = new Chart(chartBar).Bar(barChartData, {
                 scaleFontColor: "#FFFFFF",
                 scaleGridLineColor: "rgba(128, 128, 128, 0.2)"
             });
@@ -602,11 +600,9 @@ function fetchLineGraphData() {
         },
         type: "get",
         success: function (lineGraphData) {
-            var canvas = document.getElementById("graphLine");
-            var graphLine = canvas.getContext("2d");
-            graphLine.clearRect(0, 0, canvas.width, canvas.height);
-
-            var myLineGraph = new Chart(graphLine).Line(lineGraphData, {
+            var graphLine = document.getElementById("graphLine").getContext("2d");
+            if (myLineGraph != null) myLineGraph.destroy();
+            myLineGraph = new Chart(graphLine).Line(lineGraphData, {
                 bezierCurve: false,
                 datasetFill: true,
                 scaleFontColor: "#FFFFFF",
@@ -628,7 +624,6 @@ function loadTaskBacklogTable(backlog_id) {
         var objtext = (i % 2 == 1) ? "<tr style='background: rgba(25, 15, 15, 0.19)'>" : "<tr>";
         objtext += "<td>" + relativeID + "</td><td>" + title + "</td><td>" + task[i].getAttribute("data-status") + "</td>" +
         "<td><img class='note-button' onclick=\"hideWindow(); viewDetailNote(" + task[i].getAttribute("data-id") + ",'task')\" src='images/sidebar/view.png' /></td></tr>";
-        console.log(objtext);
         $(tbody).append(objtext);
     }
 }

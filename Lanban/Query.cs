@@ -3,7 +3,7 @@ using System.Threading;
 using System.IO;
 using System.Collections.Generic;
 using System.Web;
-using System.Data.OleDb;
+using System.Data.SqlClient;
 using System.Data;
 using System.Text;
 using System.Web.UI;
@@ -15,11 +15,11 @@ namespace Lanban
 {
     public class Query
     {
-        string myConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=|DataDirectory|\Lanban.accdb";
-        private OleDbConnection myConnection;
-        private OleDbCommand myCommand;
-        private OleDbDataAdapter myAdapter;
-        private OleDbDataReader myReader;
+        string myConnectionString = "Data Source=jpk6v577q2.database.windows.net;Initial Catalog=Lanban;Persist Security Info=True;User ID=nguymin4;Password=Lanban2014;Connect Timeout=30;Encrypt=True";
+        private SqlConnection myConnection;
+        private SqlCommand myCommand;
+        private SqlDataAdapter myAdapter;
+        private SqlDataReader myReader;
         private DataSet myDataSet;
 
         public DataSet MyDataSet
@@ -30,11 +30,11 @@ namespace Lanban
         //1. Constructor
         public Query()
         {
-            myConnection = new OleDbConnection(myConnectionString);
-            myCommand = new OleDbCommand();
+            myConnection = new SqlConnection(myConnectionString);
+            myCommand = new SqlCommand();
             myCommand.Connection = myConnection;
+            myAdapter = new SqlDataAdapter(myCommand);
             myDataSet = new DataSet();
-            myAdapter = new OleDbDataAdapter(myCommand);
             myConnection.Open();
         }
 
@@ -46,7 +46,7 @@ namespace Lanban
         }
 
         // Add parameter for myCommand
-        protected void addParameter<T>(string parameter, OleDbType type, T value)
+        protected void addParameter<T>(string parameter, SqlDbType type, T value)
         {
             myCommand.Parameters.Add(parameter, type);
             myCommand.Parameters[parameter].Value = value;
@@ -57,18 +57,18 @@ namespace Lanban
         public void fetchSwimlane(int projectID)
         {
             //Retrieve Swimlane data
-            myCommand.CommandText = "SELECT * FROM Swimlane WHERE Project_ID=@projectID ORDER BY [Position]";
-            addParameter<int>("@projectID", OleDbType.Integer, projectID);
+            myCommand.CommandText = "SELECT * FROM Swimlane WHERE Project_ID = @projectID ORDER BY [Position]";
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
             myAdapter.Fill(myDataSet, "Swimlane");
             myCommand.Parameters.Clear();
         }
 
-        //Fill dataset with data from either Task table or Backlog table based on parameter
+        // Fill dataset with data from either Task table or Backlog table based on parameter
         public void fetchNote(string tableName, int projectID, int swimlaneID)
         {
             myCommand.CommandText = "SELECT * FROM " + tableName + " WHERE Project_ID=@projectID AND Swimlane_ID=@swimlaneID ORDER BY [Position]";
-            addParameter<int>("@projectID", OleDbType.Integer, projectID);
-            addParameter<int>("@swimlaneID", OleDbType.Integer, swimlaneID);
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
+            addParameter<int>("@swimlaneID", SqlDbType.Int, swimlaneID);
             myAdapter.Fill(myDataSet, "init_temp");
             myCommand.Parameters.Clear();
         }
@@ -79,17 +79,17 @@ namespace Lanban
             myCommand.CommandText = "SELECT Task_ID AS Item_ID, Task.Backlog_ID, Title, [Position], Color, Status, Relative_ID, 2 AS [Type] From Task " +
                 "WHERE Swimlane_ID = @swimlaneID UNION ALL SELECT Backlog_ID, Null, Title, [Position], Color, Status, Relative_ID, 1 From Backlog " +
                 "WHERE Swimlane_ID = @swimlaneID ORDER BY [Position]";
-            addParameter<int>("@swimlaneID", OleDbType.Integer, swimlaneID);
+            addParameter<int>("@swimlaneID", SqlDbType.Int, swimlaneID);
             myAdapter.Fill(myDataSet, "init_temp");
             myCommand.Parameters.Clear();
         }
 
-        //Get all information of an item based on it
+        // Get all information of an item based on it
         public string viewItem(string id, string type)
         {
             StringBuilder result = new StringBuilder();
             myCommand.CommandText = "SELECT * FROM " + type + " WHERE " + type + "_ID=@id";
-            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
+            addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
             myReader = myCommand.ExecuteReader();
             bool available = myReader.Read();
             if (available == false) result.Append("");
@@ -114,30 +114,29 @@ namespace Lanban
         {
             StringBuilder command = new StringBuilder();
             command.Append("INSERT INTO Backlog (Project_ID, Swimlane_ID, Title, Description, Complexity, Color) ");
-            command.Append("VALUES (@Project_ID, @Swimlane_ID, @Title, @Description, @Complexity, @Color)");
-            addParameter<int>("@Project_ID", OleDbType.Integer, backlog.Project_ID);
-            addParameter<int>("@Swimlane_ID", OleDbType.Integer, backlog.Swimlane_ID);
-            addParameter<string>("@Title", OleDbType.LongVarChar, backlog.Title);
-            addParameter<string>("@Description", OleDbType.LongVarChar, backlog.Description);
-            addParameter<int>("@Complexity", OleDbType.Integer, backlog.Complexity);
-            addParameter<string>("@Color", OleDbType.VarChar, backlog.Color);
-            myCommand.CommandText = command.ToString();
-            myCommand.ExecuteNonQuery();
-            myCommand.Parameters.Clear();
+            command.Append("VALUES (@Project_ID, @Swimlane_ID, @Title, @Description, @Complexity, @Color);");
+            addParameter<int>("@Project_ID", SqlDbType.Int, backlog.Project_ID);
+            addParameter<int>("@Swimlane_ID", SqlDbType.Int, backlog.Swimlane_ID);
+            addParameter<string>("@Title", SqlDbType.Text, backlog.Title);
+            addParameter<string>("@Description", SqlDbType.Text, backlog.Description);
+            addParameter<int>("@Complexity", SqlDbType.Int, backlog.Complexity);
+            addParameter<string>("@Color", SqlDbType.VarChar, backlog.Color);
 
-            // Get the ID just inserted -- Change later with @@SCOPE_IDENTITY in SQL SERVER
-            myCommand.CommandText = "SELECT MAX(Backlog_ID) FROM Backlog";
+            // Get the ID just inserted
+            command.Append("SELECT SCOPE_IDENTITY();");
+            myCommand.CommandText = command.ToString();
             string id = myCommand.ExecuteScalar().ToString();
+            myCommand.Parameters.Clear();
 
             // Update data in some field of just inserted row
             string status = getDataStatus(backlog.Swimlane_ID.ToString());
             int position = countItem(backlog.Swimlane_ID, "Backlog") - 1;
             int relativeID = getRelativeID(backlog.Project_ID, "Backlog");
             myCommand.CommandText = "UPDATE Backlog SET [Status]=@Status, [Position]=@Position, Relative_ID=@Relative_ID WHERE Backlog_ID=@id";
-            addParameter<string>("@Status", OleDbType.VarChar, status);
-            addParameter<int>("@Position", OleDbType.Integer, position);
-            addParameter<int>("@Relative_ID", OleDbType.Integer, relativeID);
-            addParameter("@id", OleDbType.Integer, Convert.ToInt32(id));
+            addParameter<string>("@Status", SqlDbType.VarChar, status);
+            addParameter<int>("@Position", SqlDbType.Int, position);
+            addParameter<int>("@Relative_ID", SqlDbType.Int, relativeID);
+            addParameter("@id", SqlDbType.Int, Convert.ToInt32(id));
             myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
 
@@ -153,40 +152,38 @@ namespace Lanban
             command.Append("INSERT INTO Task (Project_ID, Swimlane_ID, Backlog_ID, Title, ");
             command.Append("Description, Color, Work_estimation, Due_date) ");
             command.Append("VALUES (@Project_ID, @Swimlane_ID, @Backlog_ID, @Title, ");
-            command.Append("@Description, @Color, @Work_estimation, @Due_date)");
+            command.Append("@Description, @Color, @Work_estimation, @Due_date);");
 
-            addParameter<int>("@Project_ID", OleDbType.Integer, task.Project_ID);
-            addParameter<int>("@Swimlane_ID", OleDbType.Integer, task.Swimlane_ID);
-            addParameter<int>("@Backlog_ID", OleDbType.Integer, task.Backlog_ID);
-            addParameter<string>("@Title", OleDbType.LongVarChar, task.Title);
-            addParameter<string>("@Description", OleDbType.LongVarChar, task.Description);
-            addParameter<string>("@Color", OleDbType.VarChar, task.Color);
+            addParameter<int>("@Project_ID", SqlDbType.Int, task.Project_ID);
+            addParameter<int>("@Swimlane_ID", SqlDbType.Int, task.Swimlane_ID);
+            addParameter<int>("@Backlog_ID", SqlDbType.Int, task.Backlog_ID);
+            addParameter<string>("@Title", SqlDbType.Text, task.Title);
+            addParameter<string>("@Description", SqlDbType.Text, task.Description);
+            addParameter<string>("@Color", SqlDbType.VarChar, task.Color);
 
             // Work estimation can be null
-            if (task.Work_estimation == null) addParameter<DBNull>("@Work_estimation", OleDbType.Integer, DBNull.Value);
-            else addParameter("@Work_estimation", OleDbType.Integer, task.Work_estimation);
+            if (task.Work_estimation == null) addParameter<DBNull>("@Work_estimation", SqlDbType.Int, DBNull.Value);
+            else addParameter("@Work_estimation", SqlDbType.Int, task.Work_estimation);
 
             // Due date is nullable field - the user can skip input data of that field
-            if (task.Due_date.Equals("")) addParameter<DBNull>("@Due_date", OleDbType.DBDate, DBNull.Value);
-            else addParameter<DateTime>("@Due_date", OleDbType.DBDate, DateTime.ParseExact(task.Due_date, "dd.MM.yyyy", null));
+            if (task.Due_date.Equals("")) addParameter<DBNull>("@Due_date", SqlDbType.DateTime2, DBNull.Value);
+            else addParameter<DateTime>("@Due_date", SqlDbType.DateTime2, DateTime.ParseExact(task.Due_date, "dd.MM.yyyy", null));
 
+            // Get the ID just inserted
+            command.Append("SELECT SCOPE_IDENTITY();");
             myCommand.CommandText = command.ToString();
-            myCommand.ExecuteNonQuery();
-            myCommand.Parameters.Clear();
-
-            // Get the ID just inserted -- Change later with @@SCOPE_IDENTITY in SQL SERVER
-            myCommand.CommandText = "SELECT MAX(Task_ID) FROM Task";
             string id = myCommand.ExecuteScalar().ToString();
+            myCommand.Parameters.Clear();
 
             // Update data in some field of just inserted row
             string status = getDataStatus(task.Swimlane_ID.ToString());
             int position = countItem(task.Swimlane_ID, "Task") - 1;
             int relativeID = getRelativeID(task.Project_ID, "Task");
             myCommand.CommandText = "UPDATE Task SET Status=@Status, [Position]=@Position, Relative_ID=@Relative_ID WHERE Task_ID=@id";
-            addParameter<string>("@Status", OleDbType.VarChar, status);
-            addParameter<int>("@Position", OleDbType.Integer, position);
-            addParameter<int>("@Relative_ID", OleDbType.Integer, relativeID);
-            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
+            addParameter<string>("@Status", SqlDbType.VarChar, status);
+            addParameter<int>("@Position", SqlDbType.Int, position);
+            addParameter<int>("@Relative_ID", SqlDbType.Int, relativeID);
+            addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
             myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
 
@@ -201,11 +198,11 @@ namespace Lanban
             string command = "UPDATE Backlog SET Title=@Title, Description=@Description, " +
                 "Complexity=@Complexity, Color=@Color WHERE Backlog_ID=@Backlog_ID";
 
-            addParameter<string>("@Title", OleDbType.LongVarChar, backlog.Title);
-            addParameter<string>("@Description", OleDbType.LongVarChar, backlog.Description);
-            addParameter<int>("@Complexity", OleDbType.Integer, backlog.Complexity);
-            addParameter<string>("@Color", OleDbType.VarChar, backlog.Color);
-            addParameter("@Backlog_ID", OleDbType.Integer, Convert.ToInt32(id));
+            addParameter<string>("@Title", SqlDbType.Text, backlog.Title);
+            addParameter<string>("@Description", SqlDbType.Text, backlog.Description);
+            addParameter<int>("@Complexity", SqlDbType.Int, backlog.Complexity);
+            addParameter<string>("@Color", SqlDbType.VarChar, backlog.Color);
+            addParameter("@Backlog_ID", SqlDbType.Int, Convert.ToInt32(id));
 
             myCommand.CommandText = command;
             myCommand.ExecuteNonQuery();
@@ -218,21 +215,21 @@ namespace Lanban
             string command = "UPDATE Task SET Backlog_ID=@Backlog_ID, Title=@Title, Description=@Description, " +
                 "Work_estimation=@Work_estimation, Color=@Color, Due_date=@Due_date WHERE Task_ID=@Task_ID";
 
-            addParameter<int>("@Backlog_ID", OleDbType.Integer, task.Backlog_ID);
-            addParameter<string>("@Title", OleDbType.LongVarChar, task.Title);
-            addParameter<string>("@Description", OleDbType.LongVarChar, task.Description);
+            addParameter<int>("@Backlog_ID", SqlDbType.Int, task.Backlog_ID);
+            addParameter<string>("@Title", SqlDbType.Text, task.Title);
+            addParameter<string>("@Description", SqlDbType.Text, task.Description);
 
             // Work estimation can be null
-            if (task.Work_estimation == null) addParameter("@Work_estimation", OleDbType.Integer, DBNull.Value);
-            else addParameter("@Work_estimation", OleDbType.Integer, task.Work_estimation);
+            if (task.Work_estimation == null) addParameter("@Work_estimation", SqlDbType.Int, DBNull.Value);
+            else addParameter("@Work_estimation", SqlDbType.Int, task.Work_estimation);
 
-            addParameter<string>("@Color", OleDbType.VarChar, task.Color);
+            addParameter<string>("@Color", SqlDbType.VarChar, task.Color);
 
             // Due date is nullable field - the user can skip input data of that field
-            if (task.Due_date.Equals("")) addParameter<DBNull>("@Due_date", OleDbType.DBDate, DBNull.Value);
-            else addParameter<DateTime>("@Due_date", OleDbType.DBDate, DateTime.ParseExact(task.Due_date, "dd.MM.yyyy", null));
+            if (task.Due_date.Equals("")) addParameter<DBNull>("@Due_date", SqlDbType.DateTime2, DBNull.Value);
+            else addParameter<DateTime>("@Due_date", SqlDbType.DateTime2, DateTime.ParseExact(task.Due_date, "dd.MM.yyyy", null));
 
-            addParameter<int>("@Task_ID", OleDbType.Integer, Convert.ToInt32(id));
+            addParameter<int>("@Task_ID", SqlDbType.Int, Convert.ToInt32(id));
 
             myCommand.CommandText = command;
             myCommand.ExecuteNonQuery();
@@ -243,7 +240,7 @@ namespace Lanban
         public void deleteItem(string id, string type)
         {
             myCommand.CommandText = "DELETE FROM " + type + " WHERE " + type + "_ID=@id";
-            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
+            addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
             myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
             //Cascade deleting
@@ -254,8 +251,8 @@ namespace Lanban
         public void updatePosition(string id, string pos, string table)
         {
             myCommand.CommandText = "UPDATE " + table + " SET [Position]=@Position  WHERE " + table + "_ID=@id";
-            addParameter<int>("@Position", OleDbType.Integer, Convert.ToInt32(pos));
-            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
+            addParameter<int>("@Position", SqlDbType.Int, Convert.ToInt32(pos));
+            addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
             myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
         }
@@ -265,10 +262,10 @@ namespace Lanban
         {
             string status = getDataStatus(swimlane_id);
             myCommand.CommandText = "UPDATE " + table + " SET Swimlane_ID= @Swimlane_ID, [Position]=@Position, Status=@Status WHERE " + table + "_ID=@id";
-            addParameter<int>("@Swimlane_ID", OleDbType.Integer, Convert.ToInt32(swimlane_id));
-            addParameter<int>("@Position", OleDbType.Integer, Convert.ToInt32(pos));
-            addParameter<string>("@Status", OleDbType.VarChar, status);
-            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
+            addParameter<int>("@Swimlane_ID", SqlDbType.Int, Convert.ToInt32(swimlane_id));
+            addParameter<int>("@Position", SqlDbType.Int, Convert.ToInt32(pos));
+            addParameter<string>("@Status", SqlDbType.VarChar, status);
+            addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
             myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
             updateDate(id, table, status);
@@ -283,28 +280,28 @@ namespace Lanban
                     if (table.Equals("Backlog"))
                     {
                         myCommand.CommandText = "UPDATE Backlog SET Start_date= @Start_date, Completion_date=@Completion_date WHERE Backlog_ID=@id";
-                        addParameter<DBNull>("@Start_date", OleDbType.DBDate, DBNull.Value);
+                        addParameter<DBNull>("@Start_date", SqlDbType.DateTime2, DBNull.Value);
                     }
                     else
                         myCommand.CommandText = "UPDATE Task SET Completion_date=@Completion_date WHERE Task_ID=@id";
-                    addParameter<DBNull>("@Completion_date", OleDbType.DBDate, DBNull.Value);
+                    addParameter<DBNull>("@Completion_date", SqlDbType.DateTime2, DBNull.Value);
                     break;
                 case "Ongoing":
                     if (table.Equals("Backlog"))
                     {
                         myCommand.CommandText = "UPDATE Backlog SET Start_date=@Start_date, Completion_date=@Completion_date WHERE Backlog_ID=@id";
-                        addParameter<DateTime>("@Start_date", OleDbType.DBDate, DateTime.Now.Date);
+                        addParameter<DateTime>("@Start_date", SqlDbType.DateTime2, DateTime.Now.Date);
                     }
                     else
                         myCommand.CommandText = "UPDATE Task SET Completion_date=@Completion_date WHERE Task_ID=@id";
-                    addParameter<DBNull>("@Completion_date", OleDbType.DBDate, DBNull.Value);
+                    addParameter<DBNull>("@Completion_date", SqlDbType.DateTime2, DBNull.Value);
                     break;
                 case "Done":
                     myCommand.CommandText = "UPDATE " + table + " SET Completion_date= @Completion_date WHERE " + table + "_ID=@id";
-                    addParameter<DateTime>("@Completion_date", OleDbType.DBDate, DateTime.Now.Date);
+                    addParameter<DateTime>("@Completion_date", SqlDbType.DateTime2, DateTime.Now.Date);
                     break;
             }
-            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
+            addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
             myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
         }
@@ -314,9 +311,9 @@ namespace Lanban
         {
             myCommand.CommandText = "INSERT INTO " + type + "_User (" + type + "_ID, User_ID, [Name])" +
                 " VALUES (@id, @uid, @name)";
-            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
-            addParameter<int>("@uid", OleDbType.Integer, Convert.ToInt32(uid));
-            addParameter<string>("@name", OleDbType.VarChar, name);
+            addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
+            addParameter<int>("@uid", SqlDbType.Int, Convert.ToInt32(uid));
+            addParameter<string>("@name", SqlDbType.VarChar, name);
             myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
         }
@@ -325,7 +322,7 @@ namespace Lanban
         public void deleteAssignee(string id, string type)
         {
             myCommand.CommandText = "DELETE FROM " + type + "_User WHERE " + type + "_ID=@id";
-            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
+            addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
             myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
         }
@@ -334,7 +331,7 @@ namespace Lanban
         public string viewAssignee(string id, string type)
         {
             myCommand.CommandText = "SELECT * FROM " + type + "_User WHERE " + type + "_ID=@id";
-            addParameter<int>("@id", OleDbType.Integer, Convert.ToInt32(id));
+            addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
 
             StringBuilder result = new StringBuilder();
             myReader = myCommand.ExecuteReader();
@@ -423,7 +420,7 @@ namespace Lanban
             myCommand.CommandText = "SELECT Count(*), [Name] FROM Task_User INNER JOIN " +
                 "(SELECT Task_ID FROM Task INNER JOIN (SELECT Backlog_ID FROM Backlog WHERE Project_ID=@projectID AND Status='Ongoing') AS A ON Task.Backlog_ID = A.Backlog_ID) " +
                 "AS B ON Task_User.Task_ID = B.Task_ID GROUP BY User_ID, [Name]";
-            addParameter<int>("@projectID", OleDbType.Integer, projectID);
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
             myReader = myCommand.ExecuteReader();
 
             // Create a pie chart instance and then use JSON Convert to serialize it to JSON string
@@ -454,7 +451,7 @@ namespace Lanban
                 "(SELECT Task_ID, Work_estimation FROM Task INNER JOIN (SELECT Backlog_ID FROM Backlog WHERE Project_ID=@projectID AND Status='Ongoing') AS A " +
                 "ON Task.Backlog_ID = A.Backlog_ID WHERE Task.Status='Done' OR Task.Status='Ongoing') " +
                 "AS B ON Task_User.Task_ID = B.Task_ID GROUP BY User_ID, [Name]";
-            addParameter<int>("@projectID", OleDbType.Integer, projectID);
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
             myAdapter.Fill(myDataSet, "temp");
             var table = myDataSet.Tables["temp"];
             myCommand.Parameters.Clear();
@@ -488,7 +485,7 @@ namespace Lanban
                 "(SELECT Task_ID, Work_estimation, Completion_date FROM Task WHERE Task.Status='Done') AS A ON Task_User.Task_ID = A.Task_ID " +
                 "GROUP BY [Completion_date] ORDER BY [Completion_date]";
 
-            addParameter<int>("@projectID", OleDbType.Integer, projectID);
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
             myAdapter.Fill(myDataSet, "temp");
             var table = myDataSet.Tables["temp"];
             myCommand.Parameters.Clear();

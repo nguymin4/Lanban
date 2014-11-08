@@ -89,14 +89,13 @@
     <Content Include="Scripts\Chart.min.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
     <Content Include="Scripts\jquery-ui.min.js" />
-    <Content Include="Scripts\jquery.mousewheel.js" />
     <Content Include="Scripts\main.js" />
-    <Content Include="Scripts\perfect-scrollbar.js" />
+    <Content Include="Scripts\perfect-scrollbar.min.js" />
     <Content Include="Scripts\project.js" />
     <Content Include="Styles\board.css" />
     <Content Include="Styles\login.css" />
     <Content Include="Styles\main.css" />
-    <Content Include="Styles\perfect-scrollbar.css" />
+    <Content Include="Styles\perfect-scrollbar.min.css" />
     <Content Include="Styles\project.css" />
     <Content Include="Web.config" />
   </ItemGroup>
