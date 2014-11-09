@@ -357,6 +357,80 @@ namespace Lanban
             return display;
         }
 
+        //2.8 Working with task comments
+        //2.8.1 View all comments of a task
+        public string viewTaskComment(string taskID, int userID)
+        {
+            myCommand.CommandText = "SELECT Comment_ID, A.User_ID, Content, Name FROM " +
+                "(SELECT * FROM Task_Comment WHERE Task_ID=@id) AS A INNER JOIN Users ON A.User_ID = Users.User_ID ";
+            addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(taskID));
+
+            StringBuilder result = new StringBuilder();
+            myReader = myCommand.ExecuteReader();
+            bool available = myReader.Read();
+            if (available == false) result.Append("");
+            else
+            {
+                while (available)
+                {
+                    result.Append(getCommentDisplay(myReader, userID));
+                    available = myReader.Read();
+                }
+            }
+            myReader.Close();
+            myCommand.Parameters.Clear();
+            return result.ToString();
+        }
+
+        //2.8.1.a Helper 2.8.1
+        protected string getCommentDisplay(SqlDataReader reader, int userID)
+        {
+            int id = Convert.ToInt32(reader["Comment_ID"]);
+            StringBuilder result = new StringBuilder("<div class='box' id='comment." + id + "'><div class='comment-panel'>");
+            result.Append("<img class='comment-profile' src='images/sidebar/profile.png' title='" + myReader["Name"] + "' />");
+            if (Convert.ToInt32(reader["User_ID"]) == userID)
+            {
+                result.Append("<img class='note-button' title='Edit comment' src='images/sidebar/edit_note.png' onclick='fetchTaskComment(" + id + ")' />");
+                result.Append("<img class='note-button' title='Delete comment' src='images/sidebar/delete_note.png' onclick='deleteTaskComment(" + id + ")' />");
+            }
+            result.Append("</div><div class='comment-content'>");
+            result.Append(myReader["Content"].ToString());
+            result.Append("</div></div>");
+            return result.ToString();
+        }
+
+        //2.8.2 Delete a comment
+        public void deleteTaskComment(string commentID)
+        {
+            myCommand.CommandText = "DELETE FROM Task_Comment WHERE Comment_ID=@id";
+            addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(commentID));
+            myCommand.ExecuteNonQuery();
+            myCommand.Parameters.Clear();
+        }
+
+        //2.8.3 Edit a comment
+        public void updateTaskComment(string commentID, string content)
+        {
+            myCommand.CommandText = "UPDATE Task_Comment SET Content=@content WHERE Comment_ID=@id";
+            addParameter<string>("@content", SqlDbType.Text, content);
+            addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(commentID));
+            myCommand.ExecuteNonQuery();
+            myCommand.Parameters.Clear();
+        }
+
+        //2.8.4 Edit a comment
+        public string insertTaskComment(string taskID, string content, int userID)
+        {
+            myCommand.CommandText = "INSERT INTO Task_Comment (Task_ID, Content, User_ID) VALUES(@taskID, @content, @userID);" +
+                                    "SELECT SCOPE_IDENTITY();";
+            addParameter<int>("@taskID", SqlDbType.Int, Convert.ToInt32(taskID));
+            addParameter<string>("@content", SqlDbType.Text, content);
+            addParameter<int>("@userID", SqlDbType.Int, userID);
+            string id = myCommand.ExecuteScalar().ToString();
+            myCommand.Parameters.Clear();
+            return id;
+        }
+
         //a.1 Search member name in a project
         public string searchAssignee(int projectID, string keyword, string type)
         {

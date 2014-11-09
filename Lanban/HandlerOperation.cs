@@ -45,7 +45,7 @@ namespace Lanban
             string action = param["action"];
             int projectID = Convert.ToInt32(_context.Session["projectID"]);
             string result = "";
-            
+
             switch (action)
             {
                 // Working with data query and manipulation from this part
@@ -62,13 +62,13 @@ namespace Lanban
                         result = myQuery.insertNewTask(task);
                     }
                     break;
-                
+
                 // Get all data of an item
                 case "viewItem":
                     result = myQuery.viewItem(param["itemID"], param["type"]);
                     _context.Response.ContentType = "application/json";
                     break;
-                
+
                 // Update an item
                 case "updateItem":
                     if (param["type"].Equals("backlog"))
@@ -82,7 +82,7 @@ namespace Lanban
                         myQuery.updateTask(param["itemID"], task);
                     }
                     break;
-                
+
                 // Delete an item
                 case "deleteItem":
                     myQuery.deleteItem(param["itemID"], param["type"]);
@@ -92,34 +92,54 @@ namespace Lanban
                 case "updatePosition":
                     myQuery.updatePosition(param["itemID"], param["pos"], param["type"]);
                     break;
-                
+
                 // Change swimlane of an item
                 case "changeSwimlane":
                     myQuery.changeSwimlane(param["itemID"], param["pos"], param["type"], param["swimlane"]);
                     break;
-                
+
                 // Search name of members in a project
                 case "searchAssignee":
                     result = myQuery.searchAssignee(projectID, param["keyword"], param["type"]);
                     break;
-                
+
                 // View all assignee of an item
                 case "viewAssignee":
                     result = myQuery.viewAssignee(param["itemID"], param["type"]);
                     break;
-                
+
                 // Save assignee of an item
                 case "saveAssignee":
                     string aID = param["assigneeID"];
                     string aName = param["assigneeName"];
                     myQuery.saveAssignee(param["itemID"], param["type"], aID, aName);
                     break;
-                
+
                 // Delete all assignees of an item
                 case "deleteAssignee":
                     myQuery.deleteAssignee(param["itemID"], param["type"]);
                     break;
-                
+
+                // Submit a new comment of a task
+                case "insertTaskComment":
+                    result = myQuery.insertTaskComment(param["taskID"], param["content"], Convert.ToInt32(_context.Session["userID"]));
+                    break;
+
+                // View all comments of a task
+                case "viewTaskComment":
+                    result = myQuery.viewTaskComment(param["itemID"], Convert.ToInt32(_context.Session["userID"]));
+                    break;
+
+                // Delete a comment of a task
+                case "deleteTaskComment":
+                    myQuery.deleteTaskComment(param["itemID"]);
+                    break;
+
+                // Edit a comment of a task
+                case "updateTaskComment":
+                    myQuery.updateTaskComment(param["itemID"], param["content"]);
+                    break;
+
                 // Working with chart from this part
                 // Get Pie Chart data
                 case "getPieChart":

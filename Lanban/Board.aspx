@@ -67,8 +67,6 @@
     </div>
     <!-- End - The window for Board layout  -->
 
-
-
     <!-- Start - Backlog item window-->
     <div id="backlogWindow" class="window view">
         <div class="title-bar">Add backlog item</div>
@@ -224,10 +222,20 @@
                 <div class="pageRibbon">
                     <img class="btnBackPage" src="images/sidebar/back.png" title="Back" onclick="changePageWindow('taskWindow', 0)" />
                 </div>
-                <div class="panelAdd-left">
+                <div class="panelAdd-left" style="width: 470px;">
                     <h3>Comment</h3>
+                    <div id="commentBox"></div>
+                    <!-- Add your comment -->
+                    <div class="box" style="padding: 10px;">
+                        <div class="comment-panel">
+                            <img class="comment-profile" id="myCommentProfile" title="Nguyen Minh Son" src="images/sidebar/profile.png" />
+                        </div>
+                        <asp:TextBox CssClass="inputBox" runat="server" TextMode="MultiLine" ID="txtTaskComment"></asp:TextBox>
+                        <input type="button" id="btnSubmitComment" value="Send" onclick="submitTaskComment()" />
+                    </div>
                 </div>
-                <div class="panelAdd-right">
+
+                <div class="panelAdd-right" style="width: 330px">
                     <h3>Document</h3>
                 </div>
             </div>

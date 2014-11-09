@@ -19,6 +19,10 @@
     colgroup.style.width = parseInt((windowWidth - 86) / columncount) - 2;
 
     $(".window-content").perfectScrollbar("update");
+
+    // Calculate size for comment box in Task Window
+    $("#commentBox").css("height", 0.9 * 0.55 * windowHeight);
+    $("#commentBox").perfectScrollbar("update");
 }
 
 // Show Add backlog/task window
@@ -108,6 +112,12 @@ $(document).ready(function () {
         wheelSpeed: 10,
         wheelPropagation: false,
         minScrollbarLength: 10
+    });
+
+    $("#commentBox").perfectScrollbar({
+        wheelSpeed: 3,
+        wheelPropagation: false,
+        suppressScrollX: true,
     });
 
     $(".btnOK").on("click", function () {
@@ -218,7 +228,8 @@ function getVisualNote(dataID, type, item) {
     var id = idArray[0];
     var backlog_id, typeNum;
     var color = item.Color;
-    var status = $("#kanbanBoard td[data-id='" + item.Swimlane_ID + "'").attr("data-status");
+    var status = $("#kanban td[data-id='" + item.Swimlane_ID + "']").attr("data-status");
+    console.log(status);
 
     if (type == "backlog") {
         typeNum = 1;
@@ -230,11 +241,13 @@ function getVisualNote(dataID, type, item) {
 
     var objtext;
     objtext = "<div class='note' data-type='" + typeNum + "' id='" + type + "." + id + "' data-id='" + id + "' " +
-    (type == "task") ? "data-backlog-id='" + backlog_id + "'" : "" + "data-status='" + status + "'>";
+              ((type == "task") ? "data-backlog-id='" + backlog_id + "' " : " ");
+    objtext += "data-status='" + status + "'>" +
     "<div class='note-header' style='background-color:" + color.substr(0, 7) + ";'><span class='item-id'>" + idArray[1] + "</span>" +
     "<img class='note-button' onclick=\"viewDetailNote(" + id + ",'" + type + "')\" src='images/sidebar/edit_note.png'>" +
     "<img class='note-button' onclick=\"deleteItem(" + id + ",'" + type + "')\" src='images/sidebar/delete_note.png'></div>" +
-    "<div class='note-content' style='background-color:" + color.substr(8, 7) + ";'>" + title + "</div></div>";
+    "<div class='note-content' style='background-color:" + color.substr(8, 7) + ";'>" + item.Title + "</div></div>";
+    console.log(objtext);
     return objtext;
 }
 
@@ -429,7 +442,11 @@ function viewDetailNote(itemID, type) {
     //View all assignee of that item
     viewAssignee(itemID, type);
 
-    if (type == "backlog") { loadTaskBacklogTable(itemID); }
+    if (type == "backlog") loadTaskBacklogTable(itemID);
+    else {
+        viewTaskComment(itemID);
+        $("#btnSubmitComment").attr("data-task-id", itemID)
+    }
 }
 
 // Format JSonDate to dd.mm.yyyy
@@ -485,6 +502,88 @@ function clearTaskWindow() {
     createCurrentBacklogList();
 }
 
+/*4.3.1 View all comment of a task*/
+function viewTaskComment(itemID) {
+    $.ajax({
+        url: "Handler.ashx",
+        data: {
+            action: "viewTaskComment",
+            itemID: itemID
+        },
+        global: false,
+        type: "get",
+        success: function (result) {
+            $("#commentBox").html(result);
+        }
+    });
+}
+
+/*4.3.2 Delete a comment of a task*/
+function deleteTaskComment(commentID) {
+    $.ajax({
+        url: "Handler.ashx",
+        data: {
+            action: "deleteTaskComment",
+            itemID: commentID
+        },
+        global: false,
+        type: "get"
+    });
+    var obj = document.getElementById("comment." + commentID);
+    obj.parentElement.removeChild(obj);
+}
+
+/*4.3.3 Fetch a comment to input field to edit*/
+function fetchTaskComment(commentID) {
+    var comment = document.getElementById("comment." + commentID);
+    var content = comment.getElementsByClassName("comment-content")[0].innerHTML;
+    $("#txtTaskComment").val(content);
+    $("#btnSubmitComment").val("Save").attr("onclick", "updateTaskComment(" + commentID + ")");
+}
+
+/*4.3.4 Update edited comment*/
+function updateTaskComment(commentID) {
+    $.ajax({
+        url: "Handler.ashx",
+        data: {
+            action: "updateTaskComment",
+            itemID: commentID,
+            content: $("#txtTaskComment").val()
+        },
+        global: false,
+        type: "post"
+    });
+
+    var comment = document.getElementById("comment." + commentID);
+    var content = comment.getElementsByClassName("comment-content")[0];
+    content.innerHTML = $("#txtTaskComment").val();
+    $("#txtTaskComment").val("");
+    $("#btnSubmitComment").val("Send").attr("onclick", "submitTaskComment()");
+}
+
+/*4.3.5 Insert new comment for a task */
+function submitTaskComment() {
+    $.ajax({
+        url: "Handler.ashx",
+        data: {
+            action: "insertTaskComment",
+            taskID: $("#btnSubmitComment").attr("data-task-id"),
+            content: $("#txtTaskComment").val()
+        },
+        global: false,
+        type: "post",
+        success: function (id) {
+            var objtext = "<div class='box' id='comment." + id + "'><div class='comment-panel'>" +
+                "<img class='comment-profile' title='Nguyen Minh Son' src='images/sidebar/profile.png'>" +
+                "<img class='note-button' title='Edit comment' src='images/sidebar/edit_note.png' onclick='fetchTaskComment(" + id + ")' />" +
+                "<img class='note-button' title='Delete comment' src='images/sidebar/delete_note.png' onclick='deleteTaskComment(" + id + ")' />" +
+                "</div><div class='comment-content'>" + $("#txtTaskComment").val() + "</div></div>";
+            $("#commentBox").append(objtext);
+            $("#txtTaskComment").val("");
+        }
+    });
+}
+
 /*5 Save changes of the current backlog item to database*/
 function saveItem(itemID, type) {
     showProcessingDiaglog();
@@ -525,12 +624,10 @@ function deleteItem(itemID, type) {
             type: type
         },
         global: false,
-        type: "get",
-        success: function (result) {
-            var note = document.getElementById(type + "." + itemID);
-            note.parentElement.removeChild(note);
-        }
+        type: "get"
     });
+    var note = document.getElementById(type + "." + itemID);
+    note.parentElement.removeChild(note);
 }
 
 /*7.1 Creat a drop down list contains all current backlog items*/

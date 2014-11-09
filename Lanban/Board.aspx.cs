@@ -28,6 +28,7 @@ namespace Lanban
                 createKanban();
                 initDropdownList();
                 Session["projectID"] = projectID;
+                Session["userID"] = 1;
             }
         }
 
