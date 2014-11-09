@@ -109,7 +109,7 @@ function showProcessingDiaglog() {
 $(document).ready(function () {
     /*Add customized scroll bar*/
     $(".window-content").perfectScrollbar({
-        wheelSpeed: 10,
+        wheelSpeed: 5,
         wheelPropagation: false,
         minScrollbarLength: 10
     });
@@ -118,6 +118,7 @@ $(document).ready(function () {
         wheelSpeed: 3,
         wheelPropagation: false,
         suppressScrollX: true,
+        includePadding: true
     });
 
     $(".btnOK").on("click", function () {
@@ -254,6 +255,8 @@ function getVisualNote(dataID, type, item) {
 // Open insert window
 function showInsertWindow(windowName, i, swimlaneID) {
     showWindow(windowName);
+    // Don't allow add comment when insert new item
+    $("#" + windowName + " .pageRibbon img").css("display", "none");
     if (windowName == "backlogWindow") {
         $("#" + windowName + " .title-bar").html("Add new backlog");
         $("#" + windowName + " .btnSave").val("Add").attr("onclick", "insertItem('backlog')");
@@ -266,6 +269,7 @@ function showInsertWindow(windowName, i, swimlaneID) {
     // Store swimlame position so that we can add new sticky note into correct column
     $("#txtSwimlanePosition").val(i);
     $("#txtSwimlaneID").val(swimlaneID);
+
 }
 
 /*2. Change position of a sticky note*/
@@ -418,10 +422,13 @@ function clearResult(obj) {
 /*4. Double click on note to open corresponding window that allow user to edit content*/
 function viewDetailNote(itemID, type) {
     showProcessingDiaglog(0);
-    showWindow(type + "Window");
-    $("#" + type + "Window .title-bar").html("Edit " + type + " item");
-    var btnSave = $("#" + type + "Window .btnSave");
+    var windowName = type + "Window";
+    showWindow(windowName);
+    $("#" + windowName + " .title-bar").html("Edit " + type + " item");
+    var btnSave = $("#" + windowName + " .btnSave");
     $(btnSave).val("Save").attr("onclick", "saveItem(" + itemID + ",'" + type + "')");
+
+    $("#" + windowName + " .pageRibbon img").css("display", "block");
 
     //Get all data of that item
     $.ajax({
@@ -513,7 +520,8 @@ function viewTaskComment(itemID) {
         global: false,
         type: "get",
         success: function (result) {
-            $("#commentBox").html(result);
+            $("#commentBox .comment-box").remove();
+            $("#commentBox").prepend(result).perfectScrollbar("update");
         }
     });
 }
@@ -536,8 +544,8 @@ function deleteTaskComment(commentID) {
 /*4.3.3 Fetch a comment to input field to edit*/
 function fetchTaskComment(commentID) {
     var comment = document.getElementById("comment." + commentID);
-    var content = comment.getElementsByClassName("comment-content")[0].innerHTML;
-    $("#txtTaskComment").val(content);
+    var content = comment.getElementsByClassName("comment-content")[0];
+    $("#txtTaskComment").val(content.value);
     $("#btnSubmitComment").val("Save").attr("onclick", "updateTaskComment(" + commentID + ")");
 }
 
@@ -553,7 +561,6 @@ function updateTaskComment(commentID) {
         global: false,
         type: "post"
     });
-
     var comment = document.getElementById("comment." + commentID);
     var content = comment.getElementsByClassName("comment-content")[0];
     content.innerHTML = $("#txtTaskComment").val();
@@ -573,16 +580,20 @@ function submitTaskComment() {
         global: false,
         type: "post",
         success: function (id) {
-            var objtext = "<div class='box' id='comment." + id + "'><div class='comment-panel'>" +
-                "<img class='comment-profile' title='Nguyen Minh Son' src='images/sidebar/profile.png'>" +
-                "<img class='note-button' title='Edit comment' src='images/sidebar/edit_note.png' onclick='fetchTaskComment(" + id + ")' />" +
-                "<img class='note-button' title='Delete comment' src='images/sidebar/delete_note.png' onclick='deleteTaskComment(" + id + ")' />" +
-                "</div><div class='comment-content'>" + $("#txtTaskComment").val() + "</div></div>";
+            var content = $("#txtTaskComment").val().replace(new RegExp('\r?\n', 'g'), '<br />');
+            var objtext = "<div class='comment-box' id='comment." + id + "'><div class='comment-panel'>" +
+                "<img class='comment-profile' title='Nguyen Minh Son' src='images/sidebar/profile.png'></div>" +
+                "<div class='comment-container'><div class='comment-content'>" + content + "</div><div class='comment-footer'>" +
+                "<img class='comment-button' title='Edit comment' src='images/sidebar/edit_note.png' onclick='fetchTaskComment(" + id + ")' />" +
+                "<img class='comment-button' title='Delete comment' src='images/sidebar/delete_note.png' onclick='deleteTaskComment(" + id + ")' />" +
+                "</div></div>";
             $("#commentBox").append(objtext);
+            $("#commentBox").scrollTop(document.getElementById("commentBox").scrollHeight);
             $("#txtTaskComment").val("");
         }
     });
 }
+
 
 /*5 Save changes of the current backlog item to database*/
 function saveItem(itemID, type) {

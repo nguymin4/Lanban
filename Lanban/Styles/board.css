@@ -9,6 +9,7 @@
     border-collapse: collapse;
     color: white;
     margin: auto;
+    margin: 0px 2px;
 }
 
     #kanban colgroup {
@@ -153,7 +154,7 @@ span.item-id {
     margin-top: 10px;
 }
 
-.inputBox, textarea, .boxAssignee {
+.inputBox, .inputDescription, .boxAssignee {
     background: rgba(25, 15, 15, 0.5) transparent;
     height: 28px;
     min-width: 200px;
@@ -173,7 +174,6 @@ span.item-id {
 
 .inputDescription {
     display: block;
-    font-family: "Open Sans",sans-serif;
     height: 300px;
     width: 400px;
 }
@@ -322,54 +322,78 @@ div.assignee-name-active {
     position: relative;
     overflow: hidden;
     border-radius: 5px;
-    padding: 10px 10px;
     border: 1px solid rgba(128, 128, 128, 0.5);
+    padding-left: 10px;
 }
 
-.box {
+.comment-box {
     clear: both;
-    font-size: 14px;
-    font-weight: normal;
-    min-height: 80px;
-}
-
-.comment-panel, .comment-content {
-    float: left;
+    padding-top: 10px;
 }
 
 .comment-panel {
+    float: left;
+    width: 48px;
     border-radius: 5px;
     background: rgba(25, 15, 15, 0.5);
-    width: 60px;
     text-align: center;
 }
 
 .comment-profile {
     width: 48px;
     height: 48px;
-    margin: auto;
+}
+
+.comment-container {
+    width: 340px;
+    float: left;
+    background: rgba(25, 15, 15, 0.5);
+    border-radius: 5px;
+    margin: 0px 10px 10px 15px;
+    padding: 5px;
 }
 
 .comment-content {
-    border-radius: 5px;
-    background: rgba(25, 15, 15, 0.5);
-    margin: 0px 0px 20px 10px;
-    padding: 5px 15px 10px 15px;
-    width: 340px;
-    color: white;
+    background: transparent;
+    min-height: 20px;
+    padding: 0px 5px;
+    margin-top: 0px;
+    margin-bottom: 3px;
+    font-size: 14px;
+    font-weight: normal;
     line-height: 20px;
+    font-family: "Open Sans",sans-serif;
     text-align: justify;
 }
 
+.comment-footer {
+    text-align: right;
+    height: 20px;
+    line-height: 20px;
+    width: 100%;
+}
+
+.comment-button {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+    .comment-button:hover {
+        width: 20px;
+        height: 20px;
+    }
 
 #txtTaskComment {
     float: left;
     height: 55px;
     width: 310px;
     border-radius: 5px;
-    margin: 0px 5px 10px 10px;
-    padding: 5px 15px 10px 15px;
+    margin: 0px 5px 10px 15px;
+    padding: 5px 10px 5px 10px;
     font-size: 14px;
+    resize: none;
 }
 
 #btnSubmitComment {

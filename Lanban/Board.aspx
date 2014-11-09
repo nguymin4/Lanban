@@ -143,8 +143,7 @@
                                 <th></th>
                             </tr>
                         </thead>
-                        <tbody>
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
                 <div class="panelAdd-right" style="width: 300px;">

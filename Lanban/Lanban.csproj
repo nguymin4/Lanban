@@ -63,6 +63,13 @@
     <Content Include="Board.aspx" />
     <Content Include="Global.asax" />
     <Content Include="images\background.JPG" />
+    <Content Include="images\files\excel.png" />
+    <Content Include="images\files\general.png" />
+    <Content Include="images\files\image.png" />
+    <Content Include="images\files\pdf.png" />
+    <Content Include="images\files\powerpoint.png" />
+    <Content Include="images\files\word.png" />
+    <Content Include="images\files\zip.png" />
     <Content Include="images\img0.jpg" />
     <Content Include="images\logo.png" />
     <Content Include="images\main_background.jpg" />
@@ -145,6 +152,7 @@
   <ItemGroup>
     <Content Include="Lanban.Master" />
     <Content Include="Handler.ashx" />
+    <Content Include="lanban.appcache" />
     <None Include="Properties\PublishProfiles\nguymin4 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\nguymin4 - Web Deploy.pubxml" />
     <None Include="Web.Debug.config">
@@ -154,7 +162,9 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Uploads\" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

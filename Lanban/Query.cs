@@ -8,6 +8,7 @@ using System.Data;
 using System.Text;
 using System.Web.UI;
 using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 
 
@@ -373,7 +374,7 @@ namespace Lanban
             {
                 while (available)
                 {
-                    result.Append(getCommentDisplay(myReader, userID));
+                    result.Append(getCommentDisplay(userID));
                     available = myReader.Read();
                 }
             }
@@ -383,18 +384,21 @@ namespace Lanban
         }
 
         //2.8.1.a Helper 2.8.1
-        protected string getCommentDisplay(SqlDataReader reader, int userID)
+        protected string getCommentDisplay(int userID)
         {
-            int id = Convert.ToInt32(reader["Comment_ID"]);
-            StringBuilder result = new StringBuilder("<div class='box' id='comment." + id + "'><div class='comment-panel'>");
-            result.Append("<img class='comment-profile' src='images/sidebar/profile.png' title='" + myReader["Name"] + "' />");
-            if (Convert.ToInt32(reader["User_ID"]) == userID)
+            int id = Convert.ToInt32(myReader["Comment_ID"]);
+            string content = myReader["Content"].ToString();
+            content = Regex.Replace(content, @"\r\n?|\n", "<br />");
+            StringBuilder result = new StringBuilder("<div class='comment-box' id='comment." + id + "'><div class='comment-panel'>");
+            result.Append("<img class='comment-profile' src='images/sidebar/profile.png' title='" + myReader["Name"] + "' /></div>");
+            result.Append("<div class='comment-container'><div class='comment-content'>" + content + "</div>");
+            if (Convert.ToInt32(myReader["User_ID"]) == userID)
             {
-                result.Append("<img class='note-button' title='Edit comment' src='images/sidebar/edit_note.png' onclick='fetchTaskComment(" + id + ")' />");
-                result.Append("<img class='note-button' title='Delete comment' src='images/sidebar/delete_note.png' onclick='deleteTaskComment(" + id + ")' />");
+                result.Append("<div class='comment-footer'>");
+                result.Append("<img class='comment-button' title='Edit comment' src='images/sidebar/edit_note.png' onclick='fetchTaskComment(" + id + ")' />");
+                result.Append("<img class='comment-button' title='Delete comment' src='images/sidebar/delete_note.png' onclick='deleteTaskComment(" + id + ")' />");
+                result.Append("</div>");
             }
-            result.Append("</div><div class='comment-content'>");
-            result.Append(myReader["Content"].ToString());
             result.Append("</div></div>");
             return result.ToString();
         }
