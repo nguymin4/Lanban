@@ -1,3 +1,9 @@
+/*Reset*/
+a:link, a:visited, a:active {
+    text-decoration: none;
+    color: white;
+}
+
 /*1. Main structure*/
 body {
     margin: 0px;

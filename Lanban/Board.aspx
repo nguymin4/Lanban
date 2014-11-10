@@ -221,7 +221,7 @@
                 <div class="pageRibbon">
                     <img class="btnBackPage" src="images/sidebar/back.png" title="Back" onclick="changePageWindow('taskWindow', 0)" />
                 </div>
-                <div class="panelAdd-left" style="width: 470px;">
+                <div class="panelAdd-left" style="width: 460px;">
                     <h3>Comment</h3>
                     <div id="commentBox"></div>
                     <!-- Add your comment -->
@@ -234,8 +234,41 @@
                     </div>
                 </div>
 
-                <div class="panelAdd-right" style="width: 330px">
+                <div class="panelAdd-right" style="width: 340px">
                     <h3>Document</h3>
+                    <div id="fileUploadContainer">
+                        <img src="images/sidebar/attach.png" />
+                        <img title="Upload" src="images/sidebar/upload.png" onclick="uploadFile()" />
+                        <div id="inputFileName"></div>
+                        <input id="inputUploadFile" type="file" multiple="multiple" onchange="getChosenFileName(this)" /></div>
+                    <hr />
+                    <div id="uploadProgressContainer">
+                        <div id ="uploadProgress"></div>
+                    </div>
+                    <a href="#">
+                        <div class="file-container" title="Document 1">
+                            <img src="images/files/pdf.png" />
+                            <div class="file-name">Document 1</div>
+                        </div>
+                    </a>
+                    <a href="#">
+                        <div class="file-container" title="Document 1">
+                            <img src="images/files/zip.png"  />
+                            <div class="file-name">Document 1</div>
+                        </div>
+                    </a>
+                    <a href="#">
+                        <div class="file-container" title="Document 1">
+                            <img src="images/files/word.png" />
+                            <div class="file-name">Document 1</div>
+                        </div>
+                    </a>
+                    <a href="#">
+                        <div class="file-container" title="Document 1">
+                            <img src="images/files/excel.png" />
+                            <div class="file-name">Document 1</div>
+                        </div>
+                    </a>
                 </div>
             </div>
             <!-- End - Window content page 2 -->

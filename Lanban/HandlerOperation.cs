@@ -156,11 +156,27 @@ namespace Lanban
                     result = myQuery.getLineGraph(projectID);
                     _context.Response.ContentType = "application/json";
                     break;
+                
+                // Upload files
+                case "uploadFile":
+                    result = uploadFile(projectID, param["taskID"]);
+                    break;
             }
             _context.Response.Write(result);
             _completed = true;
             _callback(this);
             myQuery.Dipose();
+        }
+
+        protected string uploadFile(int projectID, string taskID)
+        {
+            string id = "";
+            var file = _context.Request.Files[0];
+            string path = "~/Uploads/Project_" + projectID.ToString() + "/" + file.FileName;
+            var filePath = _context.Server.MapPath(path);
+            file.SaveAs(filePath);
+            id = myQuery.createTaskFile(taskID, )
+            return id;
         }
     }
 

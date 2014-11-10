@@ -124,6 +124,7 @@ $(document).ready(function () {
     $(".btnOK").on("click", function () {
         $(".diaglog.show").removeClass("show");
     });
+    $("#fileUploadContainer input").val("");
 
     /*Board drag and drop functionality*/
     $(".connected").sortable({
@@ -195,7 +196,7 @@ function Task() {
     this.Description = $("#txtTaskDescription").val();
     this.Work_estimation = $("#txtTaskWorkEstimation").val();
     this.Color = $("#ddlTaskColor").val();
-    this.Due_date = $("#txtTaskDueDate").val();
+    this.Due_date = formatDate($("#txtTaskDueDate").val());
 }
 
 
@@ -452,11 +453,12 @@ function viewDetailNote(itemID, type) {
     if (type == "backlog") loadTaskBacklogTable(itemID);
     else {
         viewTaskComment(itemID);
-        $("#btnSubmitComment").attr("data-task-id", itemID)
+        $("#btnSubmitComment").attr("data-task-id", itemID);
+        $("#inputUploadFile").attr("data-task-id", itemID);
     }
 }
 
-// Format JSonDate to dd.mm.yyyy
+// Parse JSonDate to dd.mm.yyyy
 function parseJSONDate(jsonDate) {
     if (jsonDate != null) {
         var y = jsonDate.substr(0, 4);
@@ -466,6 +468,17 @@ function parseJSONDate(jsonDate) {
     }
     else
         return "";
+}
+
+// Format date
+function formatDate(date) {
+    if (date != "") {
+        var data = date.split(".");
+        d = (data[0] < 10) ? "0" + data[0] : data[0];
+        m = (data[1] < 10) ? "0" + data[1] : data[1];
+        return d + "." + m + "." + data[2];
+    }
+    return date;
 }
 
 /*4.1.1 Display detail backlog */
@@ -544,8 +557,9 @@ function deleteTaskComment(commentID) {
 /*4.3.3 Fetch a comment to input field to edit*/
 function fetchTaskComment(commentID) {
     var comment = document.getElementById("comment." + commentID);
-    var content = comment.getElementsByClassName("comment-content")[0];
-    $("#txtTaskComment").val(content.value);
+    var content = comment.getElementsByClassName("comment-content")[0].innerHTML;
+    content = content.replace(/<br>/g, '\n');
+    $("#txtTaskComment").val(content);
     $("#btnSubmitComment").val("Save").attr("onclick", "updateTaskComment(" + commentID + ")");
 }
 
@@ -563,7 +577,7 @@ function updateTaskComment(commentID) {
     });
     var comment = document.getElementById("comment." + commentID);
     var content = comment.getElementsByClassName("comment-content")[0];
-    content.innerHTML = $("#txtTaskComment").val();
+    content.innerHTML = $("#txtTaskComment").val().replace(new RegExp('\n', 'g'), '<br />');
     $("#txtTaskComment").val("");
     $("#btnSubmitComment").val("Send").attr("onclick", "submitTaskComment()");
 }
@@ -653,6 +667,49 @@ function createCurrentBacklogList() {
         backloglist.innerHTML += "<option value='" + id + "'>" + content + "</option>";
     }
 }
+
+/*8 File Upload*/
+/*8.1 Parse multiple file name to box */
+function getChosenFileName(obj) {
+    var files = obj.files;
+    var result = "";
+    for (var i = 0; i < files.length; i++) {
+        result += files[i].name + ", ";
+    }
+    $('#inputFileName').html(result);
+}
+
+/*8.2 Upload files*/
+function uploadFile() {
+    var files = document.getElementById("inputUploadFile").files;
+    var taskID = document.getElementById("inputUploadFile").getAttribute("data-task-id");
+
+    for (var i = 0; i < files.length; i++) {
+        console.log("Start");
+        var req = new XMLHttpRequest();
+        var url = "Handler.ashx?action=uploadFile&type="+file[i].type+"&taskID="+taskID;
+        var form = new FormData();
+
+        form.append(files[i]);
+        req.addEventListener("progress", function (e) {
+            //Tracking progress here
+            var done = e.position || e.loaded;
+            var total = e.totalSize || e.total;
+        });
+
+        req.onreadystatechange = function (e) {
+            if (req.readyState == 4) {
+                // Upload completed
+                console.log("Completed");
+            }
+        }
+
+        req.open('post', url, true);
+        req.send(form);
+    }
+    
+}
+
 
 /*B.Working with chart*/
 var myPie, myBarChart, myLineGraph;

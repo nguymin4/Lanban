@@ -167,8 +167,8 @@ namespace Lanban
             else addParameter("@Work_estimation", SqlDbType.Int, task.Work_estimation);
 
             // Due date is nullable field - the user can skip input data of that field
-            if (task.Due_date.Equals("")) addParameter<DBNull>("@Due_date", SqlDbType.DateTime2, DBNull.Value);
-            else addParameter<DateTime>("@Due_date", SqlDbType.DateTime2, DateTime.ParseExact(task.Due_date, "dd.MM.yyyy", null));
+            try { addParameter<DateTime>("@Due_date", SqlDbType.DateTime2, DateTime.ParseExact(task.Due_date, "dd.MM.yyyy", null)); }
+            catch { addParameter<DBNull>("@Due_date", SqlDbType.DateTime2, DBNull.Value); }
 
             // Get the ID just inserted
             command.Append("SELECT SCOPE_IDENTITY();");
@@ -227,8 +227,8 @@ namespace Lanban
             addParameter<string>("@Color", SqlDbType.VarChar, task.Color);
 
             // Due date is nullable field - the user can skip input data of that field
-            if (task.Due_date.Equals("")) addParameter<DBNull>("@Due_date", SqlDbType.DateTime2, DBNull.Value);
-            else addParameter<DateTime>("@Due_date", SqlDbType.DateTime2, DateTime.ParseExact(task.Due_date, "dd.MM.yyyy", null));
+            try { addParameter<DateTime>("@Due_date", SqlDbType.DateTime2, DateTime.ParseExact(task.Due_date, "dd.MM.yyyy", null)); }
+            catch { addParameter<DBNull>("@Due_date", SqlDbType.DateTime2, DBNull.Value); }
 
             addParameter<int>("@Task_ID", SqlDbType.Int, Convert.ToInt32(id));
 
@@ -430,6 +430,19 @@ namespace Lanban
             addParameter<int>("@taskID", SqlDbType.Int, Convert.ToInt32(taskID));
             addParameter<string>("@content", SqlDbType.Text, content);
             addParameter<int>("@userID", SqlDbType.Int, userID);
+            string id = myCommand.ExecuteScalar().ToString();
+            myCommand.Parameters.Clear();
+            return id;
+        }
+
+        // 2.9 Upload file
+        public string createTaskFile(string taskID, string type, string path)
+        {
+            myCommand.CommandText = "INSERT INTO Task_File (Task_ID, Type, Path) VALUES(@taskID, @type, @path);" +
+                                    "SELECT SCOPE_IDENTITY();";
+            addParameter<int>("@taskID", SqlDbType.Int, Convert.ToInt32(taskID));
+            addParameter<string>("@content", SqlDbType.Text, type);
+            addParameter<string>("@path", SqlDbType.NVarChar, path);
             string id = myCommand.ExecuteScalar().ToString();
             myCommand.Parameters.Clear();
             return id;

@@ -10,7 +10,7 @@ namespace Lanban
     /// <summary>
     /// Async handler for request from client
     /// </summary>
-    public class Handler : IHttpAsyncHandler, IReadOnlySessionState //IRequiresSessionState
+    public class Handler : IHttpAsyncHandler, IReadOnlySessionState
     {
         public bool IsReusable { get { return false; } }
 
