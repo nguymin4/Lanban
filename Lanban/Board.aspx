@@ -238,37 +238,14 @@
                     <h3>Document</h3>
                     <div id="fileUploadContainer">
                         <img src="images/sidebar/attach.png" />
-                        <img title="Upload" src="images/sidebar/upload.png" onclick="uploadFile()" />
+                        <img title="Upload" src="images/sidebar/upload.png" onclick="startUploadFile()" />
                         <div id="inputFileName"></div>
                         <input id="inputUploadFile" type="file" multiple="multiple" onchange="getChosenFileName(this)" /></div>
                     <hr />
                     <div id="uploadProgressContainer">
                         <div id ="uploadProgress"></div>
                     </div>
-                    <a href="#">
-                        <div class="file-container" title="Document 1">
-                            <img src="images/files/pdf.png" />
-                            <div class="file-name">Document 1</div>
-                        </div>
-                    </a>
-                    <a href="#">
-                        <div class="file-container" title="Document 1">
-                            <img src="images/files/zip.png"  />
-                            <div class="file-name">Document 1</div>
-                        </div>
-                    </a>
-                    <a href="#">
-                        <div class="file-container" title="Document 1">
-                            <img src="images/files/word.png" />
-                            <div class="file-name">Document 1</div>
-                        </div>
-                    </a>
-                    <a href="#">
-                        <div class="file-container" title="Document 1">
-                            <img src="images/files/excel.png" />
-                            <div class="file-name">Document 1</div>
-                        </div>
-                    </a>
+                    <div id="fileList"></div>
                 </div>
             </div>
             <!-- End - Window content page 2 -->

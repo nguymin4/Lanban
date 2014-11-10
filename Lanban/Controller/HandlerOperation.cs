@@ -5,7 +5,7 @@ using System.Web;
 using System.Text;
 using System.Web.SessionState;
 using Newtonsoft.Json;
-
+using Lanban.Model;
 
 namespace Lanban
 {
@@ -159,7 +159,12 @@ namespace Lanban
                 
                 // Upload files
                 case "uploadFile":
-                    result = uploadFile(projectID, param["taskID"]);
+                    result = new FileUpload().uploadFile(_context, myQuery, projectID);
+                    break;
+                case "viewTaskFile":
+                    result = myQuery.viewTaskFile(Convert.ToInt32(param["taskID"]));
+                    break;
+                case "deleteTaskFile":
                     break;
             }
             _context.Response.Write(result);
@@ -167,41 +172,5 @@ namespace Lanban
             _callback(this);
             myQuery.Dipose();
         }
-
-        protected string uploadFile(int projectID, string taskID)
-        {
-            string id = "";
-            var file = _context.Request.Files[0];
-            string path = "~/Uploads/Project_" + projectID.ToString() + "/" + file.FileName;
-            var filePath = _context.Server.MapPath(path);
-            file.SaveAs(filePath);
-            id = myQuery.createTaskFile(taskID, )
-            return id;
-        }
-    }
-
-
-    public class Backlog
-    {
-        public int Project_ID { get; set; }
-        public int Swimlane_ID { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public int Complexity { get; set; }
-        public string Color { get; set; }
-
-    }
-
-    public class Task
-    {
-        public int Project_ID { get; set; }
-        public int Swimlane_ID { get; set; }
-        public int Backlog_ID { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public Nullable<int> Work_estimation { get; set; }
-        public string Color { get; set; }
-        public string Due_date { get; set; }
-
     }
 }

@@ -426,18 +426,18 @@ div.assignee-name-active {
     border: solid 1px rgba(128, 128, 128, 0.4);
 }
 
-#fileUploadContainer img {
-    height: 28px;
-    width: 28px;
-    transition: transform 0.25s ease;
-    cursor: pointer;
-    margin: auto;
-}
+    #fileUploadContainer img {
+        height: 28px;
+        width: 28px;
+        transition: transform 0.25s ease;
+        cursor: pointer;
+        margin: auto;
+    }
 
-#fileUploadContainer img:hover {
-    height: 30px;
-    width: 30px;
-}
+        #fileUploadContainer img:hover {
+            height: 30px;
+            width: 30px;
+        }
 
 img[title='Upload'] {
     float: right;
@@ -467,22 +467,27 @@ img[title='Upload'] {
     cursor: pointer;
 }
 
-/* Upload progress */
- #uploadProgressContainer {
-     width: 100%;
-     height: 18px;
-     background: rgba(25, 15, 15, 0.5);
-     border-radius: 10px;
-     padding-top: 7px;
- }
+#fileList {
+    position: relative;
+    overflow: hidden;
+}
 
- #uploadProgress {
-     height: 10px;
-     width: 35%;
-     background: #F5F5F5;
-     margin: 0px 8px;
-     box-shadow: 0px 0px 5px 3px white;
- }
+/* Upload progress */
+#uploadProgressContainer {
+    width: 100%;
+    height: 12px;
+    background: rgba(25, 15, 15, 0.5);
+    border-radius: 10px;
+    padding-top: 5px;
+    opacity: 0;
+}
+
+#uploadProgress {
+    height: 6px;
+    background: #F5F5F5;
+    margin: 0px 6px;
+    box-shadow: 0px 0px 5px 1px white;
+}
 
 /* Document display */
 .file-container {
@@ -494,16 +499,16 @@ img[title='Upload'] {
     transition: transform 0.25s linear;
 }
 
-.file-container:hover {
-    transform: rotate(-20deg);
-}
+    .file-container:hover {
+        transform: rotate(-20deg);
+    }
 
-.file-container img {
-    display: block;
-    width: 60px;
-    height: 60px;
-    margin: auto;
-}
+    .file-container img {
+        display: block;
+        width: 60px;
+        height: 60px;
+        margin: auto;
+    }
 
 .file-name {
     display: block;

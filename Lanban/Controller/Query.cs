@@ -9,8 +9,7 @@ using System.Text;
 using System.Web.UI;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
-
-
+using Lanban.Model;
 
 namespace Lanban
 {
@@ -436,16 +435,67 @@ namespace Lanban
         }
 
         // 2.9 Upload file
-        public string createTaskFile(string taskID, string type, string path)
+        // 2.9.1 Link the task to uploaded file
+        public string linkTaskFile(File file)
         {
-            myCommand.CommandText = "INSERT INTO Task_File (Task_ID, Type, Path) VALUES(@taskID, @type, @path);" +
-                                    "SELECT SCOPE_IDENTITY();";
-            addParameter<int>("@taskID", SqlDbType.Int, Convert.ToInt32(taskID));
-            addParameter<string>("@content", SqlDbType.Text, type);
-            addParameter<string>("@path", SqlDbType.NVarChar, path);
+            myCommand.CommandText = "INSERT INTO Task_File (Task_ID, User_ID, Name, Type, Path) "+
+                                    "VALUES (@taskID, @userID, @name, @type, @path); SELECT SCOPE_IDENTITY();";
+            addParameter<int>("@taskID", SqlDbType.Int, file.Task_ID);
+            addParameter<int>("@userID", SqlDbType.Int, file.User_ID);
+            addParameter<string>("@name", SqlDbType.NVarChar, file.Name);
+            addParameter<string>("@type", SqlDbType.VarChar, file.Type);
+            addParameter<string>("@path", SqlDbType.NVarChar, file.Path);
             string id = myCommand.ExecuteScalar().ToString();
             myCommand.Parameters.Clear();
-            return id;
+            return getFileDisplay(id, file);
+        }
+
+        // 2.9.2 Delete a file of a task
+        public void deleteTaskFile(int fileID, int userID)
+        {
+            myCommand.CommandText = "DELETE Task_File WHERE File_ID=@fileID AND User_ID=@userID ";
+            addParameter<int>("@fileID", SqlDbType.Int, fileID);
+            addParameter<int>("@userID", SqlDbType.Int, userID);
+            myCommand.ExecuteNonQuery();
+            myCommand.Parameters.Clear();
+        }
+
+        // 2.9.2 View all files of a task
+        public string viewTaskFile(int taskID)
+        {
+            myCommand.CommandText = "SELECT * FROM Task_File WHERE Task_ID=@id";
+            addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(taskID));
+
+            StringBuilder result = new StringBuilder();
+            myReader = myCommand.ExecuteReader();
+            bool available = myReader.Read();
+            if (available == false) result.Append("");
+            else
+            {
+                while (available)
+                {
+                    File temp = new File();
+                    temp.Name = myReader["Name"].ToString();
+                    temp.Type = myReader["Type"].ToString();
+                    temp.Path = myReader["Path"].ToString();
+                    result.Append(getFileDisplay(myReader["File_ID"].ToString(), temp));
+                    available = myReader.Read();
+                }
+            }
+            myReader.Close();
+            myCommand.Parameters.Clear();
+            return result.ToString();
+        }
+
+        // 2.9 Helper
+        public string getFileDisplay(string fileID, File file)
+        {
+            StringBuilder result = new StringBuilder("<a href='" + file.Path + "'>");
+            result.Append("<div class='file-container' data-id=" + fileID + " title='" + file.Name + "'>");
+            result.Append("<img src='images/files/" + file.Type + ".png' />");
+            result.Append("<div class='file-name'>" + file.Name + "</div>");
+            result.Append("</div></a>");
+            return result.ToString();
         }
 
         //a.1 Search member name in a project
@@ -629,89 +679,5 @@ namespace Lanban
                 point[i] = Convert.ToInt32(a * i + b);
             return point;
         }
-    }
-}
-
-
-/* Class object for charts */
-
-// Pie chart
-public class PieChart
-{
-    public IList<PiePart> part { get; set; }
-
-    public PieChart()
-    {
-        part = new List<PiePart>();
-    }
-}
-
-public class PiePart
-{
-    public int value { get; set; }
-    public string color { get; set; }
-    public string highlight { get; set; }
-    public string label { get; set; }
-}
-
-// Bar chart
-public class BarChart
-{
-    public IList<string> labels { get; set; }
-    public IList<BarChartDataset> datasets { get; set; }
-
-    public BarChart()
-    {
-        labels = new List<string>();
-        datasets = new List<BarChartDataset>();
-    }
-}
-
-public class BarChartDataset
-{
-    public string label { get; set; }
-    public string fillColor { get; set; }
-    public string hightlightFill { get; set; }
-    public IList<int> data { get; set; }
-
-    public BarChartDataset(string fillColor, string highlightFill)
-    {
-        data = new List<int>();
-        this.fillColor = fillColor;
-        this.hightlightFill = highlightFill;
-    }
-}
-
-// Line graph
-public class LineGraph
-{
-    public IList<string> labels { get; set; }
-    public IList<LineGraphDataset> datasets { get; set; }
-
-    public LineGraph()
-    {
-        labels = new List<string>();
-        datasets = new List<LineGraphDataset>();
-    }
-}
-
-public class LineGraphDataset
-{
-    public string label { get; set; }
-    public string strokeColor { get; set; }
-    public string pointColor { get; set; }
-    public string pointStrokeColor { get; set; }
-    public string pointHighlightFill { get; set; }
-    public string fillColor { get; set; }
-    public IList<int> data { get; set; }
-
-    public LineGraphDataset(string strokeColor, string pointColor)
-    {
-        data = new List<int>();
-        this.strokeColor = strokeColor;
-        this.pointColor = pointColor;
-        this.pointStrokeColor = pointColor;
-        this.pointHighlightFill = "#fff";
-        this.fillColor = "rgba(0,0,0,0.2)";
     }
 }

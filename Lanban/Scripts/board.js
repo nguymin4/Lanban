@@ -21,8 +21,10 @@
     $(".window-content").perfectScrollbar("update");
 
     // Calculate size for comment box in Task Window
-    $("#commentBox").css("height", 0.9 * 0.55 * windowHeight);
-    $("#commentBox").perfectScrollbar("update");
+    $("#commentBox").css("height", 0.9 * 0.55 * windowHeight).perfectScrollbar("update");
+
+    // Calculate size for file list box in Task Window
+    $("#fileList").css("height", 0.81 * windowHeight - 180).perfectScrollbar("update");
 }
 
 // Show Add backlog/task window
@@ -87,7 +89,7 @@ function showErrorDialog(i) {
 }
 
 // Show success diaglog - content taken from an array based on parameter
-var successMsg = ["New item created", "Data updated"];
+var successMsg = ["New item created", "Data updated", "File uploaded"];
 
 function showSuccessDiaglog(i) {
     $(".diaglog.success .title-bar").text("Success");
@@ -115,6 +117,13 @@ $(document).ready(function () {
     });
 
     $("#commentBox").perfectScrollbar({
+        wheelSpeed: 3,
+        wheelPropagation: false,
+        suppressScrollX: true,
+        includePadding: true
+    });
+
+    $("#fileList").perfectScrollbar({
         wheelSpeed: 3,
         wheelPropagation: false,
         suppressScrollX: true,
@@ -231,7 +240,6 @@ function getVisualNote(dataID, type, item) {
     var backlog_id, typeNum;
     var color = item.Color;
     var status = $("#kanban td[data-id='" + item.Swimlane_ID + "']").attr("data-status");
-    console.log(status);
 
     if (type == "backlog") {
         typeNum = 1;
@@ -249,7 +257,6 @@ function getVisualNote(dataID, type, item) {
     "<img class='note-button' onclick=\"viewDetailNote(" + id + ",'" + type + "')\" src='images/sidebar/edit_note.png'>" +
     "<img class='note-button' onclick=\"deleteItem(" + id + ",'" + type + "')\" src='images/sidebar/delete_note.png'></div>" +
     "<div class='note-content' style='background-color:" + color.substr(8, 7) + ";'>" + item.Title + "</div></div>";
-    console.log(objtext);
     return objtext;
 }
 
@@ -453,6 +460,7 @@ function viewDetailNote(itemID, type) {
     if (type == "backlog") loadTaskBacklogTable(itemID);
     else {
         viewTaskComment(itemID);
+        viewTaskFile(itemID);
         $("#btnSubmitComment").attr("data-task-id", itemID);
         $("#inputUploadFile").attr("data-task-id", itemID);
     }
@@ -521,6 +529,7 @@ function clearTaskWindow() {
     //Update list of current backlog items 
     createCurrentBacklogList();
 }
+
 
 /*4.3.1 View all comment of a task*/
 function viewTaskComment(itemID) {
@@ -668,8 +677,7 @@ function createCurrentBacklogList() {
     }
 }
 
-/*8 File Upload*/
-/*8.1 Parse multiple file name to box */
+/*8.1.a Parse multiple file name to box */
 function getChosenFileName(obj) {
     var files = obj.files;
     var result = "";
@@ -679,37 +687,94 @@ function getChosenFileName(obj) {
     $('#inputFileName').html(result);
 }
 
-/*8.2 Upload files*/
-function uploadFile() {
-    var files = document.getElementById("inputUploadFile").files;
-    var taskID = document.getElementById("inputUploadFile").getAttribute("data-task-id");
+/*8.1.b Calculate total size of all uploading files*/
 
+function getTotalSize(files) {
+    totalSize = 0;
     for (var i = 0; i < files.length; i++) {
-        console.log("Start");
-        var req = new XMLHttpRequest();
-        var url = "Handler.ashx?action=uploadFile&type="+file[i].type+"&taskID="+taskID;
-        var form = new FormData();
-
-        form.append(files[i]);
-        req.addEventListener("progress", function (e) {
-            //Tracking progress here
-            var done = e.position || e.loaded;
-            var total = e.totalSize || e.total;
-        });
-
-        req.onreadystatechange = function (e) {
-            if (req.readyState == 4) {
-                // Upload completed
-                console.log("Completed");
-            }
-        }
-
-        req.open('post', url, true);
-        req.send(form);
+        totalSize += files[i].size;
     }
-    
+    return totalSize;
 }
 
+/*8.2.1 Start upload files*/
+var files;
+var taskID, totalSize, tempSize;
+var progress
+
+function startUploadFile() {
+
+    // Init variables
+    var input = document.getElementById("inputUploadFile");
+    files = input.files;
+
+    if (files.length > 0) {
+        taskID = input.getAttribute("data-task-id");
+        totalSize = getTotalSize(files);
+        tempSize = 0;
+        progress = 0;
+
+        // Upload the first file if available
+        document.getElementById("uploadProgressContainer").style.opacity = 1;
+        uploadFile(0, taskID);
+    }
+}
+
+/*8.2.2 Upload file at [index] of input file list*/
+function uploadFile(i, taskID) {
+    var file = files[i];
+    var req = new XMLHttpRequest();
+    var url = "Handler.ashx?action=uploadFile&fileType=" + file.type + "&taskID=" + taskID;
+    var form = new FormData();
+    form.append(file.name, file);
+
+    var done = 0;
+    req.upload.addEventListener("progress", function (e) {
+        //Tracking progress here
+        done = (e.position || e.loaded) - done;
+        var tempProgress = ((tempSize + done) / totalSize) * 100;
+        if (progress < tempProgress) {
+            progress = tempProgress;
+            document.getElementById("uploadProgress").style.width = progress + "%";
+            console.log(progress);
+        }
+    });
+
+    req.onreadystatechange = function () {
+        if (req.readyState == 4 && req.status == 200) {
+            // Upload completed
+            document.getElementById("fileList").innerHTML += req.responseText;
+            if (i < files.length - 1) {
+                tempSize += file.size;
+                uploadFile(i + 1, taskID);
+            }
+            else {
+                document.getElementById("uploadProgressContainer").style.opacity = 0;
+                document.getElementById("uploadProgress").style.width = 0;
+                document.getElementById("inputFileName").innerHTML = "";
+                document.getElementById("inputUploadFile").value = "";
+            }
+        }
+    }
+    req.open('post', url, true);
+    req.send(form);
+}
+
+/*8.3 Get all upload files*/
+function viewTaskFile(taskID) {
+    $.ajax({
+        url: "Handler.ashx",
+        data: {
+            action: "viewTaskFile",
+            taskID: taskID
+        },
+        type: "get",
+        success: function (result) {
+            $("#fileList a").remove();
+            $("#fileList").prepend(result).perfectScrollbar("update");
+        }
+    });
+}
 
 /*B.Working with chart*/
 var myPie, myBarChart, myLineGraph;
