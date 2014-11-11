@@ -1,5 +1,5 @@
 /*Reset*/
-a:link, a:visited, a:active {
+a {
     text-decoration: none;
     color: white;
 }
@@ -9,7 +9,7 @@ body {
     margin: 0px;
     padding: 0px;
     min-width: 1000px;
-    background: url("../images/background.jpg") no-repeat transparent;
+    background: url("../images/background/background.jpg") no-repeat transparent;
     background-size: cover;
     font-family: "Open Sans",sans-serif;
     overflow: hidden;
@@ -128,7 +128,7 @@ body {
 }
 
 .view {
-    background: url("../images/top-bg.png") repeat-x, url("../images/img0.jpg") no-repeat bottom;
+    background: url("../images/background/top-bg.png") repeat-x, url("../images/background/img0.jpg") no-repeat bottom;
     opacity: 0;
     width: 600px;
     height: 90%;
@@ -163,7 +163,7 @@ body {
 /*1.3.2 Dialog UI*/
 
 .diaglog {
-    background: url("../images/top-bg.png") repeat-x, url("../images/main_background.jpg") bottom no-repeat;
+    background: url("../images/background/top-bg.png") repeat-x, url("../images/background/main_background.jpg") bottom no-repeat;
     position: absolute;
     left: 40%;
     top: 30%;

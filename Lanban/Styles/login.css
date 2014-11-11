@@ -1,6 +1,6 @@
 ﻿/*Structure*/
 body {
-    background: url("../images/background.JPG") center no-repeat;
+    background: url("../images/background/background.JPG") center no-repeat;
     background-size: cover;
     min-width: 500px;
     font-family: "Open Sans",sans-serif;

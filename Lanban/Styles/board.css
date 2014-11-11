@@ -104,11 +104,11 @@ span.item-id {
 
 /*Add item window*/
 #backlogWindow, #taskWindow {
-    max-width: 850px;
-    width: 80%;
-    font-weight: 600;
-    min-height: 450px;
+    background: url("../images/background/top-bg.png") repeat-x, url("../images/background/dark-abstract.jpg") no-repeat;
     position: relative;
+    max-width: 850px;
+    min-height: 450px;
+    width: 80%;
 }
 
 .page {
@@ -239,29 +239,26 @@ div.assignee-name-active {
         color: white;
     }
 /**/
-.tblAddData {
+
+.tblAddData td {
     color: white;
-    font-weight: 600;
+    vertical-align: top;
+    height: 30px;
+    line-height: 30px;
+    margin-bottom: 10px;
 }
 
-    .tblAddData td {
-        vertical-align: top;
-        height: 30px;
-        line-height: 30px;
-        margin-bottom: 10px;
-    }
-
-    .tblAddData select {
-        height: 30px;
-        min-width: 200px;
-        padding: 2px 5px;
-        border-top-left-radius: 6px;
-        border-bottom-left-radius: 6px;
-        border: solid 1px rgb(128, 128, 128);
-        color: gray;
-        font-size: 15px;
-        margin-bottom: 20px;
-    }
+.tblAddData select {
+    height: 30px;
+    min-width: 200px;
+    padding: 2px 5px;
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+    border: solid 1px rgb(128, 128, 128);
+    color: gray;
+    font-size: 15px;
+    margin-bottom: 20px;
+}
 
 
 /*Table contains all tasks belong to a backlog */
@@ -286,12 +283,11 @@ div.assignee-name-active {
 
 /*Chart window*/
 #chartWindow {
-    background: url("../images/top-bg.png") repeat-x, url("../images/main_background.jpg") no-repeat;
+    background: url("../images/background/top-bg.png") repeat-x, url("../images/background/dark-abstract.jpg") no-repeat;
     width: 90%;
     height: 98%;
     margin: 0.5% 5%;
 }
-
 
     #chartWindow .window-content {
         /*background-color: white;*/
@@ -360,9 +356,7 @@ div.assignee-name-active {
     margin-top: 0px;
     margin-bottom: 3px;
     font-size: 14px;
-    font-weight: normal;
     line-height: 20px;
-    font-family: "Open Sans",sans-serif;
     text-align: justify;
 }
 
@@ -460,7 +454,6 @@ img[title='Upload'] {
     height: 30px;
     line-height: 30px;
     margin-right: 5px;
-    font-weight: normal;
     overflow: hidden;
     white-space: nowrap;
     word-wrap: break-word;
@@ -528,7 +521,6 @@ img[title='Upload'] {
     text-align: center;
     line-height: 20px;
     font-size: 14px;
-    font-weight: normal;
     overflow: hidden;
     white-space: nowrap;
     word-wrap: break-word;

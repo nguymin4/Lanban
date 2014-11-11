@@ -21,7 +21,7 @@
     $(".window-content").perfectScrollbar("update");
 
     // Calculate size for comment box in Task Window
-    $("#commentBox").css("height", 0.9 * 0.55 * windowHeight).perfectScrollbar("update");
+    $("#commentBox").css("height", 0.81 * windowHeight - 195).perfectScrollbar("update");
 
     // Calculate size for file list box in Task Window
     $("#fileList").css("height", 0.81 * windowHeight - 180).perfectScrollbar("update");
@@ -462,7 +462,7 @@ function viewDetailNote(itemID, type) {
         viewTaskComment(itemID);
         viewTaskFile(itemID);
         $("#btnSubmitComment").attr("data-task-id", itemID);
-        $("#inputUploadFile").attr("data-task-id", itemID);
+        $("#inputUploadFile").attr("data-task-id", itemID).val("");
     }
 }
 

@@ -225,7 +225,7 @@
                     <h3>Comment</h3>
                     <div id="commentBox"></div>
                     <!-- Add your comment -->
-                    <div class="box" style="padding: 10px;">
+                    <div class="comment-box" style="padding: 10px;">
                         <div class="comment-panel">
                             <img class="comment-profile" id="myCommentProfile" title="Nguyen Minh Son" src="images/sidebar/profile.png" />
                         </div>

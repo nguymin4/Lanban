@@ -64,9 +64,11 @@
   <ItemGroup>
     <Content Include="Board.aspx" />
     <Content Include="Global.asax" />
-    <Content Include="images\background.JPG" />
+    <Content Include="images\background\background.JPG" />
+    <Content Include="images\background\dark-abstract.jpg" />
+    <Content Include="images\background\img0.jpg" />
+    <Content Include="images\background\main_background.jpg" />
     <Content Include="images\files\audio.png" />
-    <Content Include="images\files\remove.png" />
     <Content Include="images\files\sheet.png" />
     <Content Include="images\files\general.png" />
     <Content Include="images\files\image.png" />
@@ -75,9 +77,7 @@
     <Content Include="images\files\document.png" />
     <Content Include="images\files\video.png" />
     <Content Include="images\files\zip.png" />
-    <Content Include="images\img0.jpg" />
     <Content Include="images\logo.png" />
-    <Content Include="images\main_background.jpg" />
     <Content Include="images\sidebar\add_item.png" />
     <Content Include="images\sidebar\add_project.png" />
     <Content Include="images\sidebar\attach.png" />
@@ -92,13 +92,14 @@
     <Content Include="images\sidebar\logout.png" />
     <Content Include="images\sidebar\next.png" />
     <Content Include="images\sidebar\profile.png" />
+    <Content Include="images\sidebar\remove.png" />
     <Content Include="images\sidebar\schedule.png" />
     <Content Include="images\sidebar\search.png" />
     <Content Include="images\sidebar\setting.png" />
     <Content Include="images\sidebar\share.png" />
     <Content Include="images\sidebar\upload.png" />
     <Content Include="images\sidebar\view.png" />
-    <Content Include="images\top-bg.png" />
+    <Content Include="images\background\top-bg.png" />
     <Content Include="Login.aspx" />
     <Content Include="Project.aspx" />
     <Content Include="Scripts\board.js" />
@@ -164,6 +165,7 @@
     <Content Include="lanban.appcache" />
     <None Include="Properties\PublishProfiles\nguymin4 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\nguymin4 - Web Deploy.pubxml" />
+    <Content Include="Uploads\Project_1\LANBAN_description.pdf" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -171,9 +173,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Uploads\Project_1\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
