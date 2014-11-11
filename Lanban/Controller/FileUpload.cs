@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 
 namespace Lanban
@@ -23,9 +21,16 @@ namespace Lanban
             file.Name = uploadFile.FileName;
             file.Type = getFileType(param["fileType"], file.Name);
             file.Path = path;
-            System.Diagnostics.Debug.WriteLine(file.Type);
 
             return myQuery.linkTaskFile(file);
+        }
+
+        public void deleteFile(HttpContext _context, Query myQuery)
+        {
+            int fileID = Convert.ToInt32(_context.Request.Params["fileID"]);
+            string path = myQuery.getFilePath(fileID);
+            System.IO.File.Delete(_context.Server.MapPath(path));
+            myQuery.deleteTaskFile(fileID, Convert.ToInt32(_context.Session["userID"]));
         }
 
         string[] generalType = { "image", "audio", "video" };

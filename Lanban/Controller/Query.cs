@@ -394,8 +394,8 @@ namespace Lanban
             if (Convert.ToInt32(myReader["User_ID"]) == userID)
             {
                 result.Append("<div class='comment-footer'>");
-                result.Append("<img class='comment-button' title='Edit comment' src='images/sidebar/edit_note.png' onclick='fetchTaskComment(" + id + ")' />");
-                result.Append("<img class='comment-button' title='Delete comment' src='images/sidebar/delete_note.png' onclick='deleteTaskComment(" + id + ")' />");
+                result.Append("<div class='comment-button' title='Edit comment' onclick='fetchTaskComment(" + id + ")'></div>");
+                result.Append("<div class='comment-button' title='Delete comment' onclick='deleteTaskComment(" + id + ")'></div>");
                 result.Append("</div>");
             }
             result.Append("</div></div>");
@@ -438,7 +438,7 @@ namespace Lanban
         // 2.9.1 Link the task to uploaded file
         public string linkTaskFile(File file)
         {
-            myCommand.CommandText = "INSERT INTO Task_File (Task_ID, User_ID, Name, Type, Path) "+
+            myCommand.CommandText = "INSERT INTO Task_File (Task_ID, User_ID, Name, Type, Path) " +
                                     "VALUES (@taskID, @userID, @name, @type, @path); SELECT SCOPE_IDENTITY();";
             addParameter<int>("@taskID", SqlDbType.Int, file.Task_ID);
             addParameter<int>("@userID", SqlDbType.Int, file.User_ID);
@@ -460,7 +460,7 @@ namespace Lanban
             myCommand.Parameters.Clear();
         }
 
-        // 2.9.2 View all files of a task
+        // 2.9.3 View all files of a task
         public string viewTaskFile(int taskID)
         {
             myCommand.CommandText = "SELECT * FROM Task_File WHERE Task_ID=@id";
@@ -487,15 +487,26 @@ namespace Lanban
             return result.ToString();
         }
 
-        // 2.9 Helper
+        // 2.9.a Get Visual display of a file
         public string getFileDisplay(string fileID, File file)
         {
-            StringBuilder result = new StringBuilder("<a href='" + file.Path + "'>");
+            StringBuilder result = new StringBuilder();
             result.Append("<div class='file-container' data-id=" + fileID + " title='" + file.Name + "'>");
-            result.Append("<img src='images/files/" + file.Type + ".png' />");
-            result.Append("<div class='file-name'>" + file.Name + "</div>");
-            result.Append("</div></a>");
+            result.Append("<a href='" + file.Path + "'>");
+            result.Append("<img class='file-icon' src='images/files/" + file.Type + ".png' />");
+            result.Append("<div class='file-name'>" + file.Name + "</div></a>");
+            result.Append("<div class='file-remove' title='Delete' onclick=\"deleteFile(" + fileID + ")\"></div></div>");
             return result.ToString();
+        }
+
+        // 2.9.b Get path of a file
+        public string getFilePath(int fileID)
+        {
+            myCommand.CommandText = "SELECT Path FROM Task_File WHERE File_ID=@fileID";
+            addParameter<int>("@fileID", SqlDbType.Int, fileID);
+            string path = myCommand.ExecuteScalar().ToString();
+            myCommand.Parameters.Clear();
+            return path;
         }
 
         //a.1 Search member name in a project

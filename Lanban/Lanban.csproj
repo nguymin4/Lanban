@@ -66,6 +66,7 @@
     <Content Include="Global.asax" />
     <Content Include="images\background.JPG" />
     <Content Include="images\files\audio.png" />
+    <Content Include="images\files\remove.png" />
     <Content Include="images\files\sheet.png" />
     <Content Include="images\files\general.png" />
     <Content Include="images\files\image.png" />

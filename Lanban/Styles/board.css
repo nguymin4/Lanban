@@ -374,8 +374,10 @@ div.assignee-name-active {
 }
 
 .comment-button {
+    display: inline-block;
     width: 18px;
     height: 18px;
+    background-size: cover;
     cursor: pointer;
     transition: 0.25s ease;
 }
@@ -383,6 +385,14 @@ div.assignee-name-active {
     .comment-button:hover {
         width: 20px;
         height: 20px;
+    }
+
+    .comment-button[title='Edit comment'] {
+        background-image: url("/images/sidebar/edit_note.png");
+    }
+
+    .comment-button[title='Delete comment'] {
+        background-image: url("/images/sidebar/delete_note.png");
     }
 
 #txtTaskComment {
@@ -491,6 +501,7 @@ img[title='Upload'] {
 
 /* Document display */
 .file-container {
+    position: relative;
     display: inline-block;
     width: 80px;
     height: 90px;
@@ -500,15 +511,15 @@ img[title='Upload'] {
 }
 
     .file-container:hover {
-        transform: rotate(-20deg);
+        transform: rotate(-10deg);
     }
 
-    .file-container img {
-        display: block;
-        width: 60px;
-        height: 60px;
-        margin: auto;
-    }
+.file-icon {
+    display: block;
+    width: 60px;
+    height: 60px;
+    margin: auto;
+}
 
 .file-name {
     display: block;
@@ -523,3 +534,22 @@ img[title='Upload'] {
     word-wrap: break-word;
     text-overflow: ellipsis;
 }
+
+.file-remove {
+    display: none;
+    position: absolute;
+    background: url('/images/sidebar/remove.png');
+    background-size: cover;
+    right: 0px;
+    top: 0px;
+    z-index: 1000;
+    display: none;
+    width: 18px;
+    height: 18px;
+    transition: 0.25s ease;
+}
+
+    .file-remove:hover {
+        width: 22px;
+        height: 22px;
+    }

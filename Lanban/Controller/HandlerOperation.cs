@@ -156,7 +156,7 @@ namespace Lanban
                     result = myQuery.getLineGraph(projectID);
                     _context.Response.ContentType = "application/json";
                     break;
-                
+
                 // Upload files
                 case "uploadFile":
                     result = new FileUpload().uploadFile(_context, myQuery, projectID);
@@ -165,6 +165,7 @@ namespace Lanban
                     result = myQuery.viewTaskFile(Convert.ToInt32(param["taskID"]));
                     break;
                 case "deleteTaskFile":
+                    new FileUpload().deleteFile(_context, myQuery);
                     break;
             }
             _context.Response.Write(result);

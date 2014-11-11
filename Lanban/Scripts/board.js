@@ -607,8 +607,8 @@ function submitTaskComment() {
             var objtext = "<div class='comment-box' id='comment." + id + "'><div class='comment-panel'>" +
                 "<img class='comment-profile' title='Nguyen Minh Son' src='images/sidebar/profile.png'></div>" +
                 "<div class='comment-container'><div class='comment-content'>" + content + "</div><div class='comment-footer'>" +
-                "<img class='comment-button' title='Edit comment' src='images/sidebar/edit_note.png' onclick='fetchTaskComment(" + id + ")' />" +
-                "<img class='comment-button' title='Delete comment' src='images/sidebar/delete_note.png' onclick='deleteTaskComment(" + id + ")' />" +
+                "<div class='comment-button' title='Edit comment' onclick='fetchTaskComment(" + id + ")'></div>" +
+                "<div class='comment-button' title='Delete comment' onclick='deleteTaskComment(" + id + ")'></div>" +
                 "</div></div>";
             $("#commentBox").append(objtext);
             $("#commentBox").scrollTop(document.getElementById("commentBox").scrollHeight);
@@ -681,9 +681,10 @@ function createCurrentBacklogList() {
 function getChosenFileName(obj) {
     var files = obj.files;
     var result = "";
-    for (var i = 0; i < files.length; i++) {
+    for (var i = 0; i < files.length - 1; i++) {
         result += files[i].name + ", ";
     }
+    result += files[files.length - 1].name;
     $('#inputFileName').html(result);
 }
 
@@ -744,10 +745,19 @@ function uploadFile(i, taskID) {
         if (req.readyState == 4 && req.status == 200) {
             // Upload completed
             document.getElementById("fileList").innerHTML += req.responseText;
+            $("#fileList .file-container").on("mouseover", function () {
+                this.getElementsByClassName("file-remove")[0].style.display = "block";
+            });
+            $("#fileList .file-container").on("mouseout", function () {
+                this.getElementsByClassName("file-remove")[0].style.display = "none";
+            });
+
+            // If the queue still has files left then upload them
             if (i < files.length - 1) {
                 tempSize += file.size;
                 uploadFile(i + 1, taskID);
             }
+                // Otherwise reset back to original state
             else {
                 document.getElementById("uploadProgressContainer").style.opacity = 0;
                 document.getElementById("uploadProgress").style.width = 0;
@@ -770,9 +780,28 @@ function viewTaskFile(taskID) {
         },
         type: "get",
         success: function (result) {
-            $("#fileList a").remove();
+            $("#fileList .file-container").remove();
             $("#fileList").prepend(result).perfectScrollbar("update");
+            $("#fileList .file-container").on("mouseover", function () {
+                this.getElementsByClassName("file-remove")[0].style.display = "block";
+            });
+            $("#fileList .file-container").on("mouseout", function () {
+                this.getElementsByClassName("file-remove")[0].style.display = "none";
+            });
         }
+    });
+}
+
+/*8.4 Delete an attached file of task*/
+function deleteFile(fileID) {
+    $("#fileList div[data-id='" + fileID + "']").remove();
+    $.ajax({
+        url: "Handler.ashx",
+        data: {
+            action: "deleteTaskFile",
+            fileID: fileID
+        },
+        type: "get"
     });
 }
 
