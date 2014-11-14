@@ -138,7 +138,9 @@
     <Content Include="Styles\main.css" />
     <Content Include="Styles\perfect-scrollbar.min.css" />
     <Content Include="Styles\project.css" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Board.aspx.cs">
@@ -191,7 +193,6 @@
     <Content Include="lanban.appcache" />
     <None Include="Properties\PublishProfiles\nguymin4 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\nguymin4 - Web Deploy.pubxml" />
-    <Content Include="Uploads\Project_1\LANBAN_description.pdf" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -199,7 +200,9 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Uploads\Project_1\" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

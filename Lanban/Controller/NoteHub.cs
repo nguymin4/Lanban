@@ -21,22 +21,22 @@ namespace Lanban.Controller
             Clients.OthersInGroup(channelID).deleteNote(noteID);
         }
 
-        // Update note
-        public void UpdateNote(string channelID, string noteID, string content)
+        // Update note content
+        public void UpdateNote(string channelID, string noteID, string title, string color)
         {
-            Clients.OthersInGroup(channelID).updateNote(noteID, content);
+            Clients.OthersInGroup(channelID).updateNote(noteID, title, color);
         }
 
-        // Change swimlane of a note
-        public void ChangeLaneNote(string channelID)
+        // Change position of a note
+        public void ChangePosition(string channelID, string noteID, string swimlanePosition, string position)
         {
-            Clients.OthersInGroup(channelID).changeLaneNote();
+            Clients.OthersInGroup(channelID).changePosition(noteID, swimlanePosition, position);
         }
 
-        // Change position position of a note
-        public void ChangePosition(string channelID)
+        // Change lane of a note
+        public void ChangeLane(string channelID, string noteID, string swimlanePosition, string position)
         {
-            Clients.OthersInGroup(channelID).changePosition();
+            Clients.OthersInGroup(channelID).changeLane(noteID, swimlanePosition, position);
         }
 
         // Join a channel

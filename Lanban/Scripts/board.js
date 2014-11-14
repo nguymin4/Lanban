@@ -55,7 +55,7 @@ function hideWindow() {
     try {
         proxyTC.invoke("leaveGroup", $("#btnSubmitComment").attr("data-task-id"));
     }
-    catch(e) {
+    catch (e) {
         console.log(e);
     }
 }
@@ -164,12 +164,17 @@ $(document).ready(function () {
                     updatePosition($(note[i]).attr("data-id"), i, $(note[i]).attr("data-type"));
                 }
 
-                // DBMS overload when view item immediately
                 // Update position of sticky notes in the source lane.
                 note = ui.item.startLane.getElementsByClassName("note");
                 for (var i = ui.item.startPos; i < note.length; i++) {
                     updatePosition($(note[i]).attr("data-id"), i, ui.item.type);
                 }
+
+                // Update new position in clients
+                var projectID = $("#txtProjectID").val();
+                var noteID = $(ui.item).attr("id");
+                var swimlanePosition = $(".connected").index(this);
+                proxyNote.invoke("changePosition", projectID, noteID, swimlanePosition, index);
             }
             else {
                 $(ui.sender).sortable("cancel");
@@ -183,13 +188,30 @@ $(document).ready(function () {
             ui.item.type = $(ui.item).attr("data-type");
         },
         stop: function (event, ui) {
+            
+            //If the note didn't move to another swimlane
             if ((ui.item.targetLane == null) && (ui.item.startPos != ui.item.index())) {
-                var type1 = ui.item.type;
+                var index = ui.item.index();
                 var startPos = ui.item.startPos;
-                var targetId = this.getElementsByClassName("note")[startPos].getAttribute("data-id");
-                var type2 = this.getElementsByClassName("note")[startPos].getAttribute("data-type");
-                updatePosition(ui.item.id, ui.item.index(), type1);
-                updatePosition(targetId, startPos, type2);
+                var note = this.getElementsByClassName("note");
+                if (index < startPos) {
+                    // If the note move up
+                    for (var i = index; i < startPos + 1; i++) {
+                        updatePosition($(note[i]).attr("data-id"), i, $(note[i]).attr("data-type"));
+                    }
+                }
+                else {
+                    // If the note move down
+                    for (var i = startPos; i < index + 1; i++) {
+                        updatePosition($(note[i]).attr("data-id"), i, $(note[i]).attr("data-type"));
+                    }
+                }
+
+                // Update new position in clients
+                var projectID = $("#txtProjectID").val();
+                var noteID = $(ui.item).attr("id");
+                var swimlanePosition = $(".connected").index(this);
+                proxyNote.invoke("changePosition", projectID, noteID, swimlanePosition, index);
             }
         }
     }).disableSelection();
@@ -267,7 +289,7 @@ function getVisualNote(dataID, type, item) {
 
     var objtext;
     objtext = "<div class='note' data-type='" + typeNum + "' id='" + type + "." + id + "' data-id='" + id + "' " +
-              ((type == "task") ? "data-backlog-id='" + backlog_id + "' " : " ");
+    ((type == "task") ? "data-backlog-id='" + backlog_id + "' " : " ");
     objtext += "data-status='" + status + "'>" +
     "<div class='note-header' style='background-color:" + color.substr(0, 7) + ";'><span class='item-id'>" + idArray[1] + "</span>" +
     "<img class='note-button' onclick=\"viewDetailNote(" + id + ",'" + type + "')\" src='images/sidebar/edit_note.png'>" +
@@ -580,7 +602,7 @@ function deleteTaskComment(commentID) {
     });
     var obj = document.getElementById("comment." + commentID);
     obj.parentElement.removeChild(obj);
-    
+
     // Delete comment in other clients' view
     var taskID = $("#btnSubmitComment").attr("data-task-id");
     proxyTC.invoke("deleteComment", taskID, commentID);
@@ -633,11 +655,11 @@ function submitTaskComment() {
         success: function (id) {
             var content = $("#txtTaskComment").val().replace(new RegExp('\r?\n', 'g'), '<br />');
             var objtext = "<div class='comment-box' id='comment." + id + "'><div class='comment-panel'>" +
-                "<img class='comment-profile' title='Nguyen Minh Son' src='images/sidebar/profile.png'></div>" +
-                "<div class='comment-container'><div class='comment-content'>" + content + "</div><div class='comment-footer'>" +
-                "<div class='comment-button' title='Edit comment' onclick='fetchTaskComment(" + id + ")'></div>" +
-                "<div class='comment-button' title='Delete comment' onclick='deleteTaskComment(" + id + ")'></div>" +
-                "</div></div>";
+            "<img class='comment-profile' title='Nguyen Minh Son' src='images/sidebar/profile.png'></div>" +
+            "<div class='comment-container'><div class='comment-content'>" + content + "</div><div class='comment-footer'>" +
+            "<div class='comment-button' title='Edit comment' onclick='fetchTaskComment(" + id + ")'></div>" +
+            "<div class='comment-button' title='Delete comment' onclick='deleteTaskComment(" + id + ")'></div>" +
+            "</div></div>";
             $("#commentBox").append(objtext);
             $("#commentBox").scrollTop(document.getElementById("commentBox").scrollHeight);
             $("#txtTaskComment").val("");
@@ -677,6 +699,9 @@ function saveItem(itemID, type) {
     });
 
     updateAssignee(itemID, type);
+
+    // Update note in other clients
+    proxyNote.invoke("updateNote", item.Project_ID, type + "." + itemID, item.Title, item.Color);
 }
 
 /*6. Delete an item*/
@@ -788,7 +813,7 @@ function uploadFile(i, taskID) {
 
             // Send the visual to other clients
             proxyTC.invoke("sendUploadedFile", taskID, req.responseText);
-            
+
             // If the queue still has files left then upload them
             if (i < files.length - 1) {
                 tempSize += file.size;
@@ -996,13 +1021,36 @@ function init_NoteHub() {
     });
 
     // Update a note
-    proxyNote.on("updateNote", function (commentID, content) {
+    proxyNote.on("updateNote", function (noteID, title, color) {
+        var note = document.getElementById(noteID);
 
+        var header = note.getElementsByClassName("note-header")[0];
+        header.style.background = color.substr(0, 7);
+
+        var content = note.getElementsByClassName("note-content")[0];
+        content.style.background = color.substr(8, 7);
+        content.innerHTML = title;
     })
 
-    // Change swimlane
+    // Change position
+    proxyNote.on("changePosition", function (noteID, swimlanePosition, position) {
+        var target = document.getElementById(noteID);
+        var lane = document.getElementsByClassName("connected")[swimlanePosition];
+        var note = lane.getElementsByClassName("note");
+        var i;
+        for (i = 0; i < note.length; i++)
+            if (note[i].getAttribute("id") == noteID) break;
+        if (i > position) $(target).insertBefore($(note[position]));
+        else $(target).insertAfter($(note[position]));
+    });
 
-    // Swap position
+    // Change lane
+    proxyNote.on("changeLane", function (noteID, swimlanePosition, position) {
+        var target = document.getElementById(noteID);
+        var lane = document.getElementsByClassName("connected")[swimlanePosition];
+        var note = lane.getElementsByClassName("note");
+        $(target).insertBefore($(note[position]));
+    });
 
     // Start connection and join group
     connNote.start().done(function () {
