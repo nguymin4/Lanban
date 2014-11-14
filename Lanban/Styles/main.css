@@ -128,7 +128,7 @@ body {
 }
 
 .view {
-    background: url("../images/background/top-bg.png") repeat-x, url("../images/background/img0.jpg") no-repeat bottom;
+    background: url("../images/background/top-bg.png") repeat-x, url("../images/background/main_background.jpg") left bottom no-repeat;
     opacity: 0;
     width: 600px;
     height: 90%;

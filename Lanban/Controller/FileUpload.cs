@@ -9,7 +9,8 @@ namespace Lanban
         {
             // Upload file
             var uploadFile = _context.Request.Files[0];
-            string path = "/Uploads/Project_" + projectID.ToString() + "/" + uploadFile.FileName;
+            string name = getFileName(uploadFile.FileName);
+            string path = "/Uploads/Project_" + projectID.ToString() + "/" + name;
             var filePath = _context.Server.MapPath(path);
             uploadFile.SaveAs(filePath);
 
@@ -18,8 +19,8 @@ namespace Lanban
             File file = new File();
             file.Task_ID = Convert.ToInt32(param["taskID"]);
             file.User_ID = Convert.ToInt32(_context.Session["UserID"]);
-            file.Name = uploadFile.FileName;
-            file.Type = getFileType(param["fileType"], file.Name);
+            file.Name = name;
+            file.Type = getFileType(param["fileType"], name);
             file.Path = path;
 
             return myQuery.linkTaskFile(file);
@@ -53,6 +54,14 @@ namespace Lanban
             if (fileType.Contains("image")) return "image";
 
             return "general";
+        }
+
+        // Get real name in case of Internet Explorer
+        public string getFileName(string name)
+        {
+            var index = name.LastIndexOf("\\");
+            if (index != -1) return name.Substring(index + 1);
+            return name;
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿/**********************************/
 #kanbanWindow {
+    background: url("../images/background/top-bg.png") repeat-x, url("../images/background/img0.jpg") left no-repeat;
     height: 98%;
     margin: 5px 0.5% 5px 0.5%;
     text-align: center;
@@ -104,7 +105,6 @@ span.item-id {
 
 /*Add item window*/
 #backlogWindow, #taskWindow {
-    background: url("../images/background/top-bg.png") repeat-x, url("../images/background/dark-abstract.jpg") no-repeat;
     position: relative;
     max-width: 850px;
     min-height: 450px;
@@ -477,19 +477,19 @@ img[title='Upload'] {
 
 /* Upload progress */
 #uploadProgressContainer {
-    width: 100%;
     height: 12px;
     background: rgba(25, 15, 15, 0.5);
     border-radius: 10px;
-    padding-top: 5px;
+    padding: 5px 6px 0px;
     opacity: 0;
 }
 
 #uploadProgress {
     height: 6px;
     background: #F5F5F5;
-    margin: 0px 6px;
     box-shadow: 0px 0px 5px 1px white;
+    border-radius: 6px;
+    transition: 0.1s linear;
 }
 
 /* Document display */

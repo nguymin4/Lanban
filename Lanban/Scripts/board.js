@@ -50,6 +50,14 @@ function hideWindow() {
         $("#kanbanWindow").css("display", "block").addClass("show");
         $(viewIndicator[0]).addClass("show");
     }, 250);
+
+    // Leave the current Task Hub group
+    try {
+        proxyTC.invoke("leaveGroup", $("#btnSubmitComment").attr("data-task-id"));
+    }
+    catch(e) {
+        console.log(e);
+    }
 }
 
 /* In backlogWindow and taskWindow there are 2 pages: */
@@ -77,6 +85,7 @@ function changePageWindow(windowName, index) {
             page[1].style.display = "none";
         }, 1000);
     }
+    $(page[index]).scrollTop(0);
 }
 
 
@@ -184,6 +193,10 @@ $(document).ready(function () {
             }
         }
     }).disableSelection();
+
+    /* Real-time communication */
+    init_TaskCommentHub();
+    init_NoteHub();
 });
 
 /* Class: Backlog */
@@ -229,6 +242,9 @@ function insertItem(type) {
             $(objtext).appendTo($(".connected")[swimlanePosition]);
             showSuccessDiaglog(0);
             (type == "backlog") ? clearBacklogWindow() : clearTaskWindow();
+
+            // Send to other clients
+            proxyNote.invoke("sendInsertedNote", item.Project_ID, swimlanePosition, objtext);
         }
     });
 }
@@ -463,6 +479,9 @@ function viewDetailNote(itemID, type) {
         viewTaskFile(itemID);
         $("#btnSubmitComment").attr("data-task-id", itemID);
         $("#inputUploadFile").attr("data-task-id", itemID).val("");
+
+        // Connect to Task Hub
+        proxyTC.invoke("joinChannel", itemID);
     }
 }
 
@@ -530,7 +549,7 @@ function clearTaskWindow() {
     createCurrentBacklogList();
 }
 
-
+/*4.3 Working with comments of a task*/
 /*4.3.1 View all comment of a task*/
 function viewTaskComment(itemID) {
     $.ajax({
@@ -561,6 +580,10 @@ function deleteTaskComment(commentID) {
     });
     var obj = document.getElementById("comment." + commentID);
     obj.parentElement.removeChild(obj);
+    
+    // Delete comment in other clients' view
+    var taskID = $("#btnSubmitComment").attr("data-task-id");
+    proxyTC.invoke("deleteComment", taskID, commentID);
 }
 
 /*4.3.3 Fetch a comment to input field to edit*/
@@ -589,15 +612,20 @@ function updateTaskComment(commentID) {
     content.innerHTML = $("#txtTaskComment").val().replace(new RegExp('\n', 'g'), '<br />');
     $("#txtTaskComment").val("");
     $("#btnSubmitComment").val("Send").attr("onclick", "submitTaskComment()");
+
+    // Update comment content in other clients' view
+    var taskID = $("#btnSubmitComment").attr("data-task-id");
+    proxyTC.invoke("updateComment", taskID, commentID, content.innerHTML);
 }
 
 /*4.3.5 Insert new comment for a task */
 function submitTaskComment() {
+    var taskID = $("#btnSubmitComment").attr("data-task-id");
     $.ajax({
         url: "Handler.ashx",
         data: {
             action: "insertTaskComment",
-            taskID: $("#btnSubmitComment").attr("data-task-id"),
+            taskID: taskID,
             content: $("#txtTaskComment").val()
         },
         global: false,
@@ -613,6 +641,9 @@ function submitTaskComment() {
             $("#commentBox").append(objtext);
             $("#commentBox").scrollTop(document.getElementById("commentBox").scrollHeight);
             $("#txtTaskComment").val("");
+
+            // Send objtext to other client who is also viewing the task
+            proxyTC.invoke("sendSubmittedComment", taskID, objtext);
         }
     });
 }
@@ -660,8 +691,12 @@ function deleteItem(itemID, type) {
         global: false,
         type: "get"
     });
-    var note = document.getElementById(type + "." + itemID);
+    var id = type + "." + itemID;
+    var note = document.getElementById(id);
     note.parentElement.removeChild(note);
+
+    // Delete in other clients
+    proxyNote.invoke("deleteNote", $("#txtProjectID").val(), id);
 }
 
 /*7.1 Creat a drop down list contains all current backlog items*/
@@ -729,11 +764,10 @@ function uploadFile(i, taskID) {
     var form = new FormData();
     form.append(file.name, file);
 
-    var done = 0;
     req.upload.addEventListener("progress", function (e) {
         //Tracking progress here
-        done = (e.position || e.loaded) - done;
-        var tempProgress = ((tempSize + done) / totalSize) * 100;
+        var done = e.position || e.loaded;
+        var tempProgress = Math.round(((tempSize + done) / totalSize) * 100);
         if (progress < tempProgress) {
             progress = tempProgress;
             document.getElementById("uploadProgress").style.width = progress + "%";
@@ -752,6 +786,9 @@ function uploadFile(i, taskID) {
                 this.getElementsByClassName("file-remove")[0].style.display = "none";
             });
 
+            // Send the visual to other clients
+            proxyTC.invoke("sendUploadedFile", taskID, req.responseText);
+            
             // If the queue still has files left then upload them
             if (i < files.length - 1) {
                 tempSize += file.size;
@@ -795,6 +832,11 @@ function viewTaskFile(taskID) {
 /*8.4 Delete an attached file of task*/
 function deleteFile(fileID) {
     $("#fileList div[data-id='" + fileID + "']").remove();
+
+    // Remove visual of the file in other clients
+    var taskID = $("#btnSubmitComment").attr("data-task-id");
+    proxyTC.invoke("deleteFile", taskID, fileID)
+
     $.ajax({
         url: "Handler.ashx",
         data: {
@@ -885,4 +927,85 @@ function loadTaskBacklogTable(backlog_id) {
         "<td><img class='note-button' onclick=\"hideWindow(); viewDetailNote(" + task[i].getAttribute("data-id") + ",'task')\" src='images/sidebar/view.png' /></td></tr>";
         $(tbody).append(objtext);
     }
+}
+
+/*C. SignalR Communication */
+/*1. Real time comment and document */
+var connTC, proxyTC;
+function init_TaskCommentHub() {
+    connTC = $.hubConnection();
+    proxyTC = connTC.createHubProxy("taskHub");
+
+    // When other client send data, we listen by these
+    // Receive new comment
+    proxyTC.on("receiveSubmittedComment", function (msgObj) {
+        $("#commentBox").append(msgObj);
+        $("#commentBox").scrollTop(document.getElementById("commentBox").scrollHeight);
+    });
+
+    // Delete a comment
+    proxyTC.on("deleteComment", function (commentID) {
+        var obj = document.getElementById("comment." + commentID);
+        obj.parentElement.removeChild(obj);
+    });
+
+    // Update content of a comment
+    proxyTC.on("updateComment", function (commentID, content) {
+        var comment = document.getElementById("comment." + commentID);
+        comment.getElementsByClassName("comment-content")[0].innerHTML = content;
+    })
+
+    // Receive new document visual
+    proxyTC.on("receiveUploadedFile", function (msgObj) {
+        document.getElementById("fileList").innerHTML += msgObj;
+        $("#fileList .file-container").on("mouseover", function () {
+            this.getElementsByClassName("file-remove")[0].style.display = "block";
+        });
+        $("#fileList .file-container").on("mouseout", function () {
+            this.getElementsByClassName("file-remove")[0].style.display = "none";
+        });
+    });
+
+    // Delete a document
+    proxyTC.on("deleteFile", function (fileID) {
+        $("#fileList div[data-id='" + fileID + "']").remove();
+    });
+
+    // Start connection and join group
+    connTC.start().done(function () {
+
+    });
+}
+
+/*2. Real time sticky note */
+var connNote, proxyNote;
+function init_NoteHub() {
+    connNote = $.hubConnection();
+    proxyNote = connNote.createHubProxy("noteHub");
+
+    // When other client send data, we listen by these
+    // Receive new note
+    proxyNote.on("receiveInsertedNote", function (swimlanePosition, objtext) {
+        $(objtext).appendTo($(".connected")[swimlanePosition]);
+    });
+
+    // Delete a note
+    proxyNote.on("deleteNote", function (id) {
+        var note = document.getElementById(id);
+        note.parentElement.removeChild(note);
+    });
+
+    // Update a note
+    proxyNote.on("updateNote", function (commentID, content) {
+
+    })
+
+    // Change swimlane
+
+    // Swap position
+
+    // Start connection and join group
+    connNote.start().done(function () {
+        proxyNote.invoke("joinChannel", $("#txtProjectID").val());
+    });
 }
