@@ -188,7 +188,7 @@ $(document).ready(function () {
             ui.item.type = $(ui.item).attr("data-type");
         },
         stop: function (event, ui) {
-            
+
             //If the note didn't move to another swimlane
             if ((ui.item.targetLane == null) && (ui.item.startPos != ui.item.index())) {
                 var index = ui.item.index();
@@ -260,6 +260,7 @@ function insertItem(type) {
         success: function (result) {
             saveAssignee(result.substring(0, result.indexOf(".")), type);
             var objtext = getVisualNote(result, type, item);
+            console.log(objtext);
             var swimlanePosition = parseInt($("#txtSwimlanePosition").val());
             $(objtext).appendTo($(".connected")[swimlanePosition]);
             showSuccessDiaglog(0);
@@ -294,8 +295,10 @@ function getVisualNote(dataID, type, item) {
     "<div class='note-header' style='background-color:" + color.substr(0, 7) + ";'><span class='item-id'>" + idArray[1] + "</span>" +
     "<img class='note-button' onclick=\"viewDetailNote(" + id + ",'" + type + "')\" src='images/sidebar/edit_note.png'>" +
     "<img class='note-button' onclick=\"deleteItem(" + id + ",'" + type + "')\" src='images/sidebar/delete_note.png'></div>" +
-    "<div class='note-content' style='background-color:" + color.substr(8, 7) + ";'>" + item.Title + "</div></div>";
-    return objtext;
+    "<div class='note-content' style='background-color:" + color.substr(8, 7) + ";'>" + item.Title + "</div>" +
+    "<div class='note-footer' style='background-color:" + color.substr(8, 7) + ";'>" +
+    ((type == "backlog") ? "<div class='note-stat-button' onmouseover='viewBacklogStat(this, " + id + ")' onmouseout='hideBacklogStat()'></div>" : "&nbsp;");
+    return objtext + "</div></div>";
 }
 
 // Open insert window
@@ -939,7 +942,8 @@ function fetchLineGraphData() {
 }
 
 
-/* Format tblTaskBacklog */
+/* Backlog statistic */
+/* Format tblTaskBacklog and load data */
 function loadTaskBacklogTable(backlog_id) {
     var task = $(".note[data-type='2'][data-backlog-id='" + backlog_id + "']");
     var tbody = $("#tblTaskBacklog tbody");
@@ -953,6 +957,73 @@ function loadTaskBacklogTable(backlog_id) {
         $(tbody).append(objtext);
     }
 }
+
+// Backlog's tasks statistics
+var backlogStat;
+
+// Load and draw chat
+function loadBacklogStat(backlog_id) {
+    // Create stats
+    var task = $(".note[data-type='2'][data-backlog-id='" + backlog_id + "']");
+
+    var data = [0, 0, 0];
+    for (var i = 0; i < task.length; i++) {
+        switch (task[i].getAttribute("data-status")) {
+            case "Standby":
+                data[0]++;
+                break;
+            case "Ongoing":
+                data[1]++;
+                break;
+            case "Done":
+                data[2]++;
+                break;
+        }
+    }
+    var backlogStatData = {
+        labels: ["Standby", "Ongoing", "Done"],
+        datasets: [
+            {
+                fillColor: "rgba(220,220,220,0.5)",
+                strokeColor: "rgba(220,220,220,0.8)",
+                highlightFill: "rgba(220,220,220,0.75)",
+                highlightStroke: "rgba(220,220,220,1)",
+                data: data
+            }
+        ]
+    };
+
+    // Draw
+    var chartBacklogStat = document.getElementById("chartBacklogStat").getContext("2d");
+    if (backlogStat != null) backlogStat.destroy();
+    backlogStat = new Chart(chartBacklogStat).Bar(backlogStatData, {
+        scaleFontColor: "#FFFFFF",
+        scaleGridLineColor: "rgba(128, 128, 128, 0.2)"
+    });
+}
+
+// Show dialogBacklogStat window
+function viewBacklogStat(obj, backlog_id) {
+    loadBacklogStat(backlog_id);
+    var windowHeight = window.innerHeight || document.documentElement.clientHeight;
+    var windowWidth = window.innerWidth || document.documentElement.clientWidth;
+    var offset = $(obj).offset();
+    var top = (offset.top > windowHeight - 200) ? offset.top - 200 : offset.top + 32;
+    var left = (offset.top > windowWidth - 300) ? offset.left - 300 : offset.left;
+    $("#diaglogBacklogStat").css("left", left);
+    $("#diaglogBacklogStat").css("top", top);
+    $("#diaglogBacklogStat").css("display", "block").addClass("show");
+}
+
+// Hide dialogBacklogStat window
+function hideBacklogStat() {
+    backlogStat.destroy();
+    $("#diaglogBacklogStat").removeClass("show");
+    setTimeout(function () {
+        $("#diaglogBacklogStat").css("display", "none");
+    }, 150);
+}
+
 
 /*C. SignalR Communication */
 /*1. Real time comment and document */

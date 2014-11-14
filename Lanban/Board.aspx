@@ -275,6 +275,11 @@
     <!-- Box display search result of assignee for an item by name -->
     <div id="assigneeSearchResult"></div>
 
+    <!-- Box display statistic of all tasks belong to a backlog -->
+    <div id="diaglogBacklogStat" style="display: none;">
+        <canvas id="chartBacklogStat" width="300" height="200"></canvas>
+    </div>
+
     <!-- Hidden field to store some temporary data -->
     <asp:TextBox runat="server" ID="txtProjectID" CssClass="hidden"></asp:TextBox>
     <asp:TextBox runat="server" ID="txtSwimlaneID" CssClass="hidden"></asp:TextBox>

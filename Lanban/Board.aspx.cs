@@ -174,6 +174,25 @@ namespace Lanban
             content.InnerHtml = row["Title"].ToString();
             div.Controls.Add(content);
 
+            HtmlGenericControl footer = new HtmlGenericControl("div");
+            footer.Attributes.Add("class", "note-footer");
+            footer.Style.Add("background-color", color.Substring(8));
+            div.Controls.Add(footer);
+
+            if (type.Equals("1"))
+            {
+                // Add statistics button
+                HtmlGenericControl stat = new HtmlGenericControl("div");
+                stat.Attributes.Add("class", "note-stat-button");
+                stat.Attributes.Add("onmouseover", "viewBacklogStat(this, " + divID + ")");
+                stat.Attributes.Add("onmouseout", "hideBacklogStat()");
+                footer.Controls.Add(stat);
+            }
+            else
+            {
+                footer.Controls.Add(new LiteralControl("&nbsp;"));
+            }
+
             return div;
         }
 

@@ -43,7 +43,6 @@
     margin: 10px auto 10px auto;
     color: white;
     box-shadow: 0px 0px 10px #222222;
-    cursor: pointer;
     border-radius: 8px;
 }
 
@@ -55,14 +54,14 @@
     height: 28px;
     line-height: 28px;
     padding: 3px 5px 0px 5px;
+    cursor: pointer;
 }
 
 .note-content {
-    height: 100px;
+    height: 80px;
     text-align: left;
     padding: 6px;
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
+    cursor: pointer;
 }
 
 span.item-id {
@@ -84,6 +83,11 @@ span.item-id {
         height: 26px;
     }
 
+.note-footer {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    text-align: right;
+}
 
 /*btnAddItem*/
 .btnAddItem {
@@ -545,3 +549,32 @@ img[title='Upload'] {
         width: 22px;
         height: 22px;
     }
+
+/* Backlog stat */
+
+.note-stat-button {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    margin-right: 5px;
+    background: url("/images/sidebar/chart.png");
+    background-size: cover;
+}
+
+#diaglogBacklogStat {
+    position: absolute;
+    opacity: 0;
+    z-index : 1000;
+    background: url("../images/background/main_background.jpg") left bottom;
+    background-size: cover;
+    transition: 0.25s ease;
+    width: 300px;
+    height: 200px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 20px #000;
+}
+
+#diaglogBacklogStat.show {
+    opacity: 1;
+}
