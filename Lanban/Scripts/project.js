@@ -10,14 +10,6 @@
     document.getElementsByClassName("view")[0].style.width = 0.9 * (windowWidth - 61);
 }
 
-$(document).ready(function () {
-    /*Add customized scroll bar*/
-    $("#projectbrowser").perfectScrollbar({
-        wheelSpeed: 20,
-        wheelPropagation: false,
-    });
-});
-
 function openAddProjectWindow(index) {
     showView(0);
     var rightContent = document.getElementsByClassName("right-window-content");
@@ -38,3 +30,12 @@ function openAddProjectWindow(index) {
         }, 500);
     }
 }
+
+$(document).ready(function () {
+    /*Add customized scroll bar*/
+    $("#projectbrowser").perfectScrollbar({
+        wheelSpeed: 20,
+        wheelPropagation: false,
+    });
+});
+

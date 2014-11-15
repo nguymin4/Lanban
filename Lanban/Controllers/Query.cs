@@ -690,5 +690,36 @@ namespace Lanban
                 point[i] = Convert.ToInt32(a * i + b);
             return point;
         }
+
+        /*4. Login page */
+        public string login(string username, string password) {
+            myCommand.CommandText = "SELECT * FROM Users WHERE Username = @username";
+            addParameter<string>("@username", SqlDbType.VarChar, username);
+            myReader = myCommand.ExecuteReader();
+            bool available = myReader.Read();
+            if (available == true)
+            {
+                if (password.Equals(myReader["Password"]))
+                    return myReader["User_ID"] + "." + myReader["Role"];
+            }
+            return "";
+        }
+
+        /*5. Project page */
+        public void fetchProject(int userID, int role)
+        {
+            string command;
+            if (role == 1)
+                command = "SELECT * FROM Project INNER JOIN " +
+                          "(SELECT Project_ID FROM Project_User WHERE User_ID=@userID) AS A " +
+                          "ON A.Project_ID = Project.Project_ID;";
+            else
+                command = "SELECT * FROM Project WHERE Supervisor=@userID";
+
+            myCommand.CommandText = command;
+            addParameter<int>("@userID", SqlDbType.Int, userID);
+            myAdapter.Fill(myDataSet, "Project");
+            myCommand.Parameters.Clear();
+        }
     }
 }

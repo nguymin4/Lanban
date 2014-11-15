@@ -150,17 +150,17 @@
     <Compile Include="Board.aspx.designer.cs">
       <DependentUpon>Board.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Controller\NoteHub.cs" />
-    <Compile Include="Controller\TaskHub.cs" />
-    <Compile Include="Model\Chart.cs" />
-    <Compile Include="Controller\FileUpload.cs" />
+    <Compile Include="Hubs\NoteHub.cs" />
+    <Compile Include="Hubs\TaskHub.cs" />
+    <Compile Include="Models\Chart.cs" />
+    <Compile Include="Controllers\FileUpload.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Handler.ashx.cs">
       <DependentUpon>Handler.ashx</DependentUpon>
     </Compile>
-    <Compile Include="Controller\HandlerOperation.cs" />
+    <Compile Include="Controllers\HandlerOperation.cs" />
     <Compile Include="Lanban.Master.cs">
       <DependentUpon>Lanban.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -175,7 +175,7 @@
     <Compile Include="Login.aspx.designer.cs">
       <DependentUpon>Login.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Model\Item.cs" />
+    <Compile Include="Models\Item.cs" />
     <Compile Include="Project.aspx.cs">
       <DependentUpon>Project.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -184,7 +184,7 @@
       <DependentUpon>Project.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Controller\Query.cs" />
+    <Compile Include="Controllers\Query.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>

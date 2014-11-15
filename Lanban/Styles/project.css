@@ -61,8 +61,8 @@ input[name="txtSearch"] {
     margin: 10px;
 }
 
-/*Project.html only*/
-.board {
+/*Project box*/
+.projectContainer {
     background-color: rgba(25, 15, 15, 0.79);
     width: 200px;
     height: 200px;

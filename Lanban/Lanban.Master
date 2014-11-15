@@ -1,6 +1,6 @@
 ﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Lanban.master.cs" Inherits="Lanban.Lanban" ClientIDMode="Static" %>
 
-<html>
+<html manifest="lanban.appcache">
 <head runat="server">
     <title></title>
     <script src="Scripts/jquery-2.1.1.min.js" type="text/javascript"></script>

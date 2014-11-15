@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="Lanban.Login" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="Lanban.Login" ClientIDMode="Static" %>
 
 <html>
 <head runat="server">
@@ -14,14 +14,25 @@
                     <tr>
                         <td class="label">Username:</td>
                         <td>
-                            <input type="text" /></td>
+                            <asp:TextBox runat="server" ID="txtUsername"></asp:TextBox>
+                        </td>
+                        <td>
+                            <asp:RequiredFieldValidator runat="server" ControlToValidate="txtUsername" CssClass="required"
+                                SetFocusOnError="true" ErrorMessage="Required"></asp:RequiredFieldValidator>
+                        </td>
                     </tr>
                     <tr>
                         <td class="label">Password:</td>
                         <td>
-                            <input type="text" /></td>
+                            <asp:TextBox runat="server" ID="txtPassword" TextMode="Password"></asp:TextBox>
+                        </td>
+                        <td>
+                            <asp:RequiredFieldValidator runat="server" ControlToValidate="txtPassword" CssClass="required"
+                                SetFocusOnError="true" ErrorMessage="Required"></asp:RequiredFieldValidator>
+                        </td>
                     </tr>
                 </table>
+                <asp:Label runat="server" ID="lblMsg" CssClass="required"></asp:Label>
                 <asp:Button runat="server" ID="btnLogin" CssClass="button" Text="Login" OnClick="btnLogin_Click" />
             </div>
         </div>

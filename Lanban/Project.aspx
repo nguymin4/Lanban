@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Project board" Language="C#" MasterPageFile="~/Lanban.Master" AutoEventWireup="true" CodeBehind="Project.aspx.cs" Inherits="Lanban.Project" %>
+﻿<%@ Page Title="Lanban - Projects" Language="C#" MasterPageFile="~/Lanban.Master" AutoEventWireup="true" CodeBehind="Project.aspx.cs" Inherits="Lanban.Project" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="contentHead" runat="server">
     <script src="Scripts/project.js"></script>
@@ -21,33 +21,9 @@
         <div class="title-bar">Project browser</div>
         <div class="window-content">
             <!-- List of all project -->
-            <div id="projectbrowser">
-                <div class="board" onclick="window.location.href = 'board.aspx'">
-                    <strong>Project 1
-                    </strong>
-                </div>
-                <div class="board" onclick="window.location.href = 'board.html'">
-                    <strong>Project 1
-                    </strong>
-                </div>
-                <div class="board" onclick="window.location.href = 'board.html'">
-                    <strong>Project 1
-                    </strong>
-                </div>
-                <div class="board" onclick="window.location.href = 'board.html'">
-                    <strong>Project 1
-                    </strong>
-                </div>
-                <div class="board" onclick="window.location.href = 'board.html'">
-                    <strong>Project 1
-                    </strong>
-                </div>
-                <div class="board" onclick="window.location.href = 'board.html'">
-                    <strong>Project 1
-                    </strong>
-                </div>
-            </div>
+            <asp:Panel ID="projectbrowser" runat="server"></asp:Panel>
             <!-- End list of all project -->
+
             <!-- Start - Project search and filter -->
             <div id="projectfilter" class="right-window-content show">
                 <div id="txtSearch">

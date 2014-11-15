@@ -30,20 +30,22 @@ body {
     top: 35%;
     margin: auto;
     background: rgba(25, 15, 15, 0.79);
-    width: 350px;
+    width: 375px;
     height: 150px;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.82);
     padding: 30px 20px 10px 30px;
+    color: #e5e5e5;
 }
 
 table {
-    margin: auto;
+    margin: auto auto 5px auto;
 }
 
 td {
     height: 35px;
     vertical-align: central;
+    color: #e5e5e5;
 }
 
 .button {
@@ -72,7 +74,7 @@ td {
         border: 1px solid rgb(251, 130, 44);
     }
 
-input[type="text"] {
+input[type="text"], input[type="password"] {
     height: 25px;
     line-height: 25px;
     font-size: 15px;
@@ -80,13 +82,23 @@ input[type="text"] {
     border-radius: 5px;
     border: 1px solid #ffffff;
     padding-left: 5px;
+    margin-left: 20px;
 }
 
 .label {
     width: 100px;
-    color: #e5e5e5;
     font-size: 16px;
     font-weight: bold;
+}
+
+.required {
+    margin-left: 10px;
+    font-style:  italic;
+    color: rgb(251, 130, 44);
+}
+
+#lblMsg {
+    display: none;
 }
 
 /*Widget clock*/

@@ -16,7 +16,20 @@ namespace Lanban
 
         protected void btnLogin_Click(object sender, EventArgs e)
         {
-            Response.Redirect("Project.aspx");
+            string result = new Query().login(txtUsername.Text, txtPassword.Text);
+            if (result != "")
+            {
+                string[] data = result.Split('.');
+                Session["userID"] = data[0];
+                Session["userRole"] = data[1];
+                Response.Redirect("Project.aspx");
+            }
+            else
+            {
+                btnLogin.Style["margin-top"] = "15px";
+                lblMsg.Style["display"] = "block";
+                lblMsg.Text = "Wrong Username and/or Password";
+            }
         }
     }
 }

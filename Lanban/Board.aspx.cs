@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -15,6 +14,7 @@ namespace Lanban
     {
         Query myQuery;
         int projectID;
+        int userID;
         TableCell[] cell;
 
         protected void Page_Load(object sender, EventArgs e)
@@ -24,11 +24,12 @@ namespace Lanban
             {
                 //projectID = Convert.ToInt32(Session["projectID"]);
                 projectID = 1;
+                userID = 1;
                 txtProjectID.Text = projectID.ToString();
                 createKanban();
                 initDropdownList();
                 Session["projectID"] = projectID;
-                Session["userID"] = 1;
+                Session["userID"] = userID;
             }
         }
 
