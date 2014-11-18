@@ -6,13 +6,11 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="contentPanel" runat="server">
-    <ul id="panel">
-        <li class="viewIndicator show" style="background-image: url('images/logo.png')" data-view-indicator="0"></li>
-        <li style="background-image: url('images/sidebar/add_project.png')" onclick="openAddProjectWindow(1)"></li>
-        <li class="viewIndicator" style="background-image: url('images/sidebar/schedule.png')" data-view-indicator="1"></li>
-        <li class="viewIndicator" style="background-image: url('images/sidebar/share.png')" data-view-indicator="2"></li>
-        <li class="viewIndicator" style="background-image: url('images/sidebar/setting.png')" data-view-indicator="3"></li>
-    </ul>
+    <li class="viewIndicator show" style="background-image: url('images/logo.png')" data-view-indicator="0"></li>
+    <li style="background-image: url('images/sidebar/add_project.png')" onclick="openAddProjectWindow(1)"></li>
+    <li class="viewIndicator" style="background-image: url('images/sidebar/schedule.png')" data-view-indicator="1"></li>
+    <li class="viewIndicator" style="background-image: url('images/sidebar/share.png')" data-view-indicator="2"></li>
+    <li class="viewIndicator" style="background-image: url('images/sidebar/setting.png')" data-view-indicator="3"></li>
 </asp:Content>
 
 <asp:Content ID="Content3" ContentPlaceHolderID="contentMain" runat="server">
@@ -44,7 +42,7 @@
             <!-- End - Project search and filter -->
             <!-- Start - Add new project - Hidden when filter project is shown -->
             <div id="addproject" class="right-window-content">
-                <img src="images/sidebar/back.png" style="width: 24px; height: 24px" onclick="openAddProjectWindow(0)" />
+                <img src="images/sidebar/back.png" style="width: 24px; height: 24px; cursor: pointer;" onclick="openAddProjectWindow(0)" />
                 <h3>Add new project</h3>
             </div>
             <!-- End - Add new project - -->
@@ -72,4 +70,5 @@
         </div>
     </div>
     <!-- End - The window for Setting  -->
+
 </asp:Content>

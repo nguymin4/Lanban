@@ -111,8 +111,7 @@ namespace Lanban
                 // Save assignee of an item
                 case "saveAssignee":
                     string aID = param["assigneeID"];
-                    string aName = param["assigneeName"];
-                    myQuery.saveAssignee(param["itemID"], param["type"], aID, aName);
+                    myQuery.saveAssignee(param["itemID"], param["type"], aID);
                     break;
 
                 // Delete all assignees of an item

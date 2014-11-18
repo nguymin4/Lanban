@@ -121,6 +121,7 @@ body {
 .window {
     display: none;
     background-size: auto, cover;
+    background-repeat: repeat-x, no-repeat;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     box-shadow: 0px 0px 20px #000;
@@ -128,7 +129,8 @@ body {
 }
 
 .view {
-    background: url("../images/background/top-bg.png") repeat-x, url("../images/background/main_background.jpg") left bottom no-repeat;
+    background-image: url("../images/background/top-bg.png"), url("../images/background/main_background.jpg");
+    background-position: initial, left bottom;
     opacity: 0;
     width: 600px;
     height: 90%;

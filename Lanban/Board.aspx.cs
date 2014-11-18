@@ -130,14 +130,8 @@ namespace Lanban
 
             // In case the swimlane has mixture of both Task and Backlog items
             string divID;
-            try
-            {
-                divID = row["Item_ID"].ToString();
-            }
-            catch (Exception)
-            {
-                divID = (type.Equals("1")) ? row["Backlog_ID"].ToString() : row["Task_ID"].ToString();
-            }
+            try { divID = row["Item_ID"].ToString(); }
+            catch { divID = (type.Equals("1")) ? row["Backlog_ID"].ToString() : row["Task_ID"].ToString(); }
 
             string id = tableName + "." + divID;
             div.Attributes.Add("id", id);
@@ -148,10 +142,7 @@ namespace Lanban
             HtmlGenericControl header = new HtmlGenericControl("div");
             header.Attributes.Add("class", "note-header");
             header.Style.Add("background-color", color.Substring(0, 7));
-            HtmlGenericControl item_id = new HtmlGenericControl("span");
-            item_id.Attributes.Add("class", "item-id");
-            item_id.InnerHtml = row["Relative_ID"].ToString();
-            header.Controls.Add(item_id);
+            header.InnerHtml = "<span class='item-id'>"+row["Relative_ID"].ToString()+"</span>";
 
             // Add edit button
             Image edit = new Image();
@@ -175,6 +166,7 @@ namespace Lanban
             content.InnerHtml = row["Title"].ToString();
             div.Controls.Add(content);
 
+            // note-footer
             HtmlGenericControl footer = new HtmlGenericControl("div");
             footer.Attributes.Add("class", "note-footer");
             footer.Style.Add("background-color", color.Substring(8));

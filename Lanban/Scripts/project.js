@@ -35,7 +35,9 @@ $(document).ready(function () {
     /*Add customized scroll bar*/
     $("#projectbrowser").perfectScrollbar({
         wheelSpeed: 20,
-        wheelPropagation: false,
+        wheelPropagation: false
     });
+
+    console.log(projectList);
 });
 

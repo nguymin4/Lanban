@@ -307,13 +307,11 @@ namespace Lanban
         }
 
         //2.6.1 Save assignee of a task or backlog
-        public void saveAssignee(string id, string type, string uid, string name)
+        public void saveAssignee(string id, string type, string uid)
         {
-            myCommand.CommandText = "INSERT INTO " + type + "_User (" + type + "_ID, User_ID, [Name])" +
-                " VALUES (@id, @uid, @name)";
+            myCommand.CommandText = "INSERT INTO " + type + "_User (" + type + "_ID, User_ID) VALUES (@id, @uid)";
             addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
             addParameter<int>("@uid", SqlDbType.Int, Convert.ToInt32(uid));
-            addParameter<string>("@name", SqlDbType.VarChar, name);
             myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
         }
@@ -330,7 +328,8 @@ namespace Lanban
         //2.7 View assignee of a task or backlog
         public string viewAssignee(string id, string type)
         {
-            myCommand.CommandText = "SELECT * FROM " + type + "_User WHERE " + type + "_ID=@id";
+            myCommand.CommandText = "SELECT Users.User_ID, Users.[Name] FROM Users INNER JOIN "+
+                "(SELECT User_ID FROM " + type + "_User WHERE " + type + "_ID=@id) AS A ON A.User_ID = Users.User_ID";
             addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
 
             StringBuilder result = new StringBuilder();
@@ -341,7 +340,7 @@ namespace Lanban
             {
                 while (available)
                 {
-                    result.Append(getAssigneeDisplay(myReader[1].ToString(), myReader[2].ToString()));
+                    result.Append(getAssigneeDisplay(myReader[0].ToString(), myReader[1].ToString()));
                     available = myReader.Read();
                 }
             }
@@ -512,9 +511,9 @@ namespace Lanban
         //a.1 Search member name in a project
         public string searchAssignee(int projectID, string keyword, string type)
         {
-            myCommand.CommandText = "SELECT TOP 3 User_ID, Name FROM Project_User " +
-                                    "WHERE Project_ID = " + projectID +
-                                    " AND Name LIKE '%" + keyword + "%'";
+            myCommand.CommandText = "SELECT Users.User_ID, Name FROM Users INNER JOIN " +
+                                    "(SELECT User_ID FROM Project_User WHERE Project_ID = " + projectID + ") AS A " +
+                                    "ON A.User_ID = Users.User_ID WHERE Name LIKE '%" + keyword + "%'";
             StringBuilder result = new StringBuilder();
 
             myReader = myCommand.ExecuteReader();
@@ -569,15 +568,15 @@ namespace Lanban
 
         public string getPieChart(int projectID)
         {
-            myCommand.CommandText = "SELECT Count(*), [Name] FROM Task_User INNER JOIN " +
+            myCommand.CommandText = "SELECT [Count], [Name] FROM Users INNER JOIN " +
+                "(SELECT Count(*) AS [Count], User_ID FROM Task_User INNER JOIN " +
                 "(SELECT Task_ID FROM Task INNER JOIN (SELECT Backlog_ID FROM Backlog WHERE Project_ID=@projectID AND Status='Ongoing') AS A ON Task.Backlog_ID = A.Backlog_ID) " +
-                "AS B ON Task_User.Task_ID = B.Task_ID GROUP BY User_ID, [Name]";
+                "AS B ON Task_User.Task_ID = B.Task_ID GROUP BY User_ID) AS C ON C.User_ID = Users.User_ID";
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
             myReader = myCommand.ExecuteReader();
 
             // Create a pie chart instance and then use JSON Convert to serialize it to JSON string
             PieChart myPie = new PieChart();
-            var data = myPie.part;
             bool available = myReader.Read();
             int index = 0;
             while (available)
@@ -587,7 +586,7 @@ namespace Lanban
                 temp.color = colorHex[1, index];
                 temp.highlight = colorHex[0, index];
                 temp.label = myReader.GetValue(1).ToString();
-                data.Add(temp);
+                myPie.part.Add(temp);
                 available = myReader.Read();
                 index++;
             }
@@ -599,10 +598,11 @@ namespace Lanban
 
         public string getBarChart(int projectID)
         {
-            myCommand.CommandText = "SELECT [Name], SUM(Work_estimation) FROM Task_User INNER JOIN " +
+            myCommand.CommandText = "SELECT [Name], [Sum] FROM Users INNER JOIN " +
+                "(SELECT User_ID, SUM(Work_estimation) AS [Sum] FROM Task_User INNER JOIN " +
                 "(SELECT Task_ID, Work_estimation FROM Task INNER JOIN (SELECT Backlog_ID FROM Backlog WHERE Project_ID=@projectID AND Status='Ongoing') AS A " +
                 "ON Task.Backlog_ID = A.Backlog_ID WHERE Task.Status='Done' OR Task.Status='Ongoing') " +
-                "AS B ON Task_User.Task_ID = B.Task_ID GROUP BY User_ID, [Name]";
+                "AS B ON Task_User.Task_ID = B.Task_ID GROUP BY User_ID) AS C ON C.User_ID = Users.User_ID";
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
             myAdapter.Fill(myDataSet, "temp");
             var table = myDataSet.Tables["temp"];
@@ -708,15 +708,10 @@ namespace Lanban
         /*5. Project page */
         public void fetchProject(int userID, int role)
         {
-            string command;
-            if (role == 1)
-                command = "SELECT * FROM Project INNER JOIN " +
-                          "(SELECT Project_ID FROM Project_User WHERE User_ID=@userID) AS A " +
-                          "ON A.Project_ID = Project.Project_ID;";
-            else
-                command = "SELECT * FROM Project WHERE Supervisor=@userID";
-
-            myCommand.CommandText = command;
+            string table = (role == 1) ? "Project_User" : "Project_Supervisor";
+            myCommand.CommandText = "SELECT Project.* FROM Project INNER JOIN " +
+                                    "(SELECT Project_ID FROM " + table + " WHERE User_ID=@userID) AS A " +
+                                    "ON A.Project_ID = Project.Project_ID;";
             addParameter<int>("@userID", SqlDbType.Int, userID);
             myAdapter.Fill(myDataSet, "Project");
             myCommand.Parameters.Clear();

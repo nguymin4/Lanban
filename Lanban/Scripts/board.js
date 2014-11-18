@@ -406,8 +406,7 @@ function saveAssignee(itemID, type) {
                 action: "saveAssignee",
                 type: type,
                 itemID: itemID,
-                assigneeID: assignee[i].getAttribute("data-id"),
-                assigneeName: assignee[i].innerHTML
+                assigneeID: assignee[i].getAttribute("data-id")
             },
             global: false,
             type: "get"
@@ -440,8 +439,9 @@ function searchAssignee(searchBox, type) {
                     searchResult.innerHTML = result;
                 }
             });
-        }, 250);
+        }, 100);
     }
+    else clearResult();
 }
 
 // Add assignee name result
@@ -951,8 +951,7 @@ function loadTaskBacklogTable(backlog_id) {
     for (var i = 0; i < task.length; i++) {
         var relativeID = task[i].getElementsByClassName("item-id")[0].innerHTML;
         var title = task[i].getElementsByClassName("note-content")[0].innerHTML;
-        var objtext = (i % 2 == 1) ? "<tr style='background: rgba(25, 15, 15, 0.19)'>" : "<tr>";
-        objtext += "<td>" + relativeID + "</td><td>" + title + "</td><td>" + task[i].getAttribute("data-status") + "</td>" +
+        var objtext = "<tr><td>" + relativeID + "</td><td>" + title + "</td><td>" + task[i].getAttribute("data-status") + "</td>" +
         "<td><img class='note-button' onclick=\"hideWindow(); viewDetailNote(" + task[i].getAttribute("data-id") + ",'task')\" src='images/sidebar/view.png' /></td></tr>";
         $(tbody).append(objtext);
     }
@@ -1010,8 +1009,7 @@ function viewBacklogStat(obj, backlog_id) {
     var offset = $(obj).offset();
     var top = (offset.top > windowHeight - 200) ? offset.top - 200 : offset.top + 32;
     var left = (offset.top > windowWidth - 300) ? offset.left - 300 : offset.left;
-    $("#diaglogBacklogStat").css("left", left);
-    $("#diaglogBacklogStat").css("top", top);
+    $("#diaglogBacklogStat").css("top", top).css("left", left);
     $("#diaglogBacklogStat").css("display", "block").addClass("show");
 }
 
@@ -1021,7 +1019,7 @@ function hideBacklogStat() {
     $("#diaglogBacklogStat").removeClass("show");
     setTimeout(function () {
         $("#diaglogBacklogStat").css("display", "none");
-    }, 150);
+    }, 150)
 }
 
 

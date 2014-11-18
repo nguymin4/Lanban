@@ -1,6 +1,6 @@
 ﻿/**********************************/
 #kanbanWindow {
-    background: url("../images/background/top-bg.png") repeat-x, url("../images/background/img0.jpg") left no-repeat;
+    background-image: url("../images/background/top-bg.png"), url("../images/background/img0.jpg");
     height: 98%;
     margin: 5px 0.5% 5px 0.5%;
     text-align: center;
@@ -271,6 +271,9 @@ div.assignee-name-active {
     color: white;
 }
 
+#tblTaskBacklog tr:nth-child(even) {
+    background: rgba(25, 15, 15, 0.25);
+}
     #tblTaskBacklog th {
         text-align: left;
     }
@@ -568,7 +571,7 @@ img[title='Upload'] {
     z-index : 1000;
     background: url("../images/background/main_background.jpg") left bottom;
     background-size: cover;
-    transition: 0.25s ease;
+    transition: opacity 0.25s ease;
     width: 300px;
     height: 200px;
     border-radius: 5px;
