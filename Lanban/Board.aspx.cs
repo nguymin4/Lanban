@@ -13,23 +13,28 @@ namespace Lanban
     public partial class Board : System.Web.UI.Page
     {
         Query myQuery;
-        int projectID;
-        int userID;
         TableCell[] cell;
+        int projectID;
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Session["userID"] == null) Response.Redirect("Login.aspx");
+            
             myQuery = new Query();
             if (!IsPostBack)
             {
-                //projectID = Convert.ToInt32(Session["projectID"]);
-                projectID = 1;
-                userID = 1;
+                projectID = Convert.ToInt32(Session["projectID"]);
+                string name = Session["projectName"].ToString();
+                Page.Title = "Lanban " + name;
+                lblProjectName.Text = name;
                 txtProjectID.Text = projectID.ToString();
                 createKanban();
                 initDropdownList();
-                Session["projectID"] = projectID;
-                Session["userID"] = userID;
+            }
+            else
+            {
+                if (Request.Params["__EVENTTARGET"].Equals("RedirectProject"))
+                    Response.Redirect("Project.aspx");
             }
         }
 
@@ -158,7 +163,7 @@ namespace Lanban
             delete.Attributes.Add("onclick", "deleteItem(" + divID + ",'" + tableName + "')");
             header.Controls.Add(delete);
             div.Controls.Add(header);
-
+            
             // note-content
             HtmlGenericControl content = new HtmlGenericControl("div");
             content.Attributes.Add("class", "note-content");

@@ -1,15 +1,7 @@
 ﻿function recalibrate() {
     var windowHeight = window.innerHeight || document.documentElement.clientHeight;
     var windowWidth = window.innerWidth || document.documentElement.clientWidth;
-    /*Recalibrate sidebar*/
-    document.getElementById("sidebar").style.height = windowHeight;
-    document.getElementById("panel").style.height = parseInt(windowHeight) - 120;
 
-    /*Recalibrate other elements*/
-    document.getElementById("content").style.width = windowWidth - 61;
-    document.getElementById("kanbanWindow").style.width = windowWidth - 90;
-
-    $(".connected").css("height", 0.9 * 0.98 * windowHeight - 35);
     var columncount = document.getElementById("kanban").getElementsByTagName("th").length;
     var colgroup = document.getElementsByTagName("colgroup")[0];
     colgroup.innerHTML = "";
@@ -18,13 +10,9 @@
     }
     colgroup.style.width = parseInt((windowWidth - 86) / columncount) - 2;
 
+    $(".connected").css("height", 0.88 * windowHeight - 35);
+
     $(".window-content").perfectScrollbar("update");
-
-    // Calculate size for comment box in Task Window
-    $("#commentBox").css("height", 0.81 * windowHeight - 195).perfectScrollbar("update");
-
-    // Calculate size for file list box in Task Window
-    $("#fileList").css("height", 0.81 * windowHeight - 180).perfectScrollbar("update");
 }
 
 // Show Add backlog/task window
@@ -101,8 +89,9 @@ function showErrorDialog(i) {
 var successMsg = ["New item created", "Data updated", "File uploaded"];
 
 function showSuccessDiaglog(i) {
+    $(".diaglog.success").attr("data-diaglog-type", "Success");
     $(".diaglog.success .title-bar").text("Success");
-    $(".diaglog.success .content-holder").text(successMsg[i]);
+    $(".diaglog.success .content-holder").html(successMsg[i]);
     $(".diaglog.success input").css("display", "block");
     if (!($(".diaglog.success").hasClass("show")))
         $(".diaglog.success").addClass("show");
@@ -110,8 +99,9 @@ function showSuccessDiaglog(i) {
 
 // Show processing message
 function showProcessingDiaglog() {
+    $(".diaglog.success").attr("data-diaglog-type", "Processing");
     $(".diaglog.success .title-bar").text("Processing");
-    $(".diaglog.success .content-holder").text("In progress. Please wait.");
+    $(".diaglog.success .content-holder").html("<div class='loading-spinner'></div>");
     $(".diaglog.success input").css("display", "none");
     $(".diaglog.success").addClass("show");
 }
@@ -219,6 +209,9 @@ $(document).ready(function () {
     /* Real-time communication */
     init_TaskCommentHub();
     init_NoteHub();
+
+    /* Take the screenshot*/
+    takeScreenshot();
 });
 
 /* Class: Backlog */
@@ -1124,5 +1117,23 @@ function init_NoteHub() {
     // Start connection and join group
     connNote.start().done(function () {
         proxyNote.invoke("joinChannel", $("#txtProjectID").val());
+    });
+}
+
+/*D. Others */
+function takeScreenshot() {
+    html2canvas(document.body, {
+        onrendered: function(canvas) {
+            var screenshot = canvas.toDataURL("image/jpeg", 0.92);
+            screenshot = screenshot.replace('data:image/jpeg;base64,', '');
+            $.ajax({
+                type: "POST",
+                url: "Handler.ashx",
+                data: {
+                    action: "uploadScreenshot",
+                    screenshot: screenshot
+                }
+            });
+        }
     });
 }

@@ -166,6 +166,10 @@ namespace Lanban
                 case "deleteTaskFile":
                     new FileUpload().deleteFile(_context, myQuery);
                     break;
+
+                case "uploadScreenshot":
+                    new FileUpload().uploadScreenshot(_context, projectID);
+                    break;
             }
             _context.Response.Write(result);
             _completed = true;

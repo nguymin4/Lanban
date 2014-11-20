@@ -15,34 +15,63 @@
 
 <asp:Content ID="Content3" ContentPlaceHolderID="contentMain" runat="server">
     <!-- Start - The window for Project browser -->
-    <div class="window view show" style="display: block;">
+    <div id="projectWindow" class="window view show" style="display: block;">
         <div class="title-bar">Project browser</div>
         <div class="window-content">
             <!-- List of all project -->
-            <asp:Panel ID="projectbrowser" runat="server"></asp:Panel>
-            <!-- End list of all project -->
+            <asp:Panel ID="projectbrowser" runat="server">
+                <div id="projectdetail">
+                    <div id="projectdetail-left">
+                        <img id="screenshot" src="images/screenshot.jpg" />
+                        <div id="project-supervisor">
+                            <div class="criteria project-field">Supervisor</div>
+                            <div class="project-data"></div>
+                        </div>
+                    </div>
+                    <div id="projectdetail-right">
+                        <div id="projectdetail-name">Agile methodlogogy</div>
+                        <div id="projectdetail-description"></div>
+                        <div id="project-date">
+                            <div class="criteria project-field">Date</div> 
+                            From: <span id="txtProjectStartDate">03.10.2014</span><br />
+                            To: <span id="txtProjectEndDate">16.12.2014</span>
+                        </div>
+                        <div id="project-owner">
+                            <div class="criteria project-field">Owner</div>
+                            <div class="project-data">
+                                <div class="person">
+                                    <img class="person-avatar" src="images/sidebar/profile.png" />
+                                    <div class="person-name">Minh Son Nguyen</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clear"></div>
 
+                    </div>
+                </div>
+            </asp:Panel>
+            <!-- End list of all project -->
             <!-- Start - Project search and filter -->
             <div id="projectfilter" class="right-window-content show">
                 <div id="txtSearch">
-                    <img src="images/sidebar/search.png" width="30" height="30" title="Back to Search" onclick="openAddProjectWindow(0)" />
+                    <div title="Back to Search" onclick="openAddProjectWindow(0)"></div>
                     <input name="txtSearch" type="text" placeholder="Search..." />
                 </div>
                 <div>
-                    <h4>Sort by: </h4>
-                    <div class="filter">Name</div>
-                    <div class="filter">Priority</div>
-                    <div class="filter">Date created</div>
-                    <div class="filter">Date modified</div>
+                    <h4>Search by: </h4>
+                    <div class="criteria">Name</div>
+                    <div class="criteria">Priority</div>
+                    <div class="criteria">Date created</div>
+                    <div class="criteria">Date modified</div>
                 </div>
                 <div>
-                    <h4>Filter by: </h4>
+                    <h4>Sort by: </h4>
                 </div>
             </div>
             <!-- End - Project search and filter -->
             <!-- Start - Add new project - Hidden when filter project is shown -->
             <div id="addproject" class="right-window-content">
-                <img src="images/sidebar/back.png" style="width: 24px; height: 24px; cursor: pointer;" onclick="openAddProjectWindow(0)" />
+                <div id="backProjectSearch" onclick="openAddProjectWindow(0)"></div>
                 <h3>Add new project</h3>
             </div>
             <!-- End - Add new project - -->

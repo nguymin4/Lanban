@@ -1,9 +1,9 @@
 ﻿/**********************************/
 #kanbanWindow {
-    background-image: url("../images/background/top-bg.png"), url("../images/background/img0.jpg");
+    background-image: url("/images/background/top-bg.png"), url("/images/background/img0.jpg");
     height: 98%;
     margin: 5px 0.5% 5px 0.5%;
-    text-align: center;
+    width: calc(100% - 90px);
 }
 
 #kanban {
@@ -32,7 +32,7 @@
 
 .connected {
     min-width: 210px;
-    text-align: center;
+    max-width: 275px;
 }
 
 /*Note*/
@@ -111,7 +111,7 @@ span.item-id {
 #backlogWindow, #taskWindow {
     position: relative;
     max-width: 850px;
-    min-height: 450px;
+    height: 575px;
     width: 80%;
 }
 
@@ -271,9 +271,10 @@ div.assignee-name-active {
     color: white;
 }
 
-#tblTaskBacklog tr:nth-child(even) {
-    background: rgba(25, 15, 15, 0.25);
-}
+    #tblTaskBacklog tr:nth-child(even) {
+        background: rgba(25, 15, 15, 0.25);
+    }
+
     #tblTaskBacklog th {
         text-align: left;
     }
@@ -324,6 +325,7 @@ div.assignee-name-active {
 #commentBox {
     position: relative;
     overflow: hidden;
+    height: 325px;
     border-radius: 5px;
     border: 1px solid rgba(128, 128, 128, 0.5);
     padding-left: 10px;
@@ -480,6 +482,7 @@ img[title='Upload'] {
 #fileList {
     position: relative;
     overflow: hidden;
+    height: 350px;
 }
 
 /* Upload progress */
@@ -561,14 +564,14 @@ img[title='Upload'] {
     height: 32px;
     cursor: pointer;
     margin-right: 5px;
-    background: url("/images/sidebar/chart.png");
-    background-size: cover;
+    background: url("../images/sidebar/chart.png");
+    background-size: 32px 32px;
 }
 
 #diaglogBacklogStat {
     position: absolute;
     opacity: 0;
-    z-index : 1000;
+    z-index: 1000;
     background: url("../images/background/main_background.jpg") left bottom;
     background-size: cover;
     transition: opacity 0.25s ease;
@@ -578,6 +581,6 @@ img[title='Upload'] {
     box-shadow: 0px 0px 20px #000;
 }
 
-#diaglogBacklogStat.show {
-    opacity: 1;
-}
+    #diaglogBacklogStat.show {
+        opacity: 1;
+    }

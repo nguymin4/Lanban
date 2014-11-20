@@ -13,8 +13,6 @@ namespace Lanban
     public partial class Project : System.Web.UI.Page
     {
         Query myQuery;
-        int userID;
-        int role;
         StringBuilder projectList;
 
         protected void Page_Load(object sender, EventArgs e)
@@ -22,11 +20,14 @@ namespace Lanban
             if (!IsPostBack)
             {
                 myQuery = new Query();
+                int userID;
+                int role;
                 //userID = Convert.ToInt32(Session["userID"]);
                 //role = Convert.ToInt32(Session["userRole"]);
                 userID = 1;
                 role = 1;
-                loadProject();
+                Session["userID"] = userID;
+                loadProject(userID, role);
             }
             else
             {
@@ -36,7 +37,7 @@ namespace Lanban
         }
 
         //1. Load all projects
-        protected void loadProject()
+        protected void loadProject(int userID, int role)
         {
             projectList = new StringBuilder();
             // Fetch all projects belong to or under supervised of this user
@@ -57,51 +58,36 @@ namespace Lanban
         protected HtmlGenericControl ProjectBox(DataRow row)
         {
             string id = row["Project_ID"].ToString();
+            string name = row["Name"].ToString();
+            
+            // Container
             HtmlGenericControl div = new HtmlGenericControl("div");
             div.ID = "project"+id;
             div.Attributes.Add("class", "project-container");
-            div.Attributes.Add("onclick", "__doPostBack('RedirectBoard', " + id + ");");
+            div.Attributes.Add("ondblclick", "__doPostBack('RedirectBoard', '" + id + "$" + name + "')");
+            div.Attributes.Add("onclick", "viewProject(" + id + ")");
 
-            // note-header
+            // Header
             HtmlGenericControl header = new HtmlGenericControl("div");
             header.Attributes.Add("class", "project-header");
-
-            // Add edit button
-            Image edit = new Image();
-            edit.ImageUrl = "images/sidebar/setting.png";
-            edit.CssClass = "note-button";
-            edit.Attributes.Add("onclick", "viewProject(" +id+ ")");
-            header.Controls.Add(edit);
-
-            // Add delete button
-            Image delete = new Image();
-            delete.ImageUrl = "images/sidebar/delete_note.png";
-            delete.CssClass = "note-button";
-            delete.Attributes.Add("onclick", "deleteProject("+id+")");
-            header.Controls.Add(delete);
+            header.InnerHtml = id+". "+name;
             div.Controls.Add(header);
 
-            // Add content div
-            HtmlGenericControl content = new HtmlGenericControl("div");
-            content.Attributes.Add("class", "project-content");
-            content.InnerHtml = row["Name"].ToString();
-            div.Controls.Add(content);
-
-            // Add footer div
-            HtmlGenericControl footer = new HtmlGenericControl("div");
-            footer.Attributes.Add("class", "project-footer");
-            footer.InnerHtml = "&nbsp;";
-            div.Controls.Add(footer);
+            // Thumbnail
+            HtmlGenericControl thumbnail = new HtmlGenericControl("div");
+            thumbnail.Attributes.Add("class", "project-thumbnail");
+            thumbnail.Style["background-image"] = "url('/Uploads/Project_" + id + "/screenshot.jpg')";
+            div.Controls.Add(thumbnail);
 
             return div;
         }
 
-        // 1.2 Create JSON Object for project
-
-        // 1.3 Event handler of clicking on a project box
-        public void gotoProject(string projectID)
+        // 1.2 Event handler of clicking on a project box
+        public void gotoProject(string data)
         {
-            Session["project_ID"] = projectID;
+            string[] info = data.Split('$');
+            Session["projectID"] = info[0];
+            Session["projectName"] = info[1];
             Response.Redirect("Board.aspx");
         }
     }

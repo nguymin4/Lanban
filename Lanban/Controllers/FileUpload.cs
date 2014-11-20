@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web;
+using System.IO;
 
 namespace Lanban
 {
@@ -62,6 +63,30 @@ namespace Lanban
             var index = name.LastIndexOf("\\");
             if (index != -1) return name.Substring(index + 1);
             return name;
+        }
+
+        // Upload screenshot of a project
+        public void uploadScreenshot(HttpContext _context, int projectID)
+        {
+            // Upload screenshot
+            string screenshot = _context.Request.Params["screenshot"].ToString();
+            screenshot.Trim('\0');
+            string path = "/Uploads/Project_" + projectID.ToString() + "/screenshot.jpg";
+            var filePath = _context.Server.MapPath(path);
+            
+            // Delete old one
+            System.IO.File.Delete(filePath);
+            
+            // Create new one
+            using (FileStream fs = new FileStream(filePath, FileMode.Create))
+            {
+                using (BinaryWriter bw = new BinaryWriter(fs))
+                {
+                    byte[] data = Convert.FromBase64String(screenshot);
+                    bw.Write(data);
+                    bw.Close();
+                }
+            }
         }
     }
 

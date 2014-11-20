@@ -1,13 +1,6 @@
 ﻿function recalibrate() {
     var windowHeight = window.innerHeight || document.documentElement.clientHeight;
     var windowWidth = window.innerWidth || document.documentElement.clientWidth;
-    /*Recalibrate sidebar*/
-    document.getElementById("sidebar").style.height = windowHeight;
-    document.getElementById("panel").style.height = parseInt(windowHeight) - 120;
-
-    /*Recalibrate other elements*/
-    document.getElementById("content").style.width = windowWidth - 61;
-    document.getElementsByClassName("view")[0].style.width = 0.9 * (windowWidth - 61);
 }
 
 function openAddProjectWindow(index) {
@@ -33,11 +26,9 @@ function openAddProjectWindow(index) {
 
 $(document).ready(function () {
     /*Add customized scroll bar*/
-    $("#projectbrowser").perfectScrollbar({
-        wheelSpeed: 20,
+    $("#projectbrowser, #projectdetail-description").perfectScrollbar({
+        wheelSpeed: 5,
         wheelPropagation: false
     });
-
-    console.log(projectList);
 });
 

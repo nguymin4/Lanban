@@ -1,22 +1,25 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Lanban.Master" AutoEventWireup="true" CodeBehind="Board.aspx.cs" Inherits="Lanban.Board" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="contentHead" runat="server">
+    <script src="Scripts/Chart.min.js"></script>
+    <script src="Scripts/html2canvas.min.js"></script>
     <script src="Scripts/board.js"></script>
     <link href="Styles/board.css" rel="stylesheet" />
-    <script src="Scripts/Chart.min.js"></script>
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="contentPanel" runat="server">
-    <li style="background-image: url('images/logo.png')" onclick="window.location.href = 'Project.aspx'"></li>
-    <li class="viewIndicator show" style="background-image: url('images/sidebar/dashboard.png')" data-view-indicator="0"></li>
-    <li class="viewIndicator" style="background-image: url('images/sidebar/chart.png')" data-view-indicator="1" onclick="showChartWindow()"></li>
-    <li class="viewIndicator" style="background-image: url('images/sidebar/column.png')" data-view-indicator="2"></li>
+    <li style="background-image: url('/images/logo.png')" runat="server" onclick="__doPostBack('RedirectProject','')"></li>
+    <li class="viewIndicator show" style="background-image: url('/images/sidebar/dashboard.png')" data-view-indicator="0"></li>
+    <li class="viewIndicator" style="background-image: url('/images/sidebar/chart.png')" data-view-indicator="1" onclick="showChartWindow()"></li>
+    <li class="viewIndicator" style="background-image: url('/images/sidebar/column.png')" data-view-indicator="2"></li>
 </asp:Content>
 
 <asp:Content ID="Content3" ContentPlaceHolderID="contentMain" runat="server">
     <!-- Start - Kanban board -->
     <div id="kanbanWindow" class="window view show" style="display: block;">
-        <div class="title-bar">Project 1</div>
+        <div class="title-bar">
+            <asp:Label ID="lblProjectName" runat="server">Project</asp:Label>
+        </div>
         <div class="window-content">
             <table id="kanban" border="1">
                 <colgroup></colgroup>
