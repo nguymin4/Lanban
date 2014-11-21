@@ -84,6 +84,9 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="404\404.css" />
+    <Content Include="404\404.html" />
+    <Content Include="404\404.js" />
     <Content Include="Board.aspx" />
     <Content Include="Global.asax" />
     <Content Include="images\background\background.JPG" />
@@ -197,7 +200,6 @@
   <ItemGroup>
     <Content Include="Lanban.Master" />
     <Content Include="Handler.ashx" />
-    <Content Include="lanban.appcache" />
     <None Include="Properties\PublishProfiles\nguymin4 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\nguymin4 - Web Deploy.pubxml" />
     <None Include="Web.Debug.config">

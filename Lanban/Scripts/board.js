@@ -108,6 +108,9 @@ function showProcessingDiaglog() {
 
 /*A. When document is ready*/
 $(document).ready(function () {
+    /* Take the screenshot*/
+    takeScreenshot();
+
     /*Add customized scroll bar*/
     $(".window-content").perfectScrollbar({
         wheelSpeed: 5,
@@ -210,8 +213,6 @@ $(document).ready(function () {
     init_TaskCommentHub();
     init_NoteHub();
 
-    /* Take the screenshot*/
-    takeScreenshot();
 });
 
 /* Class: Backlog */
@@ -1099,8 +1100,8 @@ function init_NoteHub() {
 
 /*D. Others */
 function takeScreenshot() {
-    html2canvas(document.body, {
-        onrendered: function(canvas) {
+    html2canvas($("#container"), {
+        onrendered: function (canvas) {
             var screenshot = canvas.toDataURL("image/jpeg", 0.92);
             screenshot = screenshot.replace('data:image/jpeg;base64,', '');
             $.ajax({
@@ -1111,6 +1112,7 @@ function takeScreenshot() {
                     screenshot: screenshot
                 }
             });
+            unloadPageSpinner();
         }
     });
 }

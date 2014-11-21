@@ -20,6 +20,14 @@ $(document).ready(function() {
     });
 });
 
+// Unload page loading spinner
+function unloadPageSpinner() {
+    $("#overlay").fadeOut(1000, "swing");
+    $("#container").fadeOut(1000, "swing", function () {
+        $("#container").fadeIn(1000);
+    });
+}
+
 //Function to change working window
 var view;
 var currentView;
@@ -67,3 +75,4 @@ function formatDate(date) {
     }
     return date;
 }
+

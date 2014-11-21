@@ -32,6 +32,10 @@ $(document).ready(function () {
     });
 });
 
+$(window).load(function () {
+    unloadPageSpinner();
+});
+
 /* Business logic */
 var projectList;
 var userList;

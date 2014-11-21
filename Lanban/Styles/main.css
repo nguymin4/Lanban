@@ -62,7 +62,7 @@ body {
     padding: 0px;
     text-align: center;
     min-height: 310px;
-    height: calc(100% - 120px);
+    height: calc(100% - 135px);
 }
 
     #panel li {
@@ -89,8 +89,7 @@ body {
 
 /*1.1.2 Info */
 #info {
-    min-height: 100px;
-    height: 100px;
+    height: 110px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -276,9 +275,33 @@ body {
     }
 }
 
+@-webkit-keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(354deg);
+    }
+}
+
 
 /*Other*/
 .clear {
     width: 100%;
     clear: both;
+}
+
+#overlay {
+    z-index: 9999;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    padding-top: 20%;
+}
+
+#overlay .loading-spinner {
+    width: 72px;
+    height: 72px;
+    top: calc(50% - 81px);
 }
