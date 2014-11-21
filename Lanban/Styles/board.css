@@ -560,12 +560,12 @@ img[title='Upload'] {
 
 .note-stat-button {
     display: inline-block;
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     cursor: pointer;
     margin-right: 5px;
-    background: url("../images/sidebar/chart.png");
-    background-size: 32px 32px;
+    background: url("../images/sidebar/stat.png");
+    background-size: 28px 28px;
 }
 
 #diaglogBacklogStat {

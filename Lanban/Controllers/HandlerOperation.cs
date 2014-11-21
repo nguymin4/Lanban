@@ -151,6 +151,8 @@ namespace Lanban
                     result = myQuery.getBarChart(projectID);
                     _context.Response.ContentType = "application/json";
                     break;
+
+                // Get Line Graph data
                 case "getLineGraph":
                     result = myQuery.getLineGraph(projectID);
                     _context.Response.ContentType = "application/json";
@@ -167,6 +169,7 @@ namespace Lanban
                     new FileUpload().deleteFile(_context, myQuery);
                     break;
 
+                // Upload screenshot
                 case "uploadScreenshot":
                     new FileUpload().uploadScreenshot(_context, projectID);
                     break;

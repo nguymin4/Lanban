@@ -42,3 +42,28 @@ function showView(index) {
         }, 250);
     }
 }
+
+
+// Support function for both board.js and project.js
+// Parse JSonDate to dd.mm.yyyy
+function parseJSONDate(jsonDate) {
+    if (jsonDate != null) {
+        var y = jsonDate.substr(0, 4);
+        var m = jsonDate.substr(5, 2);
+        var d = jsonDate.substr(8, 2);
+        return d + "." + m + "." + y;
+    }
+    else
+        return "";
+}
+
+// Format date
+function formatDate(date) {
+    if (date != "") {
+        var data = date.split(".");
+        d = (data[0] < 10) ? "0" + data[0] : data[0];
+        m = (data[1] < 10) ? "0" + data[1] : data[1];
+        return d + "." + m + "." + data[2];
+    }
+    return date;
+}

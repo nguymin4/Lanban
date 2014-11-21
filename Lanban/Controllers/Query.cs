@@ -634,7 +634,7 @@ namespace Lanban
         public string getLineGraph(int projectID)
         {
             myCommand.CommandText = "SELECT [Completion_date], SUM(Work_estimation) FROM Task_User INNER JOIN " +
-                "(SELECT Task_ID, Work_estimation, Completion_date FROM Task WHERE Task.Status='Done') AS A ON Task_User.Task_ID = A.Task_ID " +
+                "(SELECT Task_ID, Work_estimation, Completion_date FROM Task WHERE Project_ID=@projectID AND Task.Status='Done') AS A ON Task_User.Task_ID = A.Task_ID " +
                 "GROUP BY [Completion_date] ORDER BY [Completion_date]";
 
             addParameter<int>("@projectID", SqlDbType.Int, projectID);

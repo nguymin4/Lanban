@@ -8,7 +8,7 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="contentPanel" runat="server">
-    <li style="background-image: url('/images/logo.png')" runat="server" onclick="__doPostBack('RedirectProject','')"></li>
+    <li style="background-image: url('/images/logo.png')" runat="server" onclick="__doPostBack('RedirectProject','');"></li>
     <li class="viewIndicator show" style="background-image: url('/images/sidebar/dashboard.png')" data-view-indicator="0"></li>
     <li class="viewIndicator" style="background-image: url('/images/sidebar/chart.png')" data-view-indicator="1" onclick="showChartWindow()"></li>
     <li class="viewIndicator" style="background-image: url('/images/sidebar/column.png')" data-view-indicator="2"></li>

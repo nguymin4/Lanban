@@ -51,7 +51,7 @@ namespace Lanban
 
             // Send project list in JSON to client for further processing
             projectList.Append(JsonConvert.SerializeObject(project));
-            ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "", "var projectList = " + projectList.ToString(), true);
+            ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "", "projectList = " + projectList.ToString(), true);
         }
 
         // 1.1 Display each project in box
@@ -64,8 +64,7 @@ namespace Lanban
             HtmlGenericControl div = new HtmlGenericControl("div");
             div.ID = "project"+id;
             div.Attributes.Add("class", "project-container");
-            div.Attributes.Add("ondblclick", "__doPostBack('RedirectBoard', '" + id + "$" + name + "')");
-            div.Attributes.Add("onclick", "viewProject(" + id + ")");
+            div.Attributes.Add("onclick", "viewProjectDetail(this, " + id + ")");
 
             // Header
             HtmlGenericControl header = new HtmlGenericControl("div");

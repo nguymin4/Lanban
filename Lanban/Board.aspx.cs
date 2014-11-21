@@ -34,7 +34,9 @@ namespace Lanban
             else
             {
                 if (Request.Params["__EVENTTARGET"].Equals("RedirectProject"))
+                {
                     Response.Redirect("Project.aspx");
+                }
             }
         }
 

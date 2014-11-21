@@ -123,43 +123,115 @@ input[name="txtSearch"] {
     background-size: cover;
 }
 
+/* Project detail container*/
 #projectdetail {
+    display: block;
+    float: left;
     position: relative;
     background: rgba(25, 15, 15, 0.5);
     width: calc(100% - 40px);
-    height: 400px;
-    float: left;
-    display: block;
+    height: 0px;
+    opacity: 0;
     border-radius: 6px;
     border: solid 1px rgb(128, 128, 128);
-    margin: 10px 20px;
+    margin: 0px;   
     overflow: hidden;
+    transition-property: height, opacity;
+    transition-duration: 0.5s, 1s;
+    transition-delay: 0s, 0s;
 }
 
+    #projectdetail.show {
+        opacity: 1;
+        height: 400px;
+        transition-duration: 1s, 0s !important;
+        transition-delay: 0.5s, 0s !important;
+        margin: 20px 15px;
+    }
+
+    #projectdetail.show #projectdetail-left, #projectdetail.show #projectdetail-right {
+        opacity: 1;
+    }
+
+#projectdetail-close {
+    position: absolute;
+    height: 26px;
+    width: 26px;
+    right: 2px;
+    top: 0px;
+    z-index: 1000;
+    background: url("../images/sidebar/close.png");
+    background-size: 26px 26px;
+    cursor: pointer;
+    transition: 0.5s ease;
+}
+
+    #projectdetail-close:hover {
+        transform: scale(0.75);
+    }
+
+/* Project detail left */
 #projectdetail-left {
     float: left;
     width: 50%;
     text-align: center;
+    opacity: 0;
+    transition: opacity 1s 1s;
 }
 
 #screenshot {
     width: 360px;
-    height: 200px;
+    height: 190px;
     margin: 10px;
     border: 1px solid #e6e6e6;
     border-radius: 8px;
-    margin: 20px auto;
+    margin: 20px auto 15px auto;
 }
 
+#projectdetail-panel {
+    margin: auto;
+    height: 32px;
+    padding: 1px 0px;
+}
+
+.project-detail-button {
+    display: inline-block;
+    border-radius: 5px;
+    height: 30px;
+    line-height: 30px;
+    width: 80px;
+    font-size: 16px;
+    background: rgba(230, 230, 230, 0.40);
+    border: 1px solid transparent;
+    margin: auto 6px;
+    transition: 0.25s ease;
+    cursor: pointer;
+}
+
+    .project-detail-button:hover {
+        background: rgba(25, 15, 15, 0.5);
+        border: 1px solid rgba(230, 230, 230, 0.40);
+    }
+
+#project-supervisor {
+    width: 100%;
+    min-height: 100px;
+    margin-top: 20px;
+}
+
+/* Project detail left */
 #projectdetail-right {
     float: left;
     width: 47%;
     padding-right: 2%;
     padding-left: 1%;
+    opacity: 0;
+    transition: opacity 1s 1s;
 }
 
 .criteria.project-field {
     display: block;
+    cursor: default;
 }
 
 #projectdetail-name {
@@ -188,13 +260,6 @@ input[name="txtSearch"] {
     margin-bottom: 10px;
 }
 
-#project-supervisor {
-    width: 100%;
-    text-align: left;
-    min-height: 100px;
-    margin: 40px auto auto auto;
-}
-
 /* A box contain avatar and name of the person*/
 .person {
     display: inline-block;
@@ -219,15 +284,3 @@ input[name="txtSearch"] {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
-.note-button {
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    transition: 0.25s ease;
-}
-
-    .note-button:hover {
-        width: 26px;
-        height: 26px;
-    }

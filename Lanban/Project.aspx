@@ -23,18 +23,24 @@
                 <div id="projectdetail">
                     <div id="projectdetail-left">
                         <img id="screenshot" src="images/screenshot.jpg" />
+                        <div id="projectdetail-panel">
+                            <div class="project-detail-button" id="btnOpenProject">Open</div>
+                            <div class="project-detail-button" id="btnDeleteProject">Edit</div>
+                            <div class="project-detail-button" id="btnEditProject">Delete</div>
+                        </div>
                         <div id="project-supervisor">
                             <div class="criteria project-field">Supervisor</div>
                             <div class="project-data"></div>
                         </div>
                     </div>
                     <div id="projectdetail-right">
-                        <div id="projectdetail-name">Agile methodlogogy</div>
+                        <div id="projectdetail-name"></div>
                         <div id="projectdetail-description"></div>
                         <div id="project-date">
-                            <div class="criteria project-field">Date</div> 
-                            From: <span id="txtProjectStartDate">03.10.2014</span><br />
-                            To: <span id="txtProjectEndDate">16.12.2014</span>
+                            <div class="criteria project-field">Date</div>
+                            From: <span id="txtProjectStartDate"></span>
+                            <br />
+                            <span id="txtProjectEndDate"></span>
                         </div>
                         <div id="project-owner">
                             <div class="criteria project-field">Owner</div>
@@ -46,10 +52,11 @@
                             </div>
                         </div>
                         <div class="clear"></div>
-
                     </div>
+                    <div id="projectdetail-close" onclick="hideProjectDetail()"></div>
                 </div>
             </asp:Panel>
+            
             <!-- End list of all project -->
             <!-- Start - Project search and filter -->
             <div id="projectfilter" class="right-window-content show">
