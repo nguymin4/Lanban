@@ -1,4 +1,4 @@
-﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Lanban.master.cs" Inherits="Lanban.Lanban" ClientIDMode="Static" %>
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Lanban.master.cs" Inherits="Lanban.Lanban" ClientIDMode="Static"%>
 
 <html manifest="lanban.appcache">
 <head runat="server">
@@ -25,7 +25,8 @@
             </ul>
             <%-- End Part 2: --%>
             <div id="info">
-                <img id="profile" src="images/sidebar/profile.png" title="constantine_lazarus" />
+                <hr />
+                <asp:Image runat="server" ID="profile" />
                 <input type="button" runat="server" title="Log out" class="sidebar_icon_med" id="btnLogout" onserverclick="btnLogout_ServerClick" />
             </div>
         </div>

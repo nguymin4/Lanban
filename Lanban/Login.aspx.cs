@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
 
 namespace Lanban
 {
@@ -16,12 +11,15 @@ namespace Lanban
 
         protected void btnLogin_Click(object sender, EventArgs e)
         {
-            string result = new Query().login(txtUsername.Text, txtPassword.Text);
-            if (result != "")
+            System.Data.SqlClient.SqlDataReader reader = new Query().login(txtUsername.Text, txtPassword.Text);
+            if (reader != null)
             {
-                string[] data = result.Split('.');
-                Session["userID"] = data[0];
-                Session["userRole"] = data[1];
+                Session["userID"] = reader["User_ID"];
+                Session["userRole"] = reader["Role"];
+                Session["uname"] = reader["Name"];
+                if ((reader["avatar"] == null)||(reader["avatar"].ToString().Equals("")))
+                    Session["avatar"] = "images/sidebar/profile.png";
+                else Session["avatar"] = reader["Avatar"];
                 Response.Redirect("Project.aspx");
             }
             else

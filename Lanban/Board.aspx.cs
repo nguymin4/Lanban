@@ -1,26 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.HtmlControls;
-using System.Text;
 using System.Data;
-
+using System.Threading.Tasks;
 
 namespace Lanban
 {
     public partial class Board : System.Web.UI.Page
     {
-        Query myQuery;
         TableCell[] cell;
         int projectID;
 
-        protected void Page_Load(object sender, EventArgs e)
+        protected async void Page_Load(object sender, EventArgs e)
         {
             if (Session["userID"] == null) Response.Redirect("Login.aspx");
-            
-            myQuery = new Query();
             if (!IsPostBack)
             {
                 projectID = Convert.ToInt32(Session["projectID"]);
@@ -28,21 +22,25 @@ namespace Lanban
                 Page.Title = "Lanban " + name;
                 lblProjectName.Text = name;
                 txtProjectID.Text = projectID.ToString();
-                createKanban();
-                initDropdownList();
+                var timer = System.Diagnostics.Stopwatch.StartNew();
+                await createKanban();
+                await Task.Run(() => initDropdownList());
+                timer.Stop();
+                System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds);
             }
             else
             {
                 if (Request.Params["__EVENTTARGET"].Equals("RedirectProject"))
                 {
-                    Response.Redirect("Project.aspx");
+                    await Task.Run(() => Response.Redirect("Project.aspx"));
                 }
             }
         }
 
         //1. Create the kanban board
-        protected void createKanban()
+        protected async Task createKanban()
         {
+            Query myQuery = new Query();
             //Fetch data of all swimlanes in this project
             myQuery.fetchSwimlane(projectID);
             var swimlane = myQuery.MyDataSet.Tables["Swimlane"];
@@ -51,8 +49,8 @@ namespace Lanban
             for (int i = 0; i < swimlane.Rows.Count; i++)
             {
                 var row = swimlane.Rows[i];
-                panelKanbanHeader.Controls.Add(createHeader(row, i));
-                createCell(row, i);
+                await Task.Run(() => panelKanbanHeader.Controls.Add(createHeader(row, i)));
+                await createCell(row, i);
                 panelKanbanBody.Controls.Add(cell[i]);
             }
         }
@@ -80,7 +78,7 @@ namespace Lanban
         }
 
         //1.2 Add table cell to kanban board with sticky note
-        protected void createCell(DataRow row, int position)
+        protected async Task createCell(DataRow row, int position)
         {
             int swimlane_id = Convert.ToInt32(row["Swimlane_ID"]);
             string type = row["Type"].ToString();
@@ -91,34 +89,35 @@ namespace Lanban
             td.Attributes.Add("data-id", swimlane_id.ToString());
             td.Attributes.Add("data-lane-type", type);
             td.Attributes.Add("data-status", row["Data_status"].ToString());
-            addNotes(swimlane_id, type, position);
+            await addNotes(swimlane_id, type, position);
         }
 
         //1.3 Add content to the cell at position [position]
-        protected void addNotes(int swimlane_id, string type, int position)
+        protected async Task addNotes(int swimlane_id, string type, int position)
         {
-            if (cell[position].HasControls()) cell[position].Controls.Clear();
-
+            Query tempQuery = new Query();
             //Fetch data
             if (!type.Equals("3"))
             {
                 string tableName = type.Equals("1") ? "Backlog" : "Task";
-                myQuery.fetchNote(tableName, projectID, swimlane_id);
-                var tempTable = myQuery.MyDataSet.Tables["init_temp"];
+                tempQuery.fetchNote(tableName, projectID, swimlane_id);
+                var tempTable = tempQuery.MyDataSet.Tables["init_temp"];
                 //Add notes to this cell
                 for (int i = 0; i < tempTable.Rows.Count; i++)
-                    cell[position].Controls.Add(createNote(tempTable.Rows[i], type));
+                    cell[position].Controls.Add(await Task.Run(
+                        () => createNote(tempTable.Rows[i], type)));
             }
             else
             {
-                myQuery.fetchDoneNote(swimlane_id);
+                tempQuery.fetchDoneNote(swimlane_id);
                 //Add notes to this cell
-                foreach (DataRow row in myQuery.MyDataSet.Tables["init_temp"].Rows)
-                    cell[position].Controls.Add(createNote(row, row["Type"].ToString()));
+                foreach (DataRow row in tempQuery.MyDataSet.Tables["init_temp"].Rows)
+                    cell[position].Controls.Add(await Task.Run(
+                        () => createNote(row, row["Type"].ToString())));
             }
 
             //Clear table for the next fetch
-            myQuery.MyDataSet.Tables["init_temp"].Clear();
+            tempQuery.Dipose();
         }
 
         //1.4 Create sticky notes based on retrieved data from database
@@ -149,7 +148,7 @@ namespace Lanban
             HtmlGenericControl header = new HtmlGenericControl("div");
             header.Attributes.Add("class", "note-header");
             header.Style.Add("background-color", color.Substring(0, 7));
-            header.InnerHtml = "<span class='item-id'>"+row["Relative_ID"].ToString()+"</span>";
+            header.InnerHtml = "<span class='item-id'>" + row["Relative_ID"].ToString() + "</span>";
 
             // Add edit button
             Image edit = new Image();
@@ -165,7 +164,7 @@ namespace Lanban
             delete.Attributes.Add("onclick", "deleteItem(" + divID + ",'" + tableName + "')");
             header.Controls.Add(delete);
             div.Controls.Add(header);
-            
+
             // note-content
             HtmlGenericControl content = new HtmlGenericControl("div");
             content.Attributes.Add("class", "note-content");

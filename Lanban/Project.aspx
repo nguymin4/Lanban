@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Lanban - Projects" Language="C#" MasterPageFile="~/Lanban.Master" AutoEventWireup="true" CodeBehind="Project.aspx.cs" Inherits="Lanban.Project" %>
+﻿<%@ Page Title="Lanban - Projects" Language="C#" MasterPageFile="~/Lanban.Master" AutoEventWireup="true" CodeBehind="Project.aspx.cs" Inherits="Lanban.Project" Async="true" EnableEventValidation="false"%>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="contentHead" runat="server">
     <script src="Scripts/project.js"></script>
@@ -44,12 +44,7 @@
                         </div>
                         <div id="project-owner">
                             <div class="criteria project-field">Owner</div>
-                            <div class="project-data">
-                                <div class="person">
-                                    <img class="person-avatar" src="images/sidebar/profile.png" />
-                                    <div class="person-name">Minh Son Nguyen</div>
-                                </div>
-                            </div>
+                            <div class="project-data"></div>
                         </div>
                         <div class="clear"></div>
                     </div>

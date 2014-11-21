@@ -144,6 +144,7 @@
     <Content Include="Styles\project.css" />
     <Content Include="Uploads\Project_1\screenshot.jpg" />
     <Content Include="Uploads\Project_2\screenshot.jpg" />
+    <Content Include="Uploads\User\_79G2227.jpg" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -206,9 +207,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Uploads\User\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

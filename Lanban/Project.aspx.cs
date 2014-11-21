@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Web.UI.HtmlControls;
-using System.Text;
+﻿using Newtonsoft.Json;
+using System;
 using System.Data;
-using Newtonsoft.Json;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.UI;
+using System.Web.UI.HtmlControls;
 
 namespace Lanban
 {
     public partial class Project : System.Web.UI.Page
     {
-        Query myQuery;
-        StringBuilder projectList;
-
-        protected void Page_Load(object sender, EventArgs e)
+        StringBuilder lists;
+        protected async void Page_Load(object sender, EventArgs e) 
         {
             if (!IsPostBack)
             {
-                myQuery = new Query();
+                lists = new StringBuilder();
                 int userID;
                 int role;
                 //userID = Convert.ToInt32(Session["userID"]);
@@ -27,31 +23,44 @@ namespace Lanban
                 userID = 1;
                 role = 1;
                 Session["userID"] = userID;
-                loadProject(userID, role);
+                var timer = System.Diagnostics.Stopwatch.StartNew();
+                await loadProject(userID, role);
+                await Task.Run(() => loadUser(userID));
+                timer.Stop();
+                System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
+                ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "projectList", lists.ToString(), true);
             }
             else
             {
                 if (Request.Params["__EVENTTARGET"].Equals("RedirectBoard"))
-                    gotoProject(Request.Params["__EVENTARGUMENT"]);
+                    await Task.Run(() => gotoProject(Request.Params["__EVENTARGUMENT"]));
             }
         }
 
         //1. Load all projects
-        protected void loadProject(int userID, int role)
+        protected async Task loadProject(int userID, int role)
         {
-            projectList = new StringBuilder();
             // Fetch all projects belong to or under supervised of this user
+            Query myQuery = new Query();
             myQuery.fetchProject(userID, role);
             var project = myQuery.MyDataSet.Tables["Project"];
-            for (int i = 0; i < project.Rows.Count; i++)
+            await Task.Run(() =>
             {
-                var row = project.Rows[i];
-                projectbrowser.Controls.Add(ProjectBox(row));
-            }
-
+                for (int i = 0; i < project.Rows.Count; i++)
+                {
+                    var row = project.Rows[i];
+                    projectbrowser.Controls.Add(ProjectBox(row));
+                }
+            });
+            
             // Send project list in JSON to client for further processing
-            projectList.Append(JsonConvert.SerializeObject(project));
-            ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "", "projectList = " + projectList.ToString(), true);
+            await Task.Run(() =>
+            {
+                StringBuilder projectList = new StringBuilder("projectList = ");
+                projectList.Append(JsonConvert.SerializeObject(project));
+                projectList.Append(";");
+                lists.Append(projectList);
+            });
         }
 
         // 1.1 Display each project in box
@@ -82,12 +91,29 @@ namespace Lanban
         }
 
         // 1.2 Event handler of clicking on a project box
-        public void gotoProject(string data)
+        public void gotoProject(string data) 
         {
+            
             string[] info = data.Split('$');
             Session["projectID"] = info[0];
             Session["projectName"] = info[1];
             Response.Redirect("Board.aspx");
+        }
+
+        // 2. Load users who share the same projects
+        private void loadUser(int userID)
+        {
+            // Fetch data from database
+            Query myQuery = new Query();
+            myQuery.fetchSharedProjectUser(userID);
+            var user = myQuery.MyDataSet.Tables["User"];
+
+            // Send user list in JSON to client for further processing
+            StringBuilder userList = new StringBuilder("userList = ");
+            userList.Append(JsonConvert.SerializeObject(user));
+            userList.Append(";");
+            lists.Append(userList);
+            myQuery.Dipose();
         }
     }
 }

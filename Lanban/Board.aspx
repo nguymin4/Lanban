@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Lanban.Master" AutoEventWireup="true" CodeBehind="Board.aspx.cs" Inherits="Lanban.Board" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Lanban.Master" AutoEventWireup="true" CodeBehind="Board.aspx.cs" Inherits="Lanban.Board" Async="true" EnableEventValidation="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="contentHead" runat="server">
     <script src="Scripts/Chart.min.js"></script>

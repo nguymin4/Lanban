@@ -1,15 +1,12 @@
-﻿using System;
-using System.Threading;
-using System.IO;
-using System.Collections.Generic;
-using System.Web;
-using System.Data.SqlClient;
-using System.Data;
-using System.Text;
-using System.Web.UI;
+﻿using Lanban.Model;
 using Newtonsoft.Json;
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
-using Lanban.Model;
+using System.Threading;
 
 namespace Lanban
 {
@@ -692,7 +689,7 @@ namespace Lanban
         }
 
         /*4. Login page */
-        public string login(string username, string password) {
+        public SqlDataReader login(string username, string password) {
             myCommand.CommandText = "SELECT * FROM Users WHERE Username = @username";
             addParameter<string>("@username", SqlDbType.VarChar, username);
             myReader = myCommand.ExecuteReader();
@@ -700,9 +697,9 @@ namespace Lanban
             if (available == true)
             {
                 if (password.Equals(myReader["Password"]))
-                    return myReader["User_ID"] + "." + myReader["Role"];
+                    return myReader;
             }
-            return "";
+            return null;
         }
 
         /*5. Project page */
@@ -714,6 +711,17 @@ namespace Lanban
                                     "ON A.Project_ID = Project.Project_ID;";
             addParameter<int>("@userID", SqlDbType.Int, userID);
             myAdapter.Fill(myDataSet, "Project");
+            myCommand.Parameters.Clear();
+        }
+
+        public void fetchSharedProjectUser(int userID)
+        {
+            myCommand.CommandText = "SELECT B.User_ID, [Name], Avatar FROM Users INNER JOIN " +
+                                    "(SELECT DISTINCT User_ID FROM Project_User " +
+                                    "INNER JOIN (SELECT Project_ID FROM Project_User WHERE User_ID = @userID) AS A " +
+                                    "ON A.Project_ID = Project_User.Project_ID) AS B ON B.User_ID = Users.User_ID";
+            addParameter<int>("@userID", SqlDbType.Int, userID);
+            myAdapter.Fill(myDataSet, "User");
             myCommand.Parameters.Clear();
         }
     }

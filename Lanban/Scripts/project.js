@@ -34,11 +34,21 @@ $(document).ready(function () {
 
 /* Business logic */
 var projectList;
+var userList;
 /* Find a project based on its ID */
 function findProject(id) {
     for (var i = 0; i < projectList.length; i++) {
         if (projectList[i].Project_ID == id) {
             return projectList[i];
+        }
+    }
+}
+
+/* Find a user based on ID */
+function findUser(id) {
+    for (var i = 0; i < userList.length; i++) {
+        if (userList[i].User_ID == id) {
+            return userList[i];
         }
     }
 }
@@ -51,6 +61,7 @@ function viewProjectDetail(obj, id) {
 
     // Insert the project detail box after that last container
     var index = getLastIndexContainer(obj);
+    index = (index >= container.length) ? (index - 1) : index;
     $("#projectdetail").insertAfter($(container[index]));
 
     // Open project detail box and load info
@@ -78,6 +89,8 @@ function loadProjectDetailInfo(project, id) {
     $("#projectdetail-name").html(project.Name);
     $("#projectdetail-description").html(project.Description);
     $("#txtProjectStartDate").html(parseJSONDate(project.Start_Date));
+
+    $("#project-owner .project-data").html(getPersonDisplay(findUser(project.Owner)));
 }
 
 // Close project detail box
@@ -125,4 +138,12 @@ function getNumBoxInRow() {
     var boxWidth = $(".project-container:eq(0)").outerWidth(true);
     var projectWidth = $("#projectbrowser").width();
     return parseInt(projectWidth / boxWidth);
+}
+
+// Get display of a person
+function getPersonDisplay(person) {
+    var result = "<div class='person'>"+
+        "<img class='person-avatar' src='"+person.Avatar+"' />" +
+        "<div class='person-name'>"+person.Name+"</div></div>";
+    return result;
 }

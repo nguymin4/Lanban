@@ -98,12 +98,16 @@ body {
     font-size: 12px;
 }
 
+#info hr {
+    margin: 0px 0px 10px 0px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
 #profile {
     width: 48px;
     height: 48px;
-    margin: auto;
-    padding: 8px 0px;
-    border-top: solid 2px rgba(255, 255, 255, 0.7);
+    margin: auto auto 8px auto;
+    border-radius:  50%;
 }
 
 #btnLogout {
