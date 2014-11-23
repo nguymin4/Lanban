@@ -7,9 +7,9 @@ namespace Lanban.Controller
     public class TaskHub : Hub
     {
         // Send new submitted comment to other clients.
-        public void SendSubmittedComment(string channelID, string objtext)
+        public void SendSubmittedComment(string channelID, string userID, string objtext)
         {
-            Clients.OthersInGroup(channelID).receiveSubmittedComment(objtext);
+            Clients.OthersInGroup(channelID).receiveSubmittedComment(userID, objtext);
         }
 
         // Delete comment

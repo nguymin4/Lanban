@@ -20,14 +20,14 @@ namespace Lanban
                 int userID = 1;
                 int role = 1;
                 Session["userID"] = userID;
-                lists = new StringBuilder("userID=" + userID + ";");
+                lists = new StringBuilder("var userID=" + userID + ";");
 
                 var timer = System.Diagnostics.Stopwatch.StartNew();
                 await loadProject(userID, role);
                 await Task.Run(() => loadUser(userID));
                 timer.Stop();
                 System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
-                ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "projectList", lists.ToString(), true);
+                ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "projectScript", lists.ToString(), true);
             }
             else
             {

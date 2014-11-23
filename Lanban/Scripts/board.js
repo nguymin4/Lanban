@@ -96,6 +96,9 @@ $(document).ready(function () {
         includePadding: true
     });
 
+    $("#myCommentProfile").attr("src", _avatar);
+    $("#myCommentProfile").attr("title", _name);
+
     $("#fileList").perfectScrollbar({
         wheelSpeed: 3,
         wheelPropagation: false,
@@ -132,7 +135,6 @@ $(document).ready(function () {
                 }
 
                 // Update new position in clients
-                var projectID = $("#txtProjectID").val();
                 var noteID = $(ui.item).attr("id");
                 var swimlanePosition = $(".connected").index(this);
                 proxyNote.invoke("changePosition", projectID, noteID, swimlanePosition, index);
@@ -169,7 +171,6 @@ $(document).ready(function () {
                 }
 
                 // Update new position in clients
-                var projectID = $("#txtProjectID").val();
                 var noteID = $(ui.item).attr("id");
                 var swimlanePosition = $(".connected").index(this);
                 proxyNote.invoke("changePosition", projectID, noteID, swimlanePosition, index);
@@ -186,7 +187,7 @@ $(document).ready(function () {
 /* Class: Backlog */
 function Backlog() {
     this.Backlog_ID = null;
-    this.Project_ID = $("#txtProjectID").val();
+    this.Project_ID = projectID;
     this.Swimlane_ID = $("#txtSwimlaneID").val();
     this.Title = $("#txtBacklogTitle").val();
     this.Description = $("#txtBacklogDescription").val();
@@ -197,7 +198,7 @@ function Backlog() {
 /* Class: Task */
 function Task() {
     this.Task_ID = null;
-    this.Project_ID = $("#txtProjectID").val();
+    this.Project_ID = projectID;
     this.Swimlane_ID = $("#txtSwimlaneID").val();
     this.Backlog_ID = $("#ddlTaskBacklog").val();
     this.Title = $("#txtTaskTitle").val();
@@ -538,17 +539,21 @@ function deleteTaskComment(commentID) {
         url: "Handler.ashx",
         data: {
             action: "deleteTaskComment",
+            userID: userID,
             itemID: commentID
         },
         global: false,
-        type: "get"
+        type: "get",
+        success: function (message) {
+            if (message == "Success") proxyTC.invoke("deleteComment", taskID, commentID);
+            else window.location.href = "/404/404.html";
+        }
     });
     var obj = document.getElementById("comment." + commentID);
     obj.parentElement.removeChild(obj);
 
     // Delete comment in other clients' view
     var taskID = $("#btnSubmitComment").attr("data-task-id");
-    proxyTC.invoke("deleteComment", taskID, commentID);
 }
 
 /*4.3.3 Fetch a comment to input field to edit*/
@@ -562,25 +567,31 @@ function fetchTaskComment(commentID) {
 
 /*4.3.4 Update edited comment*/
 function updateTaskComment(commentID) {
+    var contentText = $("#txtTaskComment").val().replace(new RegExp('\n', 'g'), '<br />');
     $.ajax({
         url: "Handler.ashx",
         data: {
             action: "updateTaskComment",
+            userID: userID,
             itemID: commentID,
             content: $("#txtTaskComment").val()
         },
         global: false,
-        type: "post"
+        type: "post",
+        success: function (message) {
+            if (message == "Success") {
+                // Update comment content in other clients' view
+                var taskID = $("#btnSubmitComment").attr("data-task-id");
+                proxyTC.invoke("updateComment", taskID, commentID, contentText);
+            }
+            else window.location.href = "/404/404.html";
+        }
     });
     var comment = document.getElementById("comment." + commentID);
     var content = comment.getElementsByClassName("comment-content")[0];
-    content.innerHTML = $("#txtTaskComment").val().replace(new RegExp('\n', 'g'), '<br />');
+    content.innerHTML = contentText;
     $("#txtTaskComment").val("");
     $("#btnSubmitComment").val("Send").attr("onclick", "submitTaskComment()");
-
-    // Update comment content in other clients' view
-    var taskID = $("#btnSubmitComment").attr("data-task-id");
-    proxyTC.invoke("updateComment", taskID, commentID, content.innerHTML);
 }
 
 /*4.3.5 Insert new comment for a task */
@@ -591,6 +602,7 @@ function submitTaskComment() {
         data: {
             action: "insertTaskComment",
             taskID: taskID,
+            userID: userID,
             content: $("#txtTaskComment").val()
         },
         global: false,
@@ -598,7 +610,7 @@ function submitTaskComment() {
         success: function (id) {
             var content = $("#txtTaskComment").val().replace(new RegExp('\r?\n', 'g'), '<br />');
             var objtext = "<div class='comment-box' id='comment." + id + "'><div class='comment-panel'>" +
-            "<img class='comment-profile' title='Nguyen Minh Son' src='images/sidebar/profile.png'></div>" +
+            "<img class='comment-profile' title='"+_name+"' src='"+_avatar+"'></div>" +
             "<div class='comment-container'><div class='comment-content'>" + content + "</div><div class='comment-footer'>" +
             "<div class='comment-button' title='Edit comment' onclick='fetchTaskComment(" + id + ")'></div>" +
             "<div class='comment-button' title='Delete comment' onclick='deleteTaskComment(" + id + ")'></div>" +
@@ -608,7 +620,8 @@ function submitTaskComment() {
             $("#txtTaskComment").val("");
 
             // Send objtext to other client who is also viewing the task
-            proxyTC.invoke("sendSubmittedComment", taskID, objtext);
+            if ((id != "")&&("comment."+id == $(objtext).attr("id"))) proxyTC.invoke("sendSubmittedComment", taskID, userID, objtext);
+            else window.location.href = "/404/404.html";
         }
     });
 }
@@ -671,7 +684,7 @@ function deleteItem(itemID, type) {
     note.parentElement.removeChild(note);
 
     // Delete in other clients
-    proxyNote.invoke("deleteNote", $("#txtProjectID").val(), id);
+    proxyNote.invoke("deleteNote", projectID, id);
 }
 
 /*7.1 Creat a drop down list contains all current backlog items*/
@@ -979,8 +992,12 @@ function init_TaskCommentHub() {
 
     // When other client send data, we listen by these
     // Receive new comment
-    proxyTC.on("receiveSubmittedComment", function (msgObj) {
+    proxyTC.on("receiveSubmittedComment", function (uid, msgObj) {
         $("#commentBox").append(msgObj);
+        if (userID != parseInt(uid)) {
+            var comment = document.getElementById($(msgObj).attr("id"));
+            $(comment.getElementsByClassName("comment-button")).remove();
+        }
         $("#commentBox").scrollTop(document.getElementById("commentBox").scrollHeight);
     });
 
@@ -1070,7 +1087,7 @@ function init_NoteHub() {
 
     // Start connection and join group
     connNote.start().done(function () {
-        proxyNote.invoke("joinChannel", $("#txtProjectID").val());
+        proxyNote.invoke("joinChannel", projectID);
     });
 }
 

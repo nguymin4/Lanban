@@ -44,14 +44,13 @@ $(window).load(function () {
 function Project() {
     this.Project_ID = null;
     this.Name = $("#txtProjectName").val();
-    this.Description = $("#txtProjectDescription").val();
+    this.Description = $("#txtProjectDescription").val().replace(new RegExp('\r?\n', 'g'), '<br />');
     this.Owner = userID;
     this.Start_Date = $("#txtProjectStartDate").val();
 }
 
 var projectList;
 var userList;
-var userID;
 
 /*1.1.1 Find a project based on its ID */
 function findProject(id) {
@@ -293,7 +292,7 @@ function editProject(id) {
     var project = findProject(id);
     var supervisorList = $("#project-supervisor .project-data").html();
     $("#txtProjectName").val(project.Name);
-    $("#txtProjectDescription").val(project.Description);
+    $("#txtProjectDescription").val(project.Description.replace(/<br>/g, '\n'));
     $("#txtProjectStartDate").val(parseJSONDate(project.Start_Date));
     if (supervisorList!= "") $("#projectSupervisor").attr("class", "expand").html(supervisorList);
     $("#projectSupervisor .person").on("click", function () { removeUser(this) });

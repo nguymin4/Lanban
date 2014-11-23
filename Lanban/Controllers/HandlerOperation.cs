@@ -42,12 +42,13 @@ namespace Lanban
             var param = _context.Request.Params;
             string action = param["action"];
             int projectID = Convert.ToInt32(_context.Session["projectID"]);
+            int userID = Convert.ToInt32(_context.Session["userID"]);
             string result = "";
 
             switch (action)
             {
                 /* Operations in Board.aspx */
-                
+
                 // Insert new data
                 case "insertItem":
                     if (param["type"].Equals("backlog"))
@@ -108,22 +109,29 @@ namespace Lanban
 
                 // Submit a new comment of a task
                 case "insertTaskComment":
-                    result = myQuery.insertTaskComment(param["taskID"], param["content"], Convert.ToInt32(_context.Session["userID"]));
+                    if (userID == Convert.ToInt32(param["userID"]))
+                        result = myQuery.insertTaskComment(param["taskID"], param["content"], userID);
                     break;
 
                 // View all comments of a task
                 case "viewTaskComment":
-                    result = myQuery.viewTaskComment(param["itemID"], Convert.ToInt32(_context.Session["userID"]));
+                    result = myQuery.viewTaskComment(param["itemID"], userID);
                     break;
 
                 // Delete a comment of a task
                 case "deleteTaskComment":
-                    myQuery.deleteTaskComment(param["itemID"]);
+                    if (userID == Convert.ToInt32(param["userID"]))
+                    {
+                        result = myQuery.deleteTaskComment(param["itemID"], userID);
+                    }
                     break;
 
                 // Edit a comment of a task
                 case "updateTaskComment":
-                    myQuery.updateTaskComment(param["itemID"], param["content"]);
+                    if (userID == Convert.ToInt32(param["userID"]))
+                    {
+                        result = myQuery.updateTaskComment(param["itemID"], param["content"], userID);
+                    }
                     break;
 
                 // Working with chart in Board.aspx
@@ -164,15 +172,15 @@ namespace Lanban
                 case "uploadScreenshot":
                     new FileManager().uploadScreenshot(_context, projectID);
                     break;
-                
+
                 /* Operation in Project.aspx */
                 /*                           */
                 // Get data of all supervisors in a project
                 case "fetchSupervisor":
                     result = myQuery.fetchSupervisor(Convert.ToInt32(param["projectID"]));
                     break;
-                
-                 // Get the user data based on name and role
+
+                // Get the user data based on name and role
                 case "searchUser":
                     result = myQuery.searchUser(param["name"], Convert.ToInt32(param["role"]));
                     break;
@@ -195,7 +203,7 @@ namespace Lanban
                     myQuery.deleteProject(projectID);
                     new FileManager().deleteProjectFolder(_context, projectID);
                     break;
-                
+
                 // Working with supervisor
                 // Delete all supervisor of a project
                 case "deleteSupervisor":

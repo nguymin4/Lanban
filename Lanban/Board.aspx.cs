@@ -21,12 +21,13 @@ namespace Lanban
                 string name = Session["projectName"].ToString();
                 Page.Title = "Lanban " + name;
                 lblProjectName.Text = name;
-                txtProjectID.Text = projectID.ToString();
                 var timer = System.Diagnostics.Stopwatch.StartNew();
                 await createKanban();
                 await Task.Run(() => initDropdownList());
                 timer.Stop();
                 System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds);
+                string script = "var projectID="+projectID+"; var userID="+Session["userID"]+";";
+                ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "boardScript", script, true);
             }
             else
             {

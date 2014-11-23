@@ -339,14 +339,14 @@ div.assignee-name-active {
 .comment-panel {
     float: left;
     width: 48px;
-    border-radius: 5px;
-    background: rgba(25, 15, 15, 0.5);
     text-align: center;
 }
 
 .comment-profile {
     width: 48px;
     height: 48px;
+    border-radius: 50%;
+    margin: auto;
 }
 
 .comment-container {

@@ -230,7 +230,7 @@
                     <!-- Add your comment -->
                     <div class="comment-box" style="padding: 10px;">
                         <div class="comment-panel">
-                            <img class="comment-profile" id="myCommentProfile" title="Nguyen Minh Son" src="images/sidebar/profile.png" />
+                            <img src="images/sidebar/profile.png" class="comment-profile" id="myCommentProfile" />
                         </div>
                         <asp:TextBox CssClass="inputBox" runat="server" TextMode="MultiLine" ID="txtTaskComment"></asp:TextBox>
                         <input type="button" id="btnSubmitComment" value="Send" onclick="submitTaskComment()" />
@@ -266,7 +266,6 @@
     </div>
 
     <!-- Hidden field to store some temporary data -->
-    <asp:TextBox runat="server" ID="txtProjectID" CssClass="hidden"></asp:TextBox>
     <asp:TextBox runat="server" ID="txtSwimlaneID" CssClass="hidden"></asp:TextBox>
     <asp:TextBox runat="server" ID="txtSwimlanePosition" CssClass="hidden"></asp:TextBox>
 </asp:Content>

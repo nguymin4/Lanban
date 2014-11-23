@@ -357,7 +357,7 @@ namespace Lanban
         //2.8.1 View all comments of a task
         public string viewTaskComment(string taskID, int userID)
         {
-            myCommand.CommandText = "SELECT Comment_ID, A.User_ID, Content, Name FROM " +
+            myCommand.CommandText = "SELECT Comment_ID, A.User_ID, Content, Name, Avatar FROM " +
                 "(SELECT * FROM Task_Comment WHERE Task_ID=@id) AS A INNER JOIN Users ON A.User_ID = Users.User_ID ";
             addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(taskID));
 
@@ -385,7 +385,7 @@ namespace Lanban
             string content = myReader["Content"].ToString();
             content = Regex.Replace(content, @"\r\n?|\n", "<br />");
             StringBuilder result = new StringBuilder("<div class='comment-box' id='comment." + id + "'><div class='comment-panel'>");
-            result.Append("<img class='comment-profile' src='images/sidebar/profile.png' title='" + myReader["Name"] + "' /></div>");
+            result.Append("<img class='comment-profile' src='"+myReader["Avatar"]+"' title='" + myReader["Name"] + "' /></div>");
             result.Append("<div class='comment-container'><div class='comment-content'>" + content + "</div>");
             if (Convert.ToInt32(myReader["User_ID"]) == userID)
             {
@@ -399,22 +399,28 @@ namespace Lanban
         }
 
         //2.8.2 Delete a comment
-        public void deleteTaskComment(string commentID)
+        public string deleteTaskComment(string commentID, int userID)
         {
-            myCommand.CommandText = "DELETE FROM Task_Comment WHERE Comment_ID=@id";
+            myCommand.CommandText = "DELETE FROM Task_Comment WHERE Comment_ID=@id AND User_ID = @userID";
             addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(commentID));
-            myCommand.ExecuteNonQuery();
+            addParameter<int>("@userID", SqlDbType.Int, userID);
+            int result = myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
+            if (result == 1) return "Success";
+            else return "";
         }
 
         //2.8.3 Edit a comment
-        public void updateTaskComment(string commentID, string content)
+        public string updateTaskComment(string commentID, string content, int userID)
         {
-            myCommand.CommandText = "UPDATE Task_Comment SET Content=@content WHERE Comment_ID=@id";
+            myCommand.CommandText = "UPDATE Task_Comment SET Content=@content WHERE Comment_ID=@id AND User_ID = @userID";
             addParameter<string>("@content", SqlDbType.Text, content);
             addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(commentID));
-            myCommand.ExecuteNonQuery();
+            addParameter<int>("@userID", SqlDbType.Int, userID);
+            int result = myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
+            if (result == 1) return "Success";
+            else return "";
         }
 
         //2.8.4 Edit a comment

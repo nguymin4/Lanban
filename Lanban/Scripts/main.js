@@ -1,4 +1,9 @@
-$(document).ready(function() {
+var _avatar, _name
+$(document).ready(function () {
+    var profile = $("#profile");
+    _avatar = profile.attr("src");
+    _name = profile.attr("title");
+
     /*Recalibrate based on browser size*/
     recalibrate();
     window.addEventListener('resize', function () {
