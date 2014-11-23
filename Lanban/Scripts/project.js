@@ -133,6 +133,8 @@ function getPersonDisplay(person) {
 
 /* 2.1.4 Fetch supervisor data of a project */
 function fetchSupervisor(projectID) {
+    var supervisorBox = $("#project-supervisor .project-data");
+    supervisorBox.html("<div class='loading-spinner'></div>");
     $.ajax({
         url: "Handler.ashx",
         data: {
@@ -142,7 +144,7 @@ function fetchSupervisor(projectID) {
         global: false,
         type: "get",
         success: function (result) {
-            $("#project-supervisor .project-data").html(result);
+            supervisorBox.html(result);
         }
     });
 }
@@ -159,7 +161,7 @@ var supervisorChange = false;
 
 /*3.1 Create new project */
 function addProject() {
-    showProcessingDiaglog()
+    showProcessingDiaglog();
     var project = new Project();
     $.ajax({
         url: "Handler.ashx",
@@ -171,8 +173,10 @@ function addProject() {
         type: "post",
         success: function (id) {
             // Save list of supervisor to database
-            supervisorChange = true;
-            saveSupervisor(id, true);
+            // Close processing diaglog and display success diaglog when everything is ready
+            $.when(saveSupervisor(id, true)).done(function () {
+                showSuccessDiaglog(0);
+            });
 
             // Push new project to projectList
             project.Project_ID = parseInt(id);
@@ -181,7 +185,6 @@ function addProject() {
             // Get visual of the new project
             var objtext = getVisualProject(id, project.Name);
             $("#projectbrowser").prepend(objtext);
-            showSuccessDiaglog(0);
             $(".input-project").val("");
 
             // Send to other clients
@@ -198,9 +201,10 @@ function getVisualProject(id, name) {
 
 /*3.2 Link Supervisor ID to Project ID */
 function saveSupervisor(id, clear) {
+    var deferreds = [];
     var supervisor = $("#projectSupervisor .person");
     for (var i = 0; i < supervisor.length; i++) {
-        $.ajax({
+        deferreds.push($.ajax({
             url: "Handler.ashx",
             data: {
                 action: "saveSupervisor",
@@ -209,11 +213,12 @@ function saveSupervisor(id, clear) {
             },
             global: false,
             type: "get"
-        });
+        }));
     }
     // Whether clear container after save
     if (clear) $("#projectSupervisor .person").remove();
     supervisorChange = false;
+    return deferreds;
 }
 
 /*4 Using AJAX to search name of user */
@@ -297,6 +302,7 @@ function editProject(id) {
     if (supervisorList!= "") $("#projectSupervisor").attr("class", "expand").html(supervisorList);
     $("#projectSupervisor .person").on("click", function () { removeUser(this) });
     $("#projectSupervisor .person").css("cursor", "pointer");
+    supervisorChange = false;
 
     var btnSave = $("#btnAddProject");
     btnSave.attr("src", "images/sidebar/update.png");
@@ -323,13 +329,14 @@ function editProject(id) {
 
 /*5.2 Update Project info */
 function updateProject(id) {
-
+    // Initialize
     showProcessingDiaglog();
     var project = new Project();
     project.Project_ID = id;
     var supervisorList = $("#projectSupervisor").html();
 
-    $.ajax({
+    // Update project data
+    var saveData = $.ajax({
         url: "Handler.ashx",
         data: {
             action: "updateProject",
@@ -339,25 +346,29 @@ function updateProject(id) {
         global: false,
         type: "post",
         success: function () {
-            showSuccessDiaglog(1);
             projectList[getProjectIndex(id)] = project;
-
-            // Update projectbrowser view
-            $("#project" + id + " .project-header").html(id + ". " + project.Name);
-
-            // Udate projectdetail view
-            $("#projectdetail").fadeOut("fast", function () {
-                loadProjectDetailInfo(project, id);
-                $("#project-supervisor .project-data").html(supervisorList);
-                $("#projectdetail").fadeIn("fast");
-            });
-            // Send to other clients
         }
     });
 
     //Update supervisor list
-    
-    if (supervisorChange == true) updateSupervisor(id);
+    var saveSupervisor = (supervisorChange == true) ? updateSupervisor(id) : null;
+
+    // When all savings are done
+    $.when(saveData, saveSupervisor).done(function () {
+        showSuccessDiaglog(1);
+
+        console.log("Save OK");
+        // Update projectbrowser view
+        $("#project" + id + " .project-header").html(id + ". " + project.Name);
+
+        // Udate projectdetail view
+        $("#projectdetail").fadeOut("fast", function () {
+            loadProjectDetailInfo(project, id);
+            $("#project-supervisor .project-data").html(supervisorList);
+            $("#projectdetail").fadeIn("fast");
+        });
+        // Send to other clients
+    });
 }
 
 /*5.3 Update Supervisor list of a Project */
@@ -371,7 +382,7 @@ function updateSupervisor(id) {
         global: false,
         type: "get",
         success: function () {
-            saveSupervisor(id, false);
+            return saveSupervisor(id, false);
         }
     });
 }
@@ -385,7 +396,10 @@ function deleteProject(id) {
             projectID: id
         },
         global: false,
-        type: "get"
+        type: "get",
+        success: function () {
+            // Delete project in other clients
+        }
     });
     hideProjectDetail();
     var project = $("#project" + id);

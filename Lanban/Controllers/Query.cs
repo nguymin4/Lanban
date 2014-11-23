@@ -382,12 +382,15 @@ namespace Lanban
         protected string getCommentDisplay(int userID)
         {
             int id = Convert.ToInt32(myReader["Comment_ID"]);
+            int owner = Convert.ToInt32(myReader["User_ID"]);
             string content = myReader["Content"].ToString();
             content = Regex.Replace(content, @"\r\n?|\n", "<br />");
-            StringBuilder result = new StringBuilder("<div class='comment-box' id='comment." + id + "'><div class='comment-panel'>");
+            StringBuilder result = new StringBuilder();
+            if (owner == userID) result.Append("<div class='comment-box' id='comment." + id + "'><div class='comment-panel'>");
+            else result.Append("<div class='comment-box'><div class='comment-panel'>");
             result.Append("<img class='comment-profile' src='"+myReader["Avatar"]+"' title='" + myReader["Name"] + "' /></div>");
             result.Append("<div class='comment-container'><div class='comment-content'>" + content + "</div>");
-            if (Convert.ToInt32(myReader["User_ID"]) == userID)
+            if (owner == userID)
             {
                 result.Append("<div class='comment-footer'>");
                 result.Append("<div class='comment-button' title='Edit comment' onclick='fetchTaskComment(" + id + ")'></div>");
@@ -455,7 +458,7 @@ namespace Lanban
         // 2.9.2 Delete a file of a task
         public void deleteTaskFile(int fileID, int userID)
         {
-            myCommand.CommandText = "DELETE Task_File WHERE File_ID=@fileID AND User_ID=@userID ";
+            myCommand.CommandText = "DELETE FROM Task_File WHERE File_ID=@fileID AND User_ID=@userID ";
             addParameter<int>("@fileID", SqlDbType.Int, fileID);
             addParameter<int>("@userID", SqlDbType.Int, userID);
             myCommand.ExecuteNonQuery();
@@ -757,24 +760,22 @@ namespace Lanban
             myCommand.CommandText = "INSERT INTO Project (Name, Description, Owner, Start_Date) VALUES (@Name, @Description, @Owner, @Start_Date);";
             addParameter<string>("@Name", SqlDbType.NVarChar, project.Name);
             addParameter<string>("@Description", SqlDbType.NVarChar, project.Description);
-            addParameter<int>("@Owner", SqlDbType.NVarChar, project.Owner);
+            addParameter<int>("@Owner", SqlDbType.Int, project.Owner);
             try { addParameter<DateTime>("@Start_Date", SqlDbType.DateTime2, DateTime.ParseExact(project.Start_Date, "dd.MM.yyyy", null)); }
             catch { addParameter<DBNull>("@Start_Date", SqlDbType.DateTime2, DBNull.Value); }
             myCommand.CommandText += "SELECT SCOPE_IDENTITY();";
-            string id = myCommand.ExecuteScalar().ToString();
 
-            // Create new record for the owner in Project_User Table
-            myCommand.CommandText = "INSERT INTO Project_User (Project_ID, User_ID) VALUES(@projectID, @userID);";
-            addParameter<int>("@projectID", SqlDbType.Int, Convert.ToInt32(id));
-
-            return id;
+            // In database trigger:
+            // 1. Create default 5 swimlanes for created project
+            // 2. Add owner as one of the user of the created project
+            
+            return myCommand.ExecuteScalar().ToString();
         }
 
         // 5.5 Delete project
         public void deleteProject(int projectID)
         {
-            myCommand.CommandText = "DELETE Project_Supervisor WHERE Project_ID=@projectID;" +
-                                    "DELETE Project WHERE Project_ID=@projectID;";
+            myCommand.CommandText = "DELETE FROM Project WHERE Project_ID=@projectID;";
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
             myCommand.ExecuteNonQuery();
         }
@@ -821,7 +822,7 @@ namespace Lanban
         // 5.9.2 Edit supervisor
         public void deleteSupervisor(int projectID)
         {
-            myCommand.CommandText = "DELETE Project_Supervisor WHERE Project_ID = @projectID";
+            myCommand.CommandText = "DELETE FROM Project_Supervisor WHERE Project_ID = @projectID";
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
             myCommand.ExecuteNonQuery();
         }

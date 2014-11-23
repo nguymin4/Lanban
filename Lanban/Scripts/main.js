@@ -17,7 +17,7 @@ $(document).ready(function () {
     });
 
     $(".btnOK").on("click", function () {
-        $(".diaglog.show").removeClass("show");
+        $(".diaglog.show").removeClass("show").fadeOut(100);
     });
 
     /*Add function when click the icon to change window*/
@@ -94,7 +94,7 @@ function formatDate(date) {
 
 /* Diaglog */
 // Show error diaglog  - content taken from an array based on parameter
-var errorMsg = ["Cannot drop that item because it is not the same type with the items in column."];
+var errorMsg = ["Cannot drop that item because it is not the same type with the items in column.", "Operation failed"];
 
 function showErrorDialog(i) {
     $(".diaglog.error .content-holder").text(errorMsg[i]);
@@ -105,12 +105,15 @@ function showErrorDialog(i) {
 var successMsg = ["New item created", "Data updated", "File uploaded"];
 
 function showSuccessDiaglog(i) {
-    $(".diaglog.success").attr("data-diaglog-type", "Success");
-    $(".diaglog.success .title-bar").text("Success");
-    $(".diaglog.success .content-holder").html(successMsg[i]);
-    $(".diaglog.success input").css("display", "block");
     if (!($(".diaglog.success").hasClass("show")))
-        $(".diaglog.success").addClass("show");
+        $(".diaglog.success").addClass("show").fadeIn(250);
+    else $(".diaglog.success").fadeOut(100, function () {
+        $(".diaglog.success").attr("data-diaglog-type", "Success");
+        $(".diaglog.success .title-bar").text("Success");
+        $(".diaglog.success .content-holder").html(successMsg[i]);
+        $(".diaglog.success input").css("display", "block");
+        $(".diaglog.success").fadeIn(100);
+    })
 }
 
 // Show processing message
@@ -119,5 +122,5 @@ function showProcessingDiaglog() {
     $(".diaglog.success .title-bar").text("Processing");
     $(".diaglog.success .content-holder").html("<div class='loading-spinner'></div>");
     $(".diaglog.success input").css("display", "none");
-    $(".diaglog.success").addClass("show");
+    $(".diaglog.success").addClass("show").fadeIn(200);
 }

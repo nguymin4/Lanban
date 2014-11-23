@@ -111,6 +111,7 @@ namespace Lanban
                 case "insertTaskComment":
                     if (userID == Convert.ToInt32(param["userID"]))
                         result = myQuery.insertTaskComment(param["taskID"], param["content"], userID);
+                    else _context.Response.Redirect("/404/404.html");
                     break;
 
                 // View all comments of a task
@@ -121,17 +122,15 @@ namespace Lanban
                 // Delete a comment of a task
                 case "deleteTaskComment":
                     if (userID == Convert.ToInt32(param["userID"]))
-                    {
                         result = myQuery.deleteTaskComment(param["itemID"], userID);
-                    }
+                    else _context.Response.Redirect("/404/404.html");
                     break;
 
                 // Edit a comment of a task
                 case "updateTaskComment":
                     if (userID == Convert.ToInt32(param["userID"]))
-                    {
                         result = myQuery.updateTaskComment(param["itemID"], param["content"], userID);
-                    }
+                    else _context.Response.Redirect("/404/404.html");
                     break;
 
                 // Working with chart in Board.aspx

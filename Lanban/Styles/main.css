@@ -183,10 +183,6 @@ body {
     z-index: 999;
 }
 
-    .diaglog.show {
-        display: block;
-    }
-
     .diaglog[data-diaglog-type="Processing"] {
         background: url('../images/background/top-bg.png') repeat-x, white;
     }

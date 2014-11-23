@@ -27,6 +27,9 @@ function showWindow(windowName) {
             hideWindow();
         });
     }, 250);
+
+    // Clear fields
+    $(".assignee-name-active").remove();
 }
 
 // Hide Add backlog/task window and Open the kanban board
@@ -75,7 +78,6 @@ function changePageWindow(windowName, index) {
     }
     $(page[index]).scrollTop(0);
 }
-
 
 /*A. When document is ready*/
 $(document).ready(function () {
@@ -211,6 +213,7 @@ function Task() {
 
 /*1. Create new sticky note and save it to database*/
 function insertItem(type) {
+    showProcessingDiaglog();
     var item = (type == "backlog") ? new Backlog() : new Task();
 
     $.ajax({
@@ -223,11 +226,16 @@ function insertItem(type) {
         global: false,
         type: "post",
         success: function (result) {
-            saveAssignee(result.substring(0, result.indexOf(".")), type, true);
+            // Link assignee to the created item
+            var deferreds = saveAssignee(result.substring(0, result.indexOf(".")), type, true);
+            $.when(deferreds).done(function () {
+                showSuccessDiaglog(0);
+            });
+
+            // Display created item in board
             var objtext = getVisualNote(result, type, item);
             var swimlanePosition = parseInt($("#txtSwimlanePosition").val());
             $(objtext).appendTo($(".connected")[swimlanePosition]);
-            showSuccessDiaglog(0);
             (type == "backlog") ? clearBacklogWindow() : clearTaskWindow();
 
             // Send to other clients
@@ -282,10 +290,6 @@ function showInsertWindow(windowName, i, swimlaneID) {
     // Store swimlame position so that we can add new sticky note into correct column
     $("#txtSwimlanePosition").val(i);
     $("#txtSwimlaneID").val(swimlaneID);
-
-    // Clear fields
-    $(".assignee-name-active").remove();
-
 }
 
 /*2. Change position of a sticky note*/
@@ -327,9 +331,11 @@ function changeLane(itemID, type, swimlane_id, pos) {
 }
 
 /*3.1 Working with functionalities involving assignee*/
+var assigneeChange = false;
+
 // View all assignee of an item
 function viewAssignee(itemID, type) {
-    $.ajax({
+    return $.ajax({
         url: "Handler.ashx",
         data: {
             action: "viewAssignee",
@@ -358,16 +364,17 @@ function updateAssignee(itemID, type) {
         type: "get",
         success: function () {
             //Save new records
-            saveAssignee(itemID, type, false);
+            return saveAssignee(itemID, type, false);
         }
     });
 }
 
 // After insert new item and get the item ID, then save the assignee of that item to database
 function saveAssignee(itemID, type, clear) {
+    var deferreds = [];
     var assignee = document.getElementById(type + "Assign").getElementsByTagName("div");
     for (var i = 0; i < assignee.length; i++) {
-        $.ajax({
+        deferreds.push($.ajax({
             url: "Handler.ashx",
             data: {
                 action: "saveAssignee",
@@ -377,9 +384,11 @@ function saveAssignee(itemID, type, clear) {
             },
             global: false,
             type: "get"
-        });
+        }));
     }
+    assigneeChange = false;
     if (clear) $(".assignee-name-active").remove();
+    return deferreds;
 }
 
 /*3.2 Using AJAX to search name of member to assign to a task or backlog */
@@ -418,12 +427,14 @@ function addAssignee(obj, type) {
     $(objtext).insertBefore($(searchBox));
     $(searchBox).val("");
     searchBox.focus();
+    assigneeChange = true;
 }
 
 // When click on active assignee then it's removed
 function removeAssignee(obj) {
     var parent = obj.parentElement;
     parent.removeChild(obj);
+    assigneeChange = true;
 }
 
 // Clear search result
@@ -436,17 +447,17 @@ function clearResult(obj) {
 
 /*4. Double click on note to open corresponding window that allow user to edit content*/
 function viewDetailNote(itemID, type) {
-    showProcessingDiaglog(0);
+    showProcessingDiaglog();
     var windowName = type + "Window";
     showWindow(windowName);
+
     $("#" + windowName + " .title-bar").html("Edit " + type + " item");
     var btnSave = $("#" + windowName + " .btnSave");
     $(btnSave).val("Save").attr("onclick", "saveItem(" + itemID + ",'" + type + "')");
-
     $("#" + windowName + " .pageRibbon img").css("display", "block");
 
     //Get all data of that item
-    $.ajax({
+    var getItemData = $.ajax({
         url: "Handler.ashx",
         data: {
             action: "viewItem",
@@ -456,13 +467,19 @@ function viewDetailNote(itemID, type) {
         global: false,
         type: "get",
         success: function (result) {
-            $(".diaglog.success").removeClass("show");
             (type == "backlog") ? displayBacklogDetail(result) : displayTaskDetail(result);
         }
     });
 
     //View all assignee of that item
-    viewAssignee(itemID, type);
+    var getAssignee = viewAssignee(itemID, type);
+    assigneeChange = false;
+
+
+    // Turn off processing diaglog when everything is loaded
+    $.when(getItemData, getAssignee).done(function () {
+        $(".diaglog.success").fadeOut(100);
+    });
 
     if (type == "backlog") loadTaskBacklogTable(itemID);
     else {
@@ -610,7 +627,7 @@ function submitTaskComment() {
         success: function (id) {
             var content = $("#txtTaskComment").val().replace(new RegExp('\r?\n', 'g'), '<br />');
             var objtext = "<div class='comment-box' id='comment." + id + "'><div class='comment-panel'>" +
-            "<img class='comment-profile' title='"+_name+"' src='"+_avatar+"'></div>" +
+            "<img class='comment-profile' title='" + _name + "' src='" + _avatar + "'></div>" +
             "<div class='comment-container'><div class='comment-content'>" + content + "</div><div class='comment-footer'>" +
             "<div class='comment-button' title='Edit comment' onclick='fetchTaskComment(" + id + ")'></div>" +
             "<div class='comment-button' title='Delete comment' onclick='deleteTaskComment(" + id + ")'></div>" +
@@ -620,7 +637,7 @@ function submitTaskComment() {
             $("#txtTaskComment").val("");
 
             // Send objtext to other client who is also viewing the task
-            if ((id != "")&&("comment."+id == $(objtext).attr("id"))) proxyTC.invoke("sendSubmittedComment", taskID, userID, objtext);
+            if ((id != "") && ("comment." + id == $(objtext).attr("id"))) proxyTC.invoke("sendSubmittedComment", taskID, userID, objtext);
             else window.location.href = "/404/404.html";
         }
     });
@@ -640,7 +657,7 @@ function saveItem(itemID, type) {
         item.Task_ID = itemID;
     }
 
-    $.ajax({
+    var saveData = $.ajax({
         url: "Handler.ashx",
         data: {
             action: "updateItem",
@@ -650,21 +667,26 @@ function saveItem(itemID, type) {
         global: false,
         type: "post",
         success: function (result) {
-            $(".diaglog.success").removeClass("show");
             var note = document.getElementById(type + "." + itemID);
             var header = note.getElementsByClassName("note-header")[0];
             header.style.background = item.Color.substr(0, 7);
             var content = note.getElementsByClassName("note-content")[0];
             content.style.background = item.Color.substr(8, 7);
             content.innerHTML = item.Title;
-            showSuccessDiaglog(1);
+
+            // Update note in other clients
+            proxyNote.invoke("updateNote", item.Project_ID, type + "." + itemID, item.Title, item.Color);
         }
     });
 
-    updateAssignee(itemID, type);
+    var saveAssignee = (assigneeChange == true) ? updateAssignee(itemID, type) : null;
+    console.log(saveAssignee);
 
-    // Update note in other clients
-    proxyNote.invoke("updateNote", item.Project_ID, type + "." + itemID, item.Title, item.Color);
+    // Turn off processing window and display success message
+    // Send new info to other clients
+    $.when(saveData, saveAssignee).done(function () {
+        showSuccessDiaglog(1);
+    });
 }
 
 /*6. Delete an item*/
@@ -677,14 +699,17 @@ function deleteItem(itemID, type) {
             type: type
         },
         global: false,
-        type: "get"
+        type: "get",
+        success: function () {
+            // Delete in other clients
+            proxyNote.invoke("deleteNote", projectID, id);
+        }
     });
+
+    // Delete object on the board
     var id = type + "." + itemID;
     var note = document.getElementById(id);
     note.parentElement.removeChild(note);
-
-    // Delete in other clients
-    proxyNote.invoke("deleteNote", projectID, id);
 }
 
 /*7.1 Creat a drop down list contains all current backlog items*/
@@ -996,7 +1021,7 @@ function init_TaskCommentHub() {
         $("#commentBox").append(msgObj);
         if (userID != parseInt(uid)) {
             var comment = document.getElementById($(msgObj).attr("id"));
-            $(comment.getElementsByClassName("comment-button")).remove();
+            $(comment.getElementsByClassName("comment-footer")).remove();
         }
         $("#commentBox").scrollTop(document.getElementById("commentBox").scrollHeight);
     });
