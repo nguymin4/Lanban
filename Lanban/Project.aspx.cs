@@ -15,14 +15,13 @@ namespace Lanban
         {
             if (!IsPostBack)
             {
-                lists = new StringBuilder();
-                int userID;
-                int role;
-                //userID = Convert.ToInt32(Session["userID"]);
-                //role = Convert.ToInt32(Session["userRole"]);
-                userID = 1;
-                role = 1;
+                //int userID = Convert.ToInt32(Session["userID"]);
+                //int role = Convert.ToInt32(Session["userRole"]);
+                int userID = 1;
+                int role = 1;
                 Session["userID"] = userID;
+                lists = new StringBuilder("userID=" + userID + ";");
+
                 var timer = System.Diagnostics.Stopwatch.StartNew();
                 await loadProject(userID, role);
                 await Task.Run(() => loadUser(userID));

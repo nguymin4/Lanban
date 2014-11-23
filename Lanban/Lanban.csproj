@@ -115,6 +115,8 @@
     <Content Include="images\sidebar\dashboard.png" />
     <Content Include="images\sidebar\delete_note.png" />
     <Content Include="images\sidebar\edit_note.png" />
+    <Content Include="images\sidebar\update.png" />
+    <Content Include="images\sidebar\open.png" />
     <Content Include="images\sidebar\stat.png" />
     <Content Include="images\sidebar\layout.png" />
     <Content Include="images\sidebar\logout.png" />
@@ -128,6 +130,7 @@
     <Content Include="images\sidebar\upload.png" />
     <Content Include="images\sidebar\view.png" />
     <Content Include="images\background\top-bg.png" />
+    <Content Include="images\spinner.png" />
     <Content Include="Login.aspx" />
     <Content Include="Project.aspx" />
     <Content Include="Scripts\board.js" />
@@ -163,7 +166,7 @@
     <Compile Include="Hubs\NoteHub.cs" />
     <Compile Include="Hubs\TaskHub.cs" />
     <Compile Include="Models\Chart.cs" />
-    <Compile Include="Controllers\FileUpload.cs" />
+    <Compile Include="Controllers\FileManager.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

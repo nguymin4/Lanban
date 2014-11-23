@@ -46,19 +46,14 @@ namespace Lanban
 
             switch (action)
             {
-                // Working with data query and manipulation from this part
+                /* Operations in Board.aspx */
+                
                 // Insert new data
                 case "insertItem":
                     if (param["type"].Equals("backlog"))
-                    {
-                        Backlog backlog = JsonConvert.DeserializeObject<Backlog>(param["item"]);
-                        result = myQuery.insertNewBacklog(backlog);
-                    }
+                        result = myQuery.insertNewBacklog(JsonConvert.DeserializeObject<Backlog>(param["item"]));
                     else
-                    {
-                        Task task = JsonConvert.DeserializeObject<Task>(param["item"]);
-                        result = myQuery.insertNewTask(task);
-                    }
+                        result = myQuery.insertNewTask(JsonConvert.DeserializeObject<Task>(param["item"]));
                     break;
 
                 // Get all data of an item
@@ -70,15 +65,9 @@ namespace Lanban
                 // Update an item
                 case "updateItem":
                     if (param["type"].Equals("backlog"))
-                    {
-                        Backlog backlog = JsonConvert.DeserializeObject<Backlog>(param["item"]);
-                        myQuery.updateBacklog(param["itemID"], backlog);
-                    }
+                        myQuery.updateBacklog(JsonConvert.DeserializeObject<Backlog>(param["item"]));
                     else
-                    {
-                        Task task = JsonConvert.DeserializeObject<Task>(param["item"]);
-                        myQuery.updateTask(param["itemID"], task);
-                    }
+                        myQuery.updateTask(JsonConvert.DeserializeObject<Task>(param["item"]));
                     break;
 
                 // Delete an item
@@ -137,7 +126,7 @@ namespace Lanban
                     myQuery.updateTaskComment(param["itemID"], param["content"]);
                     break;
 
-                // Working with chart from this part
+                // Working with chart in Board.aspx
                 // Get Pie Chart data
                 case "getPieChart":
                     result = myQuery.getPieChart(projectID);
@@ -158,18 +147,65 @@ namespace Lanban
 
                 // Upload files
                 case "uploadFile":
-                    result = new FileUpload().uploadFile(_context, myQuery, projectID);
+                    result = new FileManager().uploadFile(_context, myQuery, projectID);
                     break;
+
+                // Get list of all files belong to a task
                 case "viewTaskFile":
                     result = myQuery.viewTaskFile(Convert.ToInt32(param["taskID"]));
                     break;
+
+                // Delete a file belongs to a task
                 case "deleteTaskFile":
-                    new FileUpload().deleteFile(_context, myQuery);
+                    new FileManager().deleteFile(_context, myQuery);
                     break;
 
-                // Upload screenshot
+                // Upload screenshot of a project
                 case "uploadScreenshot":
-                    new FileUpload().uploadScreenshot(_context, projectID);
+                    new FileManager().uploadScreenshot(_context, projectID);
+                    break;
+                
+                /* Operation in Project.aspx */
+                /*                           */
+                // Get data of all supervisors in a project
+                case "fetchSupervisor":
+                    result = myQuery.fetchSupervisor(Convert.ToInt32(param["projectID"]));
+                    break;
+                
+                 // Get the user data based on name and role
+                case "searchUser":
+                    result = myQuery.searchUser(param["name"], Convert.ToInt32(param["role"]));
+                    break;
+
+                // Working with Project
+                // Create new project
+                case "createProject":
+                    result = myQuery.createProject(JsonConvert.DeserializeObject<ProjectModel>(param["project"]));
+                    new FileManager().createProjectFolder(_context, result);
+                    break;
+
+                // Update project
+                case "updateProject":
+                    myQuery.updateProject(JsonConvert.DeserializeObject<ProjectModel>(param["project"]));
+                    break;
+
+                // Delete a project
+                case "deleteProject":
+                    projectID = Convert.ToInt32(param["projectID"]);
+                    myQuery.deleteProject(projectID);
+                    new FileManager().deleteProjectFolder(_context, projectID);
+                    break;
+                
+                // Working with supervisor
+                // Delete all supervisor of a project
+                case "deleteSupervisor":
+                    projectID = Convert.ToInt32(param["projectID"]);
+                    myQuery.deleteSupervisor(projectID);
+                    break;
+                // Save supervisor of a project
+                case "saveSupervisor":
+                    projectID = Convert.ToInt32(param["projectID"]);
+                    myQuery.saveSupervisor(projectID, Convert.ToInt32(param["supervisorID"]));
                     break;
             }
             _context.Response.Write(result);

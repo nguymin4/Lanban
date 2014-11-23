@@ -77,35 +77,6 @@ function changePageWindow(windowName, index) {
 }
 
 
-// Show error diaglog  - content taken from an array based on parameter
-var errorMsg = ["Cannot drop that item because it is not the same type with the items in column."];
-
-function showErrorDialog(i) {
-    $(".diaglog.error .content-holder").text(errorMsg[i]);
-    $(".diaglog.error").addClass("show");
-}
-
-// Show success diaglog - content taken from an array based on parameter
-var successMsg = ["New item created", "Data updated", "File uploaded"];
-
-function showSuccessDiaglog(i) {
-    $(".diaglog.success").attr("data-diaglog-type", "Success");
-    $(".diaglog.success .title-bar").text("Success");
-    $(".diaglog.success .content-holder").html(successMsg[i]);
-    $(".diaglog.success input").css("display", "block");
-    if (!($(".diaglog.success").hasClass("show")))
-        $(".diaglog.success").addClass("show");
-}
-
-// Show processing message
-function showProcessingDiaglog() {
-    $(".diaglog.success").attr("data-diaglog-type", "Processing");
-    $(".diaglog.success .title-bar").text("Processing");
-    $(".diaglog.success .content-holder").html("<div class='loading-spinner'></div>");
-    $(".diaglog.success input").css("display", "none");
-    $(".diaglog.success").addClass("show");
-}
-
 /*A. When document is ready*/
 $(document).ready(function () {
     /* Take the screenshot*/
@@ -132,9 +103,6 @@ $(document).ready(function () {
         includePadding: true
     });
 
-    $(".btnOK").on("click", function () {
-        $(".diaglog.show").removeClass("show");
-    });
     $("#fileUploadContainer input").val("");
 
     /*Board drag and drop functionality*/
@@ -217,6 +185,7 @@ $(document).ready(function () {
 
 /* Class: Backlog */
 function Backlog() {
+    this.Backlog_ID = null;
     this.Project_ID = $("#txtProjectID").val();
     this.Swimlane_ID = $("#txtSwimlaneID").val();
     this.Title = $("#txtBacklogTitle").val();
@@ -227,6 +196,7 @@ function Backlog() {
 
 /* Class: Task */
 function Task() {
+    this.Task_ID = null;
     this.Project_ID = $("#txtProjectID").val();
     this.Swimlane_ID = $("#txtSwimlaneID").val();
     this.Backlog_ID = $("#ddlTaskBacklog").val();
@@ -252,9 +222,8 @@ function insertItem(type) {
         global: false,
         type: "post",
         success: function (result) {
-            saveAssignee(result.substring(0, result.indexOf(".")), type);
+            saveAssignee(result.substring(0, result.indexOf(".")), type, true);
             var objtext = getVisualNote(result, type, item);
-            console.log(objtext);
             var swimlanePosition = parseInt($("#txtSwimlanePosition").val());
             $(objtext).appendTo($(".connected")[swimlanePosition]);
             showSuccessDiaglog(0);
@@ -313,6 +282,9 @@ function showInsertWindow(windowName, i, swimlaneID) {
     $("#txtSwimlanePosition").val(i);
     $("#txtSwimlaneID").val(swimlaneID);
 
+    // Clear fields
+    $(".assignee-name-active").remove();
+
 }
 
 /*2. Change position of a sticky note*/
@@ -353,7 +325,7 @@ function changeLane(itemID, type, swimlane_id, pos) {
     });
 }
 
-/*3 Working with functionalities involving assignee*/
+/*3.1 Working with functionalities involving assignee*/
 // View all assignee of an item
 function viewAssignee(itemID, type) {
     $.ajax({
@@ -385,13 +357,13 @@ function updateAssignee(itemID, type) {
         type: "get",
         success: function () {
             //Save new records
-            saveAssignee(itemID, type);
+            saveAssignee(itemID, type, false);
         }
     });
 }
 
 // After insert new item and get the item ID, then save the assignee of that item to database
-function saveAssignee(itemID, type) {
+function saveAssignee(itemID, type, clear) {
     var assignee = document.getElementById(type + "Assign").getElementsByTagName("div");
     for (var i = 0; i < assignee.length; i++) {
         $.ajax({
@@ -406,6 +378,7 @@ function saveAssignee(itemID, type) {
             type: "get"
         });
     }
+    if (clear) $(".assignee-name-active").remove();
 }
 
 /*3.2 Using AJAX to search name of member to assign to a task or backlog */
@@ -425,15 +398,13 @@ function searchAssignee(searchBox, type) {
                 global: false,
                 type: "get",
                 success: function (result) {
-                    var searchResult = document.getElementById("assigneeSearchResult");
-                    searchResult.style.display = "block";
+                    var searchContainer = $("#assigneeSearchResult");
                     var pos = searchBox.getBoundingClientRect();
-                    searchResult.style.top = pos.top + 30;
-                    searchResult.style.left = pos.left;
-                    searchResult.innerHTML = result;
+                    $(searchContainer).css("top", pos.top + 30).css("left", pos.left);
+                    $(searchContainer).html(result).fadeIn("fast");
                 }
             });
-        }, 100);
+        }, 200);
     }
     else clearResult();
 }
@@ -458,7 +429,7 @@ function removeAssignee(obj) {
 function clearResult(obj) {
     setTimeout(function () {
         $(obj).val("");
-        $("#assigneeSearchResult").html("").css("display", "none");
+        $("#assigneeSearchResult").html("").fadeOut("fast");
     }, 250);
 }
 
@@ -520,7 +491,6 @@ function clearBacklogWindow() {
     $("#backlogWindow .inputbox").val("");
     $("#backlogWindow textarea").val("");
     $("#backlogWindow #ddlBacklogComplexity").val("1");
-    $("#backlogWindow .assignee-name-active").remove();
 }
 
 /*4.2.1 Display detail task */
@@ -539,7 +509,6 @@ function displayTaskDetail(data) {
 function clearTaskWindow() {
     $("#taskWindow .inputbox").val("");
     $("#taskWindow textarea").val("");
-    $("#taskWindow .assignee-name-active").remove();
 
     //Update list of current backlog items 
     createCurrentBacklogList();
@@ -645,16 +614,23 @@ function submitTaskComment() {
 }
 
 
-/*5 Save changes of the current backlog item to database*/
+/*5 Save changes of the current item to database*/
 function saveItem(itemID, type) {
     showProcessingDiaglog();
-    var item = (type == "backlog") ? new Backlog() : new Task();
+    var item;
+    if (type == "backlog") {
+        item = new Backlog()
+        item.Backlog_ID = itemID;
+    }
+    else {
+        item = new Task();
+        item.Task_ID = itemID;
+    }
 
     $.ajax({
         url: "Handler.ashx",
         data: {
             action: "updateItem",
-            itemID: itemID,
             type: type,
             item: JSON.stringify(item)
         },

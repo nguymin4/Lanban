@@ -50,7 +50,7 @@
         height: 30px;
     }
 
-input[name="txtSearch"] {
+input[name="txtSearchProject"] {
     position: relative;
     top: -10px;
     border: none;
@@ -60,7 +60,7 @@ input[name="txtSearch"] {
     font-style: italic;
 }
 
-    input[name="txtSearch"]:focus {
+    input[name="txtSearchProject"]:focus {
         color: #e6e6e6;
     }
 
@@ -128,13 +128,14 @@ input[name="txtSearch"] {
     display: block;
     float: left;
     position: relative;
-    background: rgba(25, 15, 15, 0.5);
     width: calc(100% - 40px);
+    min-width: 750px;
     height: 0px;
     opacity: 0;
+    background: rgba(25, 15, 15, 0.5);
     border-radius: 6px;
     border: solid 1px rgb(128, 128, 128);
-    margin: 0px;   
+    margin: 0px;
     overflow: hidden;
     transition-property: height, opacity;
     transition-duration: 0.5s, 1s;
@@ -149,25 +150,25 @@ input[name="txtSearch"] {
         margin: 20px 15px;
     }
 
-    #projectdetail.show #projectdetail-left, #projectdetail.show #projectdetail-right {
-        opacity: 1;
-    }
+        #projectdetail.show #projectdetail-left, #projectdetail.show #projectdetail-right {
+            opacity: 1;
+        }
 
 #projectdetail-close {
     position: absolute;
-    height: 26px;
-    width: 26px;
+    height: 24px;
+    width: 24px;
     right: 2px;
     top: 0px;
-    z-index: 1000;
+    z-index: 100;
     background: url("../images/sidebar/close.png");
-    background-size: 26px 26px;
+    background-size: cover;
     cursor: pointer;
     transition: 0.5s ease;
 }
 
     #projectdetail-close:hover {
-        transform: scale(0.75);
+        transform: scale(0.8);
     }
 
 /* Project detail left */
@@ -196,21 +197,15 @@ input[name="txtSearch"] {
 
 .project-detail-button {
     display: inline-block;
-    border-radius: 5px;
-    height: 30px;
-    line-height: 30px;
-    width: 80px;
-    font-size: 16px;
-    background: rgba(230, 230, 230, 0.40);
-    border: 1px solid transparent;
+    height: 32px;
+    width: 32px;
     margin: auto 6px;
-    transition: 0.25s ease;
+    transition: 0.4s ease;
     cursor: pointer;
 }
 
     .project-detail-button:hover {
-        background: rgba(25, 15, 15, 0.5);
-        border: 1px solid rgba(230, 230, 230, 0.40);
+        transform: scale(0.85);
     }
 
 #project-supervisor {
@@ -235,7 +230,7 @@ input[name="txtSearch"] {
 }
 
 #projectdetail-name {
-    font-size: 18px;
+    font-size: 17px;
     line-height: 25px;
     font-style: italic;
     margin: 20px auto;
@@ -264,6 +259,7 @@ input[name="txtSearch"] {
 .person {
     display: inline-block;
     text-align: center;
+    margin: auto 5px;
 }
 
 .person-avatar {
@@ -278,9 +274,88 @@ input[name="txtSearch"] {
     height: 18px;
     line-height: 18px;
     font-size: 14px;
-    text-align: left;
     overflow: hidden;
     word-wrap: break-word;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* Project input box */
+.input-project {
+    display: block;
+    background: rgba(25, 15, 15, 0.5);
+    height: 32px;
+    min-width: 200px;
+    width: 100%;
+    padding: 2px 5px;
+    border-radius: 6px;
+    border: solid 1px rgb(128, 128, 128);
+    margin: 10px 0px;
+    color: #e6e6e6;
+    font-size: 15px;
+    line-height: 28px;
+}
+
+textarea.input-project {
+    height: 100px;
+    resize: none;
+    font-family: "Open Sans",sans-serif;
+}
+
+#txtSupervisor {
+    display: inline-block;
+    width: calc(100% - 92px);
+    margin-left: 5px;
+}
+
+#txtProjectStartDate {
+    display: inline-block;
+    text-align: center;
+    width: calc(100% - 92px);
+    margin-left: 13px;
+}
+
+#btnAddProject {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    left: calc(100% - 48px);
+    margin: 10px 0px;
+}
+
+#projectSupervisor {
+    height: 0px;
+    background: rgba(25, 15, 15, 0.5);
+    border-radius: 5px;
+    transition: height 0.5s ease;
+}
+
+#projectSupervisor.expand {
+    height: 72px;
+    padding-top: 6px;
+}
+
+#searchContainer {
+    position: absolute;
+    display: none;
+    background: rgba(25, 15, 15, 0.9);
+    width: 200px;
+    border-radius: 5px;
+    z-index: 999;
+    padding: 5px;
+    color: white;
+}
+
+.searchRecord {
+    width: calc(100% - 16px);
+    height: 32px;
+    line-height: 32px;
+    padding: 0px 8px;
+    cursor: pointer;
+    transition-duration: 0.15s;
+}
+
+.searchRecord:hover {
+    background: rgba(230, 230, 230, 0.50);
+    border-radius: 3px;
 }

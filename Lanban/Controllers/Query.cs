@@ -190,7 +190,7 @@ namespace Lanban
         }
 
         //2.3.1 Save editted data of a backlog
-        public void updateBacklog(string id, Backlog backlog)
+        public void updateBacklog(Backlog backlog)
         {
             string command = "UPDATE Backlog SET Title=@Title, Description=@Description, " +
                 "Complexity=@Complexity, Color=@Color WHERE Backlog_ID=@Backlog_ID";
@@ -199,7 +199,7 @@ namespace Lanban
             addParameter<string>("@Description", SqlDbType.Text, backlog.Description);
             addParameter<int>("@Complexity", SqlDbType.Int, backlog.Complexity);
             addParameter<string>("@Color", SqlDbType.VarChar, backlog.Color);
-            addParameter("@Backlog_ID", SqlDbType.Int, Convert.ToInt32(id));
+            addParameter("@Backlog_ID", SqlDbType.Int, backlog.Backlog_ID);
 
             myCommand.CommandText = command;
             myCommand.ExecuteNonQuery();
@@ -207,7 +207,7 @@ namespace Lanban
         }
 
         //2.3.2 save editted data of a task
-        public void updateTask(string id, Task task)
+        public void updateTask(Task task)
         {
             string command = "UPDATE Task SET Backlog_ID=@Backlog_ID, Title=@Title, Description=@Description, " +
                 "Work_estimation=@Work_estimation, Color=@Color, Due_date=@Due_date WHERE Task_ID=@Task_ID";
@@ -217,7 +217,7 @@ namespace Lanban
             addParameter<string>("@Description", SqlDbType.Text, task.Description);
 
             // Work estimation can be null
-            if (task.Work_estimation == null) addParameter("@Work_estimation", SqlDbType.Int, DBNull.Value);
+            if (task.Work_estimation == null) addParameter<DBNull>("@Work_estimation", SqlDbType.Int, DBNull.Value);
             else addParameter("@Work_estimation", SqlDbType.Int, task.Work_estimation);
 
             addParameter<string>("@Color", SqlDbType.VarChar, task.Color);
@@ -226,7 +226,7 @@ namespace Lanban
             try { addParameter<DateTime>("@Due_date", SqlDbType.DateTime2, DateTime.ParseExact(task.Due_date, "dd.MM.yyyy", null)); }
             catch { addParameter<DBNull>("@Due_date", SqlDbType.DateTime2, DBNull.Value); }
 
-            addParameter<int>("@Task_ID", SqlDbType.Int, Convert.ToInt32(id));
+            addParameter("@Task_ID", SqlDbType.Int, task.Task_ID);
 
             myCommand.CommandText = command;
             myCommand.ExecuteNonQuery();
@@ -325,7 +325,7 @@ namespace Lanban
         //2.7 View assignee of a task or backlog
         public string viewAssignee(string id, string type)
         {
-            myCommand.CommandText = "SELECT Users.User_ID, Users.[Name] FROM Users INNER JOIN "+
+            myCommand.CommandText = "SELECT Users.User_ID, Users.[Name] FROM Users INNER JOIN " +
                 "(SELECT User_ID FROM " + type + "_User WHERE " + type + "_ID=@id) AS A ON A.User_ID = Users.User_ID";
             addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
 
@@ -689,7 +689,8 @@ namespace Lanban
         }
 
         /*4. Login page */
-        public SqlDataReader login(string username, string password) {
+        public SqlDataReader login(string username, string password)
+        {
             myCommand.CommandText = "SELECT * FROM Users WHERE Username = @username";
             addParameter<string>("@username", SqlDbType.VarChar, username);
             myReader = myCommand.ExecuteReader();
@@ -703,6 +704,7 @@ namespace Lanban
         }
 
         /*5. Project page */
+        // 5.1 Fetch project list that a user has been joining 
         public void fetchProject(int userID, int role)
         {
             string table = (role == 1) ? "Project_User" : "Project_Supervisor";
@@ -714,6 +716,7 @@ namespace Lanban
             myCommand.Parameters.Clear();
         }
 
+        // 5.2 Fetch user list of those who share the same project with user has [userID]
         public void fetchSharedProjectUser(int userID)
         {
             myCommand.CommandText = "SELECT B.User_ID, [Name], Avatar FROM Users INNER JOIN " +
@@ -723,6 +726,98 @@ namespace Lanban
             addParameter<int>("@userID", SqlDbType.Int, userID);
             myAdapter.Fill(myDataSet, "User");
             myCommand.Parameters.Clear();
+        }
+
+        // 5.3 Fetch all supervisor of a project
+        public string fetchSupervisor(int projectID)
+        {
+            StringBuilder result = new StringBuilder();
+            myCommand.CommandText = "SELECT Users.User_ID, [Name], Avatar FROM Users INNER JOIN " +
+                "(SELECT User_ID FROM Project_Supervisor WHERE Project_ID = @projectID) AS A ON A.User_ID = Users.User_ID";
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
+            myReader = myCommand.ExecuteReader();
+            while (myReader.Read())
+            {
+                result.Append("<div class='person' data-id='" + myReader["User_ID"] + "' title='" + myReader["Name"] + "'>");
+                result.Append("<img class='person-avatar' src='" + myReader["Avatar"] + "' />");
+                result.Append("<div class='person-name'>" + myReader["Name"] + "</div></div>");
+            }
+            return result.ToString();
+        }
+
+        // 5.4 Create new project
+        public string createProject(ProjectModel project)
+        {
+            myCommand.CommandText = "INSERT INTO Project (Name, Description, Owner, Start_Date) VALUES (@Name, @Description, @Owner, @Start_Date);";
+            addParameter<string>("@Name", SqlDbType.NVarChar, project.Name);
+            addParameter<string>("@Description", SqlDbType.NVarChar, project.Description);
+            addParameter<int>("@Owner", SqlDbType.NVarChar, project.Owner);
+            try { addParameter<DateTime>("@Start_Date", SqlDbType.DateTime2, DateTime.ParseExact(project.Start_Date, "dd.MM.yyyy", null)); }
+            catch { addParameter<DBNull>("@Start_Date", SqlDbType.DateTime2, DBNull.Value); }
+            myCommand.CommandText += "SELECT SCOPE_IDENTITY();";
+            string id = myCommand.ExecuteScalar().ToString();
+
+            // Create new record for the owner in Project_User Table
+            myCommand.CommandText = "INSERT INTO Project_User (Project_ID, User_ID) VALUES(@projectID, @userID);";
+            addParameter<int>("@projectID", SqlDbType.Int, Convert.ToInt32(id));
+
+            return id;
+        }
+
+        // 5.5 Delete project
+        public void deleteProject(int projectID)
+        {
+            myCommand.CommandText = "DELETE Project_Supervisor WHERE Project_ID=@projectID;" +
+                                    "DELETE Project WHERE Project_ID=@projectID;";
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
+            myCommand.ExecuteNonQuery();
+        }
+
+        // 5.6 Update project
+        public void updateProject(ProjectModel project)
+        {
+            myCommand.CommandText = "UPDATE Project SET Name = @name, Description = @description, " +
+                "Start_Date = @startDate WHERE Project_ID = @projectID";
+            addParameter<string>("@name", SqlDbType.NVarChar, project.Name);
+            addParameter<string>("@description", SqlDbType.NVarChar, project.Description);
+            try { addParameter<DateTime>("@startDate", SqlDbType.DateTime2, DateTime.ParseExact(project.Start_Date, "dd.MM.yyyy", null)); }
+            catch { addParameter<DBNull>("@startDate", SqlDbType.DateTime2, DBNull.Value); }
+            addParameter("@projectID", SqlDbType.Int, project.Project_ID);
+            myCommand.ExecuteNonQuery();
+        }
+
+        // 5.8 Search user based on name and role
+        public string searchUser(string name, int role)
+        {
+            myCommand.CommandText = "SELECT TOP 3 User_ID, Name, Avatar FROM Users WHERE Role=@role AND Name LIKE '%" + name + "%'";
+            addParameter<int>("@role", SqlDbType.Int, role);
+            myReader = myCommand.ExecuteReader();
+            StringBuilder result = new StringBuilder();
+            while (myReader.Read())
+            {
+                result.Append("<div class='searchRecord' data-id='" + myReader["User_ID"] + "' ");
+                result.Append("data-avatar='" + myReader["Avatar"] + "' onclick='addUser(this, 2)'>");
+                result.Append(myReader["Name"] + "</div>");
+            }
+            if (result.ToString().Equals("")) return "No records found.";
+            return result.ToString();
+        }
+
+        // 5.9 Working with Supervisor table
+        // 5.9.1 Save supervisor
+        public void saveSupervisor(int projectID, int supervisorID)
+        {
+            myCommand.CommandText = "INSERT INTO Project_Supervisor (Project_ID, User_ID) VALUES (@projectID, @supervisorID)";
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
+            addParameter<int>("@supervisorID", SqlDbType.Int, supervisorID);
+            myCommand.ExecuteNonQuery();
+        }
+        // 5.9.2 Edit supervisor
+        public void deleteSupervisor(int projectID)
+        {
+            myCommand.CommandText = "DELETE Project_Supervisor WHERE Project_ID = @projectID";
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
+            myCommand.ExecuteNonQuery();
         }
     }
 }

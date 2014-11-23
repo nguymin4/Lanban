@@ -17,10 +17,13 @@
     <%-- End Part 1: --%>
 </head>
 <body>
+    <!-- Loading screen -->
     <div id="overlay">
         <div class="loading-spinner"></div>
     </div>
-    <form id="container" runat="server">
+
+    <!-- Main screen -->
+    <form id="container" runat="server" autocomplete="off">
         <div id="sidebar">
             <%-- Part 2: Different sidebar for different page --%>
             <ul id="panel">
@@ -30,13 +33,32 @@
             <div id="info">
                 <hr />
                 <asp:Image runat="server" ID="profile" />
-                <input type="button" runat="server" title="Log out" class="sidebar_icon_med" id="btnLogout" onserverclick="btnLogout_ServerClick" />
+                <input type="button" runat="server" title="Log out" class="sidebar_icon_med" id="btnLogout" onclick="loadPageSpinner();" onserverclick="btnLogout_ServerClick" />
             </div>
         </div>
 
         <%-- Part 3: Main content --%>
         <div id="content">
             <asp:ContentPlaceHolder ID="contentMain" runat="server"></asp:ContentPlaceHolder>
+
+            <!-- Error diaglog -->
+            <div class="window diaglog error">
+                <div class="title-bar">Error</div>
+                <div class="diaglog-content">
+                    <div class="content-holder"></div>
+                    <input type="button" class="btnOK" value="OK" />
+                </div>
+            </div>
+
+            <!-- Successful diaglog -->
+            <div class="window diaglog success">
+                <div class="title-bar">Operation successful</div>
+                <div class="diaglog-content">
+                    <div class="content-holder"></div>
+                    <input type="button" class="btnOK" value="OK" />
+                </div>
+            </div>
+
         </div>
         <%-- End Part 3: --%>
     </form>

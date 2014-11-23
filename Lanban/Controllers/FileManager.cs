@@ -4,7 +4,7 @@ using System.Web;
 
 namespace Lanban
 {
-    public class FileUpload
+    public class FileManager
     {
         public string uploadFile(HttpContext _context, Query myQuery, int projectID)
         {
@@ -73,10 +73,10 @@ namespace Lanban
             screenshot.Trim('\0');
             string path = "/Uploads/Project_" + projectID.ToString() + "/screenshot.jpg";
             var filePath = _context.Server.MapPath(path);
-            
+
             // Delete old one
             System.IO.File.Delete(filePath);
-            
+
             // Create new one
             using (FileStream fs = new FileStream(filePath, FileMode.Create))
             {
@@ -87,6 +87,24 @@ namespace Lanban
                     bw.Close();
                 }
             }
+        }
+
+        // Create project folder and copy default screen shot
+        public void createProjectFolder(HttpContext _context, string projectID)
+        {
+            // Create folder 
+            string newFolder = _context.Server.MapPath("~/Uploads/Project_" + projectID);
+            Directory.CreateDirectory(newFolder);
+
+            // Copy screenshot
+            string path2 = _context.Server.MapPath("~/images/screenshot.jpg");
+            System.IO.File.Copy(path2, newFolder + "/screenshot.jpg");
+        }
+
+        public void deleteProjectFolder(HttpContext _context, int projectID)
+        {
+            string path = _context.Server.MapPath("~/Uploads/Project_" + projectID.ToString());
+            Directory.Delete(path, true);
         }
     }
 

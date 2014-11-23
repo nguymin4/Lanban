@@ -11,6 +11,10 @@ $(document).ready(function() {
         handle: ".title-bar"
     });
 
+    $(".btnOK").on("click", function () {
+        $(".diaglog.show").removeClass("show");
+    });
+
     /*Add function when click the icon to change window*/
     viewIndicator = document.getElementsByClassName("viewIndicator");
     view = document.getElementsByClassName("view");
@@ -25,6 +29,13 @@ function unloadPageSpinner() {
     $("#overlay").fadeOut(1000, "swing");
     $("#container").fadeOut(1000, "swing", function () {
         $("#container").fadeIn(1000);
+    });
+}
+
+// Load page loading spinner
+function loadPageSpinner() {
+    $("#container").fadeOut(250, "linear", function () {
+        $("#overlay").fadeIn(250, "linear");
     });
 }
 
@@ -76,3 +87,32 @@ function formatDate(date) {
     return date;
 }
 
+/* Diaglog */
+// Show error diaglog  - content taken from an array based on parameter
+var errorMsg = ["Cannot drop that item because it is not the same type with the items in column."];
+
+function showErrorDialog(i) {
+    $(".diaglog.error .content-holder").text(errorMsg[i]);
+    $(".diaglog.error").addClass("show");
+}
+
+// Show success diaglog - content taken from an array based on parameter
+var successMsg = ["New item created", "Data updated", "File uploaded"];
+
+function showSuccessDiaglog(i) {
+    $(".diaglog.success").attr("data-diaglog-type", "Success");
+    $(".diaglog.success .title-bar").text("Success");
+    $(".diaglog.success .content-holder").html(successMsg[i]);
+    $(".diaglog.success input").css("display", "block");
+    if (!($(".diaglog.success").hasClass("show")))
+        $(".diaglog.success").addClass("show");
+}
+
+// Show processing message
+function showProcessingDiaglog() {
+    $(".diaglog.success").attr("data-diaglog-type", "Processing");
+    $(".diaglog.success .title-bar").text("Processing");
+    $(".diaglog.success .content-holder").html("<div class='loading-spinner'></div>");
+    $(".diaglog.success input").css("display", "none");
+    $(".diaglog.success").addClass("show");
+}

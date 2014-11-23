@@ -8,7 +8,7 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="contentPanel" runat="server">
-    <li style="background-image: url('/images/logo.png')" runat="server" onclick="__doPostBack('RedirectProject','');"></li>
+    <li style="background-image: url('/images/logo.png')" runat="server" onclick="loadPageSpinner(); __doPostBack('RedirectProject','');"></li>
     <li class="viewIndicator show" style="background-image: url('/images/sidebar/dashboard.png')" data-view-indicator="0"></li>
     <li class="viewIndicator" style="background-image: url('/images/sidebar/chart.png')" data-view-indicator="1" onclick="showChartWindow()"></li>
     <li class="viewIndicator" style="background-image: url('/images/sidebar/column.png')" data-view-indicator="2"></li>
@@ -81,7 +81,7 @@
                 <asp:TextBox CssClass="inputTitle inputBox" runat="server" ID="txtBacklogTitle"></asp:TextBox>
                     Assignee:
                 <div id="backlogAssign" class="boxAssign" onclick="$('#txtbacklogAssignee').trigger('focus')">
-                    <input type="text" id="txtbacklogAssignee" class="inputAssignee" autocomplete="off"
+                    <input type="text" id="txtbacklogAssignee" class="inputAssignee"
                         onkeyup="searchAssignee(this, 'backlog')" onblur="clearResult(this)" />
                 </div>
                     <br />
@@ -256,24 +256,6 @@
         </div>
     </div>
     <!-- End - Task window  -->
-
-    <!-- Error diaglog -->
-    <div class="window diaglog error">
-        <div class="title-bar">Error</div>
-        <div class="diaglog-content">
-            <div class="content-holder"></div>
-            <input type="button" class="btnOK" value="OK" />
-        </div>
-    </div>
-
-    <!-- Successful diaglog -->
-    <div class="window diaglog success">
-        <div class="title-bar">Operation successful</div>
-        <div class="diaglog-content">
-            <div class="content-holder"></div>
-            <input type="button" class="btnOK" value="OK" />
-        </div>
-    </div>
 
     <!-- Box display search result of assignee for an item by name -->
     <div id="assigneeSearchResult"></div>
