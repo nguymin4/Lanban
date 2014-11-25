@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lanban.AccessLayer;
+using System;
 using System.Data;
 using System.Threading.Tasks;
 using System.Web.UI;
@@ -41,10 +42,10 @@ namespace Lanban
         //1. Create the kanban board
         protected async Task createKanban()
         {
-            Query myQuery = new Query();
+            SwimlaneAccess myAccess = new SwimlaneAccess();
             //Fetch data of all swimlanes in this project
-            myQuery.fetchSwimlane(projectID);
-            var swimlane = myQuery.MyDataSet.Tables["Swimlane"];
+            myAccess.fetchSwimlane(projectID);
+            var swimlane = myAccess.MyDataSet.Tables["Swimlane"];
             cell = new TableCell[swimlane.Rows.Count];
             //Create header row and add the cell in the same column
             for (int i = 0; i < swimlane.Rows.Count; i++)
@@ -96,13 +97,13 @@ namespace Lanban
         //1.3 Add content to the cell at position [position]
         protected async Task addNotes(int swimlane_id, string type, int position)
         {
-            Query tempQuery = new Query();
+            SwimlaneAccess tempAccess = new SwimlaneAccess();
             //Fetch data
             if (!type.Equals("3"))
             {
                 string tableName = type.Equals("1") ? "Backlog" : "Task";
-                tempQuery.fetchNote(tableName, projectID, swimlane_id);
-                var tempTable = tempQuery.MyDataSet.Tables["init_temp"];
+                tempAccess.fetchNote(tableName, projectID, swimlane_id);
+                var tempTable = tempAccess.MyDataSet.Tables["init_temp"];
                 //Add notes to this cell
                 for (int i = 0; i < tempTable.Rows.Count; i++)
                     cell[position].Controls.Add(await Task.Run(
@@ -110,15 +111,15 @@ namespace Lanban
             }
             else
             {
-                tempQuery.fetchDoneNote(swimlane_id);
+                tempAccess.fetchDoneNote(swimlane_id);
                 //Add notes to this cell
-                foreach (DataRow row in tempQuery.MyDataSet.Tables["init_temp"].Rows)
+                foreach (DataRow row in tempAccess.MyDataSet.Tables["init_temp"].Rows)
                     cell[position].Controls.Add(await Task.Run(
                         () => createNote(row, row["Type"].ToString())));
             }
 
             //Clear table for the next fetch
-            tempQuery.Dipose();
+            tempAccess.Dipose();
         }
 
         //1.4 Create sticky notes based on retrieved data from database

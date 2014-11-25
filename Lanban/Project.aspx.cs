@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Lanban.AccessLayer;
+using Newtonsoft.Json;
 using System;
 using System.Data;
 using System.Text;
@@ -40,9 +41,9 @@ namespace Lanban
         protected async Task loadProject(int userID, int role)
         {
             // Fetch all projects belong to or under supervised of this user
-            Query myQuery = new Query();
-            myQuery.fetchProject(userID, role);
-            var project = myQuery.MyDataSet.Tables["Project"];
+            ProjectAccess myAccess = new ProjectAccess();
+            myAccess.fetchProject(userID, role);
+            var project = myAccess.MyDataSet.Tables["Project"];
             await Task.Run(() =>
             {
                 for (int i = 0; i < project.Rows.Count; i++)
@@ -103,16 +104,16 @@ namespace Lanban
         private void loadUser(int userID)
         {
             // Fetch data from database
-            Query myQuery = new Query();
-            myQuery.fetchSharedProjectUser(userID);
-            var user = myQuery.MyDataSet.Tables["User"];
+            ProjectAccess myAccess = new ProjectAccess();
+            myAccess.fetchSharedProjectUser(userID);
+            var user = myAccess.MyDataSet.Tables["User"];
 
             // Send user list in JSON to client for further processing
             StringBuilder userList = new StringBuilder("userList = ");
             userList.Append(JsonConvert.SerializeObject(user));
             userList.Append(";");
             lists.Append(userList);
-            myQuery.Dipose();
+            myAccess.Dipose();
         }
     }
 }

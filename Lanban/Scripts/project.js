@@ -33,6 +33,9 @@ $(document).ready(function () {
         wheelPropagation: false
     });
     $("#projectbrowser").append($("#projectdetail"));
+
+    // Connect to hub
+    init_UserHub();
 });
 
 $(window).load(function () {
@@ -136,7 +139,7 @@ function fetchSupervisor(projectID) {
     var supervisorBox = $("#project-supervisor .project-data");
     supervisorBox.html("<div class='loading-spinner'></div>");
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/ProjectHandler.ashx",
         data: {
             action: "fetchSupervisor",
             projectID: projectID
@@ -164,7 +167,7 @@ function addProject() {
     showProcessingDiaglog();
     var project = new Project();
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/ProjectHandler.ashx",
         data: {
             action: "createProject",
             project: JSON.stringify(project)
@@ -205,7 +208,7 @@ function saveSupervisor(id, clear) {
     var supervisor = $("#projectSupervisor .person");
     for (var i = 0; i < supervisor.length; i++) {
         deferreds.push($.ajax({
-            url: "Handler.ashx",
+            url: "Handler/UserHandler.ashx",
             data: {
                 action: "saveSupervisor",
                 projectID: id,
@@ -229,7 +232,7 @@ function searchUser(searchBox, role) {
     if ($(searchBox).val() != "") {
         userSearch = setTimeout(function () {
             $.ajax({
-                url: "Handler.ashx",
+                url: "Handler/UserHandler.ashx",
                 data: {
                     action: "searchUser",
                     role: role,
@@ -337,7 +340,7 @@ function updateProject(id) {
 
     // Update project data
     var saveData = $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/ProjectHandler.ashx",
         data: {
             action: "updateProject",
             projectID: id,
@@ -374,7 +377,7 @@ function updateProject(id) {
 /*5.3 Update Supervisor list of a Project */
 function updateSupervisor(id) {
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/UserHandler.ashx",
         data: {
             action: "deleteSupervisor",
             projectID: id
@@ -390,7 +393,7 @@ function updateSupervisor(id) {
 /*6 Delete project */
 function deleteProject(id) {
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/ProjectHandler.ashx",
         data: {
             action: "deleteProject",
             projectID: id
@@ -409,7 +412,29 @@ function deleteProject(id) {
     }, 1000);
 }
 
-/*B. Others*/
+/*B. Real-time communication */
+var connUser;
+var proxyUser;
+
+function init_UserHub() {
+    connUser = $.hubConnection();
+    proxyUser = connUser.createHubProxy("userHub");
+
+    proxyUser.on("deleteProject", function (projectID) {
+
+    });
+
+    proxyUser.on("receiveMessage", function (message) {
+        console.log(message);
+    });
+
+    connUser.start().done(function () {
+        proxyUser.invoke("connect", userID);
+    });
+}
+
+
+/*C. Others*/
 // Scroll project browser to the position of project detail box.
 function scrollProjectBrowser(index) {
     var container = $(".project-container");
@@ -463,4 +488,11 @@ function resetAddProjectWindow() {
     btnSave.attr("onclick", "addProject()");
 
     $("#addproject h3").html("Add new project");
+}
+
+
+// Test zone
+function sendMessage(userID, message) {
+    proxyUser.invoke("sendMessage", userID, message);
+    console.log("Sent");
 }

@@ -211,13 +211,14 @@ function Task() {
 }
 
 
+/***************************************************/
 /*1. Create new sticky note and save it to database*/
 function insertItem(type) {
     showProcessingDiaglog();
     var item = (type == "backlog") ? new Backlog() : new Task();
 
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/ItemHandler.ashx",
         data: {
             action: "insertItem",
             type: type,
@@ -292,13 +293,15 @@ function showInsertWindow(windowName, i, swimlaneID) {
     $("#txtSwimlaneID").val(swimlaneID);
 }
 
+
+/***************************************************/
 /*2. Change position of a sticky note*/
 /*2.1 In a swimlane, when two items swap positon to each other then
 - call AJAX function to save new position into the database */
 function updatePosition(itemID, pos, type) {
     var table = (type == 1) ? "Backlog" : "Task";
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/ItemHandler.ashx",
         data: {
             action: "updatePosition",
             type: table,
@@ -317,7 +320,7 @@ function updatePosition(itemID, pos, type) {
 function changeLane(itemID, type, swimlane_id, pos) {
     var table = (type == 1) ? "Backlog" : "Task";
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/ItemHandler.ashx",
         data: {
             action: "changeSwimlane",
             type: table,
@@ -330,13 +333,15 @@ function changeLane(itemID, type, swimlane_id, pos) {
     });
 }
 
+
+/***************************************************/
 /*3.1 Working with functionalities involving assignee*/
 var assigneeChange = false;
 
 // View all assignee of an item
 function viewAssignee(itemID, type) {
     return $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/UserHandler.ashx",
         data: {
             action: "viewAssignee",
             itemID: itemID,
@@ -354,7 +359,7 @@ function viewAssignee(itemID, type) {
 function updateAssignee(itemID, type) {
     //Delete old records
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/UserHandler.ashx",
         data: {
             action: "deleteAssignee",
             type: type,
@@ -375,7 +380,7 @@ function saveAssignee(itemID, type, clear) {
     var assignee = document.getElementById(type + "Assign").getElementsByTagName("div");
     for (var i = 0; i < assignee.length; i++) {
         deferreds.push($.ajax({
-            url: "Handler.ashx",
+            url: "Handler/UserHandler.ashx",
             data: {
                 action: "saveAssignee",
                 type: type,
@@ -399,7 +404,7 @@ function searchAssignee(searchBox, type) {
     if ($(searchBox).val() != "") {
         assigneeSearch = setTimeout(function () {
             $.ajax({
-                url: "Handler.ashx",
+                url: "Handler/UserHandler.ashx",
                 data: {
                     action: "searchAssignee",
                     type: type,
@@ -445,6 +450,8 @@ function clearResult(obj) {
     }, 250);
 }
 
+
+/***************************************************/
 /*4. Double click on note to open corresponding window that allow user to edit content*/
 function viewDetailNote(itemID, type) {
     showProcessingDiaglog();
@@ -458,7 +465,7 @@ function viewDetailNote(itemID, type) {
 
     //Get all data of that item
     var getItemData = $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/ItemHandler.ashx",
         data: {
             action: "viewItem",
             itemID: itemID,
@@ -532,11 +539,13 @@ function clearTaskWindow() {
     createCurrentBacklogList();
 }
 
+
+/***************************************************/
 /*4.3 Working with comments of a task*/
 /*4.3.1 View all comment of a task*/
 function viewTaskComment(itemID) {
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/CommentHandler.ashx",
         data: {
             action: "viewTaskComment",
             itemID: itemID
@@ -553,7 +562,7 @@ function viewTaskComment(itemID) {
 /*4.3.2 Delete a comment of a task*/
 function deleteTaskComment(commentID) {
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/CommentHandler.ashx",
         data: {
             action: "deleteTaskComment",
             userID: userID,
@@ -586,7 +595,7 @@ function fetchTaskComment(commentID) {
 function updateTaskComment(commentID) {
     var contentText = $("#txtTaskComment").val().replace(new RegExp('\n', 'g'), '<br />');
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/CommentHandler.ashx",
         data: {
             action: "updateTaskComment",
             userID: userID,
@@ -615,7 +624,7 @@ function updateTaskComment(commentID) {
 function submitTaskComment() {
     var taskID = $("#btnSubmitComment").attr("data-task-id");
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/CommentHandler.ashx",
         data: {
             action: "insertTaskComment",
             taskID: taskID,
@@ -644,6 +653,7 @@ function submitTaskComment() {
 }
 
 
+/***************************************************/
 /*5 Save changes of the current item to database*/
 function saveItem(itemID, type) {
     showProcessingDiaglog();
@@ -658,7 +668,7 @@ function saveItem(itemID, type) {
     }
 
     var saveData = $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/ItemHandler.ashx",
         data: {
             action: "updateItem",
             type: type,
@@ -689,10 +699,12 @@ function saveItem(itemID, type) {
     });
 }
 
+
+/***************************************************/
 /*6. Delete an item*/
 function deleteItem(itemID, type) {
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/ItemHandler.ashx",
         data: {
             action: "deleteItem",
             itemID: itemID,
@@ -712,6 +724,8 @@ function deleteItem(itemID, type) {
     note.parentElement.removeChild(note);
 }
 
+
+/***************************************************/
 /*7.1 Creat a drop down list contains all current backlog items*/
 function createCurrentBacklogList() {
     var note = $(".note[data-type='1']");
@@ -725,6 +739,8 @@ function createCurrentBacklogList() {
     }
 }
 
+
+/***************************************************/
 /*8.1.a Parse multiple file name to box */
 function getChosenFileName(obj) {
     var files = obj.files;
@@ -773,7 +789,7 @@ function startUploadFile() {
 function uploadFile(i, taskID) {
     var file = files[i];
     var req = new XMLHttpRequest();
-    var url = "Handler.ashx?action=uploadFile&fileType=" + file.type + "&taskID=" + taskID;
+    var url = "Handler/FileHandler.ashx?action=uploadFile&fileType=" + file.type + "&taskID=" + taskID;
     var form = new FormData();
     form.append(file.name, file);
 
@@ -823,7 +839,7 @@ function uploadFile(i, taskID) {
 /*8.3 Get all upload files*/
 function viewTaskFile(taskID) {
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/FileHandler.ashx",
         data: {
             action: "viewTaskFile",
             taskID: taskID
@@ -851,7 +867,7 @@ function deleteFile(fileID) {
     proxyTC.invoke("deleteFile", taskID, fileID)
 
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/FileHandler.ashx",
         data: {
             action: "deleteTaskFile",
             fileID: fileID
@@ -860,20 +876,22 @@ function deleteFile(fileID) {
     });
 }
 
+
+/***************************************************/
 /*B.Working with chart*/
 var myPie, myBarChart, myLineGraph;
 
+// Open Chart Window
 function showChartWindow() {
     fetchPieChartData();
     fetchBarChartData();
     fetchLineGraphData();
 }
 
-
 //Load pie chart data
 function fetchPieChartData() {
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/ChartHandler.ashx",
         data: {
             action: "getPieChart"
         },
@@ -889,7 +907,7 @@ function fetchPieChartData() {
 //Load bar chart data
 function fetchBarChartData() {
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/ChartHandler.ashx",
         data: {
             action: "getBarChart"
         },
@@ -908,7 +926,7 @@ function fetchBarChartData() {
 //Load bar chart data
 function fetchLineGraphData() {
     $.ajax({
-        url: "Handler.ashx",
+        url: "Handler/ChartHandler.ashx",
         data: {
             action: "getLineGraph"
         },
@@ -927,6 +945,7 @@ function fetchLineGraphData() {
 }
 
 
+/***************************************************/
 /* Backlog statistic */
 /* Format tblTaskBacklog and load data */
 function loadTaskBacklogTable(backlog_id) {
@@ -1008,6 +1027,7 @@ function hideBacklogStat() {
 }
 
 
+/***************************************************/
 /*C. SignalR Communication */
 /*1. Real time comment and document */
 var connTC, proxyTC;
@@ -1022,6 +1042,7 @@ function init_TaskCommentHub() {
         if (userID != parseInt(uid)) {
             var comment = document.getElementById($(msgObj).attr("id"));
             $(comment.getElementsByClassName("comment-footer")).remove();
+            comment.removeAttribute("id");
         }
         $("#commentBox").scrollTop(document.getElementById("commentBox").scrollHeight);
     });
@@ -1124,7 +1145,7 @@ function takeScreenshot() {
             screenshot = screenshot.replace('data:image/jpeg;base64,', '');
             $.ajax({
                 type: "POST",
-                url: "Handler.ashx",
+                url: "Handler/FileHandler.ashx",
                 data: {
                     action: "uploadScreenshot",
                     screenshot: screenshot

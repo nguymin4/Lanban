@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lanban.Model;
+using System;
 using System.IO;
 using System.Web;
 
@@ -6,7 +7,8 @@ namespace Lanban
 {
     public class FileManager
     {
-        public string uploadFile(HttpContext _context, Query myQuery, int projectID)
+
+        public string uploadFile(HttpContext _context, AccessLayer.FileAccess myAccess, int projectID)
         {
             // Upload file
             var uploadFile = _context.Request.Files[0];
@@ -17,22 +19,22 @@ namespace Lanban
 
             var param = _context.Request.Params;
             // Create new file object and save info of uploaded file to database
-            File file = new File();
+            FileModel file = new FileModel();
             file.Task_ID = Convert.ToInt32(param["taskID"]);
             file.User_ID = Convert.ToInt32(_context.Session["UserID"]);
             file.Name = name;
             file.Type = getFileType(param["fileType"], name);
             file.Path = path;
 
-            return myQuery.linkTaskFile(file);
+            return myAccess.linkTaskFile(file);
         }
 
-        public void deleteFile(HttpContext _context, Query myQuery)
+        public void deleteFile(HttpContext _context, AccessLayer.FileAccess myAccess)
         {
             int fileID = Convert.ToInt32(_context.Request.Params["fileID"]);
-            string path = myQuery.getFilePath(fileID);
+            string path = myAccess.getFilePath(fileID);
             System.IO.File.Delete(_context.Server.MapPath(path));
-            myQuery.deleteTaskFile(fileID, Convert.ToInt32(_context.Session["userID"]));
+            myAccess.deleteTaskFile(fileID, Convert.ToInt32(_context.Session["userID"]));
         }
 
         string[] generalType = { "image", "audio", "video" };
@@ -106,14 +108,5 @@ namespace Lanban
             string path = _context.Server.MapPath("~/Uploads/Project_" + projectID.ToString());
             Directory.Delete(path, true);
         }
-    }
-
-    public class File
-    {
-        public int Task_ID { get; set; }
-        public int User_ID { get; set; }
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public string Path { get; set; }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Owin;
 using Owin;
+using Microsoft.AspNet.SignalR;
+using Lanban.Hubs;
 
 [assembly: OwinStartup(typeof(Lanban.Startup))]
 
@@ -9,7 +11,8 @@ namespace Lanban
     {
         public void Configuration(IAppBuilder app)
         {
-            // For more information on how to configure your application
+            //var idProvider = new LanbanIdProvider();
+            //GlobalHost.DependencyResolver.Register(typeof(IUserIdProvider), () => idProvider);
             app.MapSignalR();
         }
     }

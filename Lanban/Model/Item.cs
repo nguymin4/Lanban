@@ -38,4 +38,13 @@ namespace Lanban.Model
         public string Start_Date { get; set; }
         public string Modified_date { get; set; }
     }
+
+    public class FileModel
+    {
+        public int Task_ID { get; set; }
+        public int User_ID { get; set; }
+        public string Name { get; set; }
+        public string Type { get; set; }
+        public string Path { get; set; }
+    }
 }

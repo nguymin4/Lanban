@@ -310,7 +310,7 @@ textarea.input-project {
 
 #txtProjectStartDate {
     display: inline-block;
-    text-align: center;
+    text-align: left;
     width: calc(100% - 92px);
     margin-left: 13px;
 }
