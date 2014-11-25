@@ -429,7 +429,6 @@ function init_UserHub() {
     });
 
     connUser.start().done(function () {
-        proxyUser.invoke("connect", userID);
     });
 }
 
@@ -494,5 +493,4 @@ function resetAddProjectWindow() {
 // Test zone
 function sendMessage(userID, message) {
     proxyUser.invoke("sendMessage", userID, message);
-    console.log("Sent");
 }

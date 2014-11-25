@@ -10,7 +10,7 @@ namespace Lanban.Hubs
     {
         public void SendMessage(string userID, string message)
         {
-            Clients.Group(userID).receiveMessage(message);
+            Clients.User(userID).receiveMessage(message);
         }
         
         public void DeleteProject(List<string> userList, string projectID)
@@ -18,10 +18,15 @@ namespace Lanban.Hubs
             string userID = "";
             Clients.User(userID).deleteProject(projectID);
         }
+    }
 
-        public Task Connect(string userID)
+    public class UserHubIdProvider: IUserIdProvider
+    {
+        public string GetUserId(IRequest request)
         {
-            return Groups.Add(Context.ConnectionId, userID);
+            string username = request.User.Identity.Name;
+            int uid = new AccessLayer.UserAccess().getUserID(username);
+            return uid.ToString();
         }
     }
 }

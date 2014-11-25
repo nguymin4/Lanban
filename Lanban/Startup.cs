@@ -11,8 +11,7 @@ namespace Lanban
     {
         public void Configuration(IAppBuilder app)
         {
-            //var idProvider = new LanbanIdProvider();
-            //GlobalHost.DependencyResolver.Register(typeof(IUserIdProvider), () => idProvider);
+            GlobalHost.DependencyResolver.Register(typeof(IUserIdProvider), () => new Hubs.UserHubIdProvider());
             app.MapSignalR();
         }
     }

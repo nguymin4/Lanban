@@ -9,6 +9,14 @@ namespace Lanban.AccessLayer
     /* Working with task comments */
     public class UserAccess: Query
     {
+        // Get User ID based on username
+        public int getUserID(string username)
+        {
+            myCommand.CommandText = "SELECT User_ID FROM Users WHERE Username = @username";
+            addParameter<string>("@username", SqlDbType.NVarChar, username);
+            return Convert.ToInt32(myCommand.ExecuteScalar());
+        }
+        
         //2.6.1 Save assignee/member of a task/backlog/project
         public void saveAssignee(string id, string type, string uid)
         {

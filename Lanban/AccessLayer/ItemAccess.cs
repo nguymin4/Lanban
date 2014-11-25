@@ -155,7 +155,7 @@ namespace Lanban.AccessLayer
         //2.4 Delete an item
         public int deleteItem(string id, string type, int projectID)
         {
-            myCommand.CommandText = "DELETE FROM " + type + " WHERE " + type + "_ID=@id AND projectID=@projectID";
+            myCommand.CommandText = "DELETE FROM " + type + " WHERE " + type + "_ID=@id AND Project_ID=@projectID";
             addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
             int result = myCommand.ExecuteNonQuery();

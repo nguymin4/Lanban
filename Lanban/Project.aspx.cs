@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
+using System.Web.Security;
 
 namespace Lanban
 {
@@ -16,11 +17,12 @@ namespace Lanban
         {
             if (!IsPostBack)
             {
-                //int userID = Convert.ToInt32(Session["userID"]);
-                //int role = Convert.ToInt32(Session["userRole"]);
-                int userID = 1;
-                int role = 1;
-                Session["userID"] = userID;
+                Model.UserModel user = new Query().login("nguymin4", "Lanban2014");
+                new Controller.LanbanAuthentication().Authenticate(Response, user);
+
+                int userID = user.User_ID;
+                int role = user.Role;
+                Session["user"] = user;
                 lists = new StringBuilder("var userID=" + userID + ";");
 
                 var timer = System.Diagnostics.Stopwatch.StartNew();

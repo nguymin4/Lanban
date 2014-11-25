@@ -474,6 +474,7 @@ function viewDetailNote(itemID, type) {
         global: false,
         type: "get",
         success: function (result) {
+            result = result[0];
             (type == "backlog") ? displayBacklogDetail(result) : displayTaskDetail(result);
         }
     });

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNet.SignalR;
 using System.Threading.Tasks;
 
-namespace Lanban.Controller
+namespace Lanban.Hubs
 {
     // This Hub is for all client who are sharing the same task view
     public class TaskHub : Hub

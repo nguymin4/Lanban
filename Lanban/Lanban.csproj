@@ -170,6 +170,7 @@
       <DependentUpon>Board.aspx</DependentUpon>
     </Compile>
     <Compile Include="AccessLayer\CommentAccess.cs" />
+    <Compile Include="Controller\LanbanAuthentication.cs" />
     <Compile Include="Controller\UserHandlerOperation.cs" />
     <Compile Include="Controller\ProjectHandlerOperation.cs" />
     <Compile Include="Controller\ItemHandlerOperation.cs" />
@@ -218,6 +219,7 @@
       <DependentUpon>Login.aspx</DependentUpon>
     </Compile>
     <Compile Include="Model\Item.cs" />
+    <Compile Include="Model\UserModel.cs" />
     <Compile Include="Project.aspx.cs">
       <DependentUpon>Project.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

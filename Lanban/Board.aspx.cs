@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
+using System.Web.Security;
 
 namespace Lanban
 {
@@ -15,7 +16,7 @@ namespace Lanban
 
         protected async void Page_Load(object sender, EventArgs e)
         {
-            if (Session["userID"] == null) Response.Redirect("Login.aspx");
+            if (!User.Identity.IsAuthenticated) FormsAuthentication.RedirectToLoginPage();
             if (!IsPostBack)
             {
                 projectID = Convert.ToInt32(Session["projectID"]);
@@ -27,7 +28,10 @@ namespace Lanban
                 await Task.Run(() => initDropdownList());
                 timer.Stop();
                 System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds);
-                string script = "var projectID="+projectID+"; var userID="+Session["userID"]+";";
+
+                // Cookie and Ticket
+                var ticket = new Controller.LanbanAuthentication().ParseTicket(Request);
+                string script = "var projectID=" + projectID + "; var userID=" + ticket.UserData + ";";
                 ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "boardScript", script, true);
             }
             else

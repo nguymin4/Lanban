@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Web;
+using System.Web.Security;
 
 namespace Lanban
 {
@@ -11,16 +13,17 @@ namespace Lanban
 
         protected void btnLogin_Click(object sender, EventArgs e)
         {
-            System.Data.SqlClient.SqlDataReader reader = new Query().login(txtUsername.Text, txtPassword.Text);
-            if (reader != null)
+            Model.UserModel user = new Query().login(txtUsername.Text, txtPassword.Text);
+            if (user != null)
             {
-                Session["userID"] = reader["User_ID"];
-                Session["userRole"] = reader["Role"];
-                Session["uname"] = reader["Name"];
-                if ((reader["avatar"] == null)||(reader["avatar"].ToString().Equals("")))
-                    Session["avatar"] = "images/sidebar/profile.png";
-                else Session["avatar"] = reader["Avatar"];
-                Response.Redirect("Project.aspx");
+                if ((user.Avatar == null) || (user.Avatar.Equals("")))
+                    user.Avatar = "images/sidebar/profile.png";
+                Session["user"] = user;
+                
+                // Create authentication ticket
+                var auth = new Controller.LanbanAuthentication();
+                auth.Authenticate(Response, user);
+                FormsAuthentication.RedirectFromLoginPage(user.Username, false);
             }
             else
             {
@@ -29,5 +32,6 @@ namespace Lanban
                 lblMsg.Text = "Wrong Username and/or Password";
             }
         }
+
     }
 }

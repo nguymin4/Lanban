@@ -92,7 +92,7 @@ namespace Lanban
         }
 
         /*4. Login page */
-        public SqlDataReader login(string username, string password)
+        public UserModel login(string username, string password)
         {
             myCommand.CommandText = "SELECT * FROM Users WHERE Username = @username";
             addParameter<string>("@username", SqlDbType.VarChar, username);
@@ -101,7 +101,15 @@ namespace Lanban
             if (available == true)
             {
                 if (password.Equals(myReader["Password"]))
-                    return myReader;
+                {
+                    UserModel user = new UserModel();
+                    user.User_ID = Convert.ToInt32(myReader["User_ID"]);
+                    user.Username = myReader["Username"].ToString();
+                    user.Name = myReader["Name"].ToString();
+                    user.Role = Convert.ToInt32(myReader["Role"]);
+                    user.Avatar = myReader["Avatar"].ToString();
+                    return user;
+                }
             }
             return null;
         }
