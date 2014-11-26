@@ -13,7 +13,7 @@ namespace Lanban
         ChartAccess myAccess;
 
         public ChartHandlerOperation(AsyncCallback callback, HttpContext context, Object state)
-            :base(callback, context, state)
+            : base(callback, context, state)
         {
             myAccess = new ChartAccess();
         }
@@ -26,32 +26,38 @@ namespace Lanban
         private void StartTask(Object workItemState)
         {
             var param = _context.Request.Params;
-            int projectID = Convert.ToInt32(_context.Session["projectID"]);
-            int userID = Convert.ToInt32(_context.Session["userID"]);
+            int projectID = Convert.ToInt32(param["projectID"]);
+            var user = (UserModel)_context.Session["user"];
 
-            switch (action)
+            if (!myAccess.IsProjectMember(projectID, user.User_ID, user.Role))
             {
-                /***********************************************/
-                // Working with chart in Board.aspx
-                // Get Pie Chart data
-                case "getPieChart":
-                    result = myAccess.getPieChart(projectID);
-                    _context.Response.ContentType = "application/json";
-                    break;
-
-                // Get Bar Chart data
-                case "getBarChart":
-                    result = myAccess.getBarChart(projectID);
-                    _context.Response.ContentType = "application/json";
-                    break;
-
-                // Get Line Graph data
-                case "getLineGraph":
-                    result = myAccess.getLineGraph(projectID);
-                    _context.Response.ContentType = "application/json";
-                    break;
+                RedirectPage(errorPage);
             }
+            else
+            {
+                switch (action)
+                {
+                    /***********************************************/
+                    // Working with chart in Board.aspx
+                    // Get Pie Chart data
+                    case "getPieChart":
+                        result = myAccess.getPieChart(projectID);
+                        _context.Response.ContentType = "application/json";
+                        break;
 
+                    // Get Bar Chart data
+                    case "getBarChart":
+                        result = myAccess.getBarChart(projectID);
+                        _context.Response.ContentType = "application/json";
+                        break;
+
+                    // Get Line Graph data
+                    case "getLineGraph":
+                        result = myAccess.getLineGraph(projectID);
+                        _context.Response.ContentType = "application/json";
+                        break;
+                }
+            }
             FinishWork();
             myAccess.Dipose();
         }

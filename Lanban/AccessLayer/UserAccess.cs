@@ -16,7 +16,7 @@ namespace Lanban.AccessLayer
             addParameter<string>("@username", SqlDbType.NVarChar, username);
             return Convert.ToInt32(myCommand.ExecuteScalar());
         }
-        
+
         //2.6.1 Save assignee/member of a task/backlog/project
         public void saveAssignee(string id, string type, string uid)
         {

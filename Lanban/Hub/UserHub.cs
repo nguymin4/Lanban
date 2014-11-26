@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.SessionState;
 using System.Web;
+using System.Web.Security;
 
 namespace Lanban.Hubs
 {

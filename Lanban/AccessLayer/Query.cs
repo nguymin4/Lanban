@@ -91,6 +91,30 @@ namespace Lanban
             return Convert.ToInt32(myCommand.ExecuteScalar());
         }
 
+        // Check whether the item with itemID belongs to the project
+        public bool IsInProject(int projectID, int itemID, string type)
+        {
+            myCommand.CommandText = "SELECT COUNT(*) FROM " + type + " WHERE Project_ID=@projectID AND " + type + "_ID=@itemID";
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
+            addParameter<int>("@itemID", SqlDbType.Int, itemID);
+            bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == 1);
+            myCommand.Parameters.Clear();
+            return result;
+        }
+
+
+        // Check whether the user is authorized to watch and work on that project
+        public bool IsProjectMember(int projectID, int userID, int role)
+        {
+            string table = (role == 1) ? "Project_User" : "Project_Supervisor";
+            myCommand.CommandText = "SELECT Count(*) FROM " + table + " WHERE Project_ID=@projectID AND User_ID=@userID";
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
+            addParameter<int>("@userID", SqlDbType.Int, userID);
+            bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == 1);
+            myCommand.Parameters.Clear();
+            return result;
+        }
+
         /*4. Login page */
         public UserModel login(string username, string password)
         {

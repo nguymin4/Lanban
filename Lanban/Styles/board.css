@@ -320,6 +320,9 @@ div.assignee-name-active {
         text-align: center;
     }
 
+    .chart-box .loading-spinner {
+        display: none;
+    }
 
 /* Comment box*/
 #commentBox {

@@ -42,6 +42,7 @@
                 <h3>Number of Tasks assigned
                     <br />
                     by Person during Sprint</h3>
+                <div class="loading-spinner"></div>
                 <canvas class="chart" id="chartPie" width="300" height="300"></canvas>
             </div>
 
@@ -49,13 +50,15 @@
                 <h3>Number of estimation hour
                     <br />
                     by Person during Sprint</h3>
+                <div class="loading-spinner"></div>
                 <canvas class="chart" id="chartBar" width="500" height="300"></canvas>
             </div>
 
             <div class="chart-box">
-                <h3>Number of estimation hour
+                <h3>Cumulated working hour
                     <br />
-                    by Person during Sprint</h3>
+                    of the whole team </h3>
+                <div class="loading-spinner"></div>
                 <canvas class="chart" id="graphLine" width="500" height="300"></canvas>
             </div>
         </div>

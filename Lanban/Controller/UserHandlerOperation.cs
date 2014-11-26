@@ -26,7 +26,7 @@ namespace Lanban
         private void StartTask(Object workItemState)
         {
             var param = _context.Request.Params;
-            int projectID = Convert.ToInt32(_context.Session["projectID"]);
+            int projectID = Convert.ToInt32(param["projectID"]);
             int userID = Convert.ToInt32(_context.Session["userID"]);
 
             switch (action)
@@ -53,7 +53,6 @@ namespace Lanban
                     myAccess.deleteAssignee(param["itemID"], param["type"]);
                     break;
 
-                /***********************************************/
                 // Get the user data based on name and role
                 case "searchUser":
                     result = myAccess.searchUser(param["name"], Convert.ToInt32(param["role"]));
@@ -63,13 +62,11 @@ namespace Lanban
                 // Working with supervisor
                 // Delete all supervisor of a project
                 case "deleteSupervisor":
-                    projectID = Convert.ToInt32(param["projectID"]);
                     myAccess.deleteSupervisor(projectID);
                     break;
 
                 // Save supervisor of a project
                 case "saveSupervisor":
-                    projectID = Convert.ToInt32(param["projectID"]);
                     myAccess.saveSupervisor(projectID, Convert.ToInt32(param["supervisorID"]));
                     break;
             }

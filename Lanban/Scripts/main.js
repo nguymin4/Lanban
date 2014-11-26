@@ -1,4 +1,4 @@
-var _avatar, _name
+var _avatar, _name;
 $(document).ready(function () {
     var profile = $("#profile");
     _avatar = profile.attr("src");

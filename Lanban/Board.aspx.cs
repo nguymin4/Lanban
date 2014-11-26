@@ -13,6 +13,7 @@ namespace Lanban
     {
         TableCell[] cell;
         int projectID;
+        int userID;
 
         protected async void Page_Load(object sender, EventArgs e)
         {
@@ -20,6 +21,7 @@ namespace Lanban
             if (!IsPostBack)
             {
                 projectID = Convert.ToInt32(Session["projectID"]);
+                userID = Convert.ToInt32(Session["userID"]);
                 string name = Session["projectName"].ToString();
                 Page.Title = "Lanban " + name;
                 lblProjectName.Text = name;
@@ -29,9 +31,7 @@ namespace Lanban
                 timer.Stop();
                 System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds);
 
-                // Cookie and Ticket
-                var ticket = new Controller.LanbanAuthentication().ParseTicket(Request);
-                string script = "var projectID=" + projectID + "; var userID=" + ticket.UserData + ";";
+                string script = "const userID = " + userID + "; const projectID = " + projectID + ";";
                 ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "boardScript", script, true);
             }
             else
@@ -223,6 +223,13 @@ namespace Lanban
             }
             ddlBacklogColor.SelectedIndex = 0;
             ddlTaskColor.SelectedIndex = 0;
+        }
+
+        // Define Javascriipt property - constant - read-only
+        protected string defineJSProp(string property, string value)
+        {
+            return "Object.defineProperty(o,'" + property + "', { value: "+value+","+
+                   "writable: false, configurable: false, enumerable: false});";
         }
     }
 }

@@ -19,6 +19,7 @@ namespace Lanban
                 if ((user.Avatar == null) || (user.Avatar.Equals("")))
                     user.Avatar = "images/sidebar/profile.png";
                 Session["user"] = user;
+                Session["userID"] = user.User_ID;
                 
                 // Create authentication ticket
                 var auth = new Controller.LanbanAuthentication();

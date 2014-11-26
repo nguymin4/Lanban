@@ -221,6 +221,7 @@ function insertItem(type) {
         url: "Handler/ItemHandler.ashx",
         data: {
             action: "insertItem",
+            projectID: projectID,
             type: type,
             item: JSON.stringify(item)
         },
@@ -407,6 +408,7 @@ function searchAssignee(searchBox, type) {
                 url: "Handler/UserHandler.ashx",
                 data: {
                     action: "searchAssignee",
+                    projectID: projectID,
                     type: type,
                     keyword: $(searchBox).val()
                 },
@@ -468,6 +470,7 @@ function viewDetailNote(itemID, type) {
         url: "Handler/ItemHandler.ashx",
         data: {
             action: "viewItem",
+            projectID: projectID,
             itemID: itemID,
             type: type
         },
@@ -544,12 +547,13 @@ function clearTaskWindow() {
 /***************************************************/
 /*4.3 Working with comments of a task*/
 /*4.3.1 View all comment of a task*/
-function viewTaskComment(itemID) {
+function viewTaskComment(taskID) {
     $.ajax({
         url: "Handler/CommentHandler.ashx",
         data: {
             action: "viewTaskComment",
-            itemID: itemID
+            projectID: projectID,
+            taskID: taskID
         },
         global: false,
         type: "get",
@@ -566,8 +570,9 @@ function deleteTaskComment(commentID) {
         url: "Handler/CommentHandler.ashx",
         data: {
             action: "deleteTaskComment",
+            projectID: projectID,
             userID: userID,
-            itemID: commentID
+            commentID: commentID
         },
         global: false,
         type: "get",
@@ -599,8 +604,9 @@ function updateTaskComment(commentID) {
         url: "Handler/CommentHandler.ashx",
         data: {
             action: "updateTaskComment",
+            projectID: projectID,
             userID: userID,
-            itemID: commentID,
+            commentID: commentID,
             content: $("#txtTaskComment").val()
         },
         global: false,
@@ -628,6 +634,7 @@ function submitTaskComment() {
         url: "Handler/CommentHandler.ashx",
         data: {
             action: "insertTaskComment",
+            projectID: projectID,
             taskID: taskID,
             userID: userID,
             content: $("#txtTaskComment").val()
@@ -672,6 +679,7 @@ function saveItem(itemID, type) {
         url: "Handler/ItemHandler.ashx",
         data: {
             action: "updateItem",
+            projectID: projectID,
             type: type,
             item: JSON.stringify(item)
         },
@@ -708,6 +716,7 @@ function deleteItem(itemID, type) {
         url: "Handler/ItemHandler.ashx",
         data: {
             action: "deleteItem",
+            projectID: projectID,
             itemID: itemID,
             type: type
         },
@@ -790,7 +799,7 @@ function startUploadFile() {
 function uploadFile(i, taskID) {
     var file = files[i];
     var req = new XMLHttpRequest();
-    var url = "Handler/FileHandler.ashx?action=uploadFile&fileType=" + file.type + "&taskID=" + taskID;
+    var url = "Handler/FileHandler.ashx?action=uploadFile&fileType=" + file.type + "&taskID=" + taskID + "&projectID=" + projectID;
     var form = new FormData();
     form.append(file.name, file);
 
@@ -843,6 +852,7 @@ function viewTaskFile(taskID) {
         url: "Handler/FileHandler.ashx",
         data: {
             action: "viewTaskFile",
+            projectID: projectID,
             taskID: taskID
         },
         type: "get",
@@ -865,15 +875,19 @@ function deleteFile(fileID) {
 
     // Remove visual of the file in other clients
     var taskID = $("#btnSubmitComment").attr("data-task-id");
-    proxyTC.invoke("deleteFile", taskID, fileID)
 
     $.ajax({
         url: "Handler/FileHandler.ashx",
         data: {
             action: "deleteTaskFile",
+            projectID: projectID,
+            taskID: taskID,
             fileID: fileID
         },
-        type: "get"
+        type: "get",
+        success: function () {
+            proxyTC.invoke("deleteFile", taskID, fileID)
+        }
     });
 }
 
@@ -891,14 +905,18 @@ function showChartWindow() {
 
 //Load pie chart data
 function fetchPieChartData() {
+    var chartPie = document.getElementById("chartPie").getContext("2d");
+    var spinner = loadChartSpinner(chartPie);
     $.ajax({
         url: "Handler/ChartHandler.ashx",
         data: {
-            action: "getPieChart"
+            action: "getPieChart",
+            projectID: projectID
         },
         type: "get",
         success: function (pieChartData) {
-            var chartPie = document.getElementById("chartPie").getContext("2d");
+            $(spinner).fadeOut("fast");
+            $(chartPie).fadeIn("fast");
             if (myPie != null) myPie.destroy();
             myPie = new Chart(chartPie).Pie(pieChartData);
         }
@@ -907,14 +925,18 @@ function fetchPieChartData() {
 
 //Load bar chart data
 function fetchBarChartData() {
+    var chartBar = document.getElementById("chartBar").getContext("2d");
+    var spinner = loadChartSpinner(chartBar);
     $.ajax({
         url: "Handler/ChartHandler.ashx",
         data: {
-            action: "getBarChart"
+            action: "getBarChart",
+            projectID: projectID
         },
         type: "get",
         success: function (barChartData) {
-            var chartBar = document.getElementById("chartBar").getContext("2d");
+            $(spinner).fadeOut("fast");
+            $(chartBar).fadeIn("fast");
             if (myBarChart != null) myBarChart.destroy();
             myBarChart = new Chart(chartBar).Bar(barChartData, {
                 scaleFontColor: "#FFFFFF",
@@ -926,14 +948,18 @@ function fetchBarChartData() {
 
 //Load bar chart data
 function fetchLineGraphData() {
+    var graphLine = document.getElementById("graphLine").getContext("2d");
+    var spinner = loadChartSpinner(graphLine);
     $.ajax({
         url: "Handler/ChartHandler.ashx",
         data: {
-            action: "getLineGraph"
+            action: "getLineGraph",
+            projectID: projectID
         },
         type: "get",
         success: function (lineGraphData) {
-            var graphLine = document.getElementById("graphLine").getContext("2d");
+            $(spinner).fadeOut("fast");
+            $(graphLine).fadeIn("fast");
             if (myLineGraph != null) myLineGraph.destroy();
             myLineGraph = new Chart(graphLine).Line(lineGraphData, {
                 bezierCurve: false,
@@ -945,6 +971,14 @@ function fetchLineGraphData() {
     });
 }
 
+// Load spinner while waiting for fetching chart
+function loadChartSpinner(chart) {
+    $(chart).css("display", "none");
+    var parent = $(chart).parent();
+    var spinner = parent.find($("loading-spinner"));
+    $(spinner).fadeIn("fast");
+    return spinner;
+}
 
 /***************************************************/
 /* Backlog statistic */
@@ -1149,6 +1183,7 @@ function takeScreenshot() {
                 url: "Handler/FileHandler.ashx",
                 data: {
                     action: "uploadScreenshot",
+                    projectID: projectID,
                     screenshot: screenshot
                 }
             });

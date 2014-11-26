@@ -23,7 +23,8 @@ namespace Lanban
                 int userID = user.User_ID;
                 int role = user.Role;
                 Session["user"] = user;
-                lists = new StringBuilder("var userID=" + userID + ";");
+                Session["userID"] = user.User_ID;
+                lists = new StringBuilder();
 
                 var timer = System.Diagnostics.Stopwatch.StartNew();
                 await loadProject(userID, role);

@@ -48,7 +48,7 @@ function Project() {
     this.Project_ID = null;
     this.Name = $("#txtProjectName").val();
     this.Description = $("#txtProjectDescription").val().replace(new RegExp('\r?\n', 'g'), '<br />');
-    this.Owner = userID;
+    this.Owner = 0;
     this.Start_Date = $("#txtProjectStartDate").val();
 }
 

@@ -10,10 +10,11 @@ namespace Lanban.AccessLayer
     /* Working with task comments */
     public class ItemAccess: Query
     {
+        
         //2.2.0 Get all information of an item Backlog/Task based on id
         public string viewItem(string id, string type, int projectID)
         {
-            myCommand.CommandText = "SELECT * FROM " + type + " WHERE " + type + "_ID=@id AND Project_ID = @projectID";
+            myCommand.CommandText = "SELECT * FROM " + type + " WHERE " + type + "_ID=@id AND Project_ID=@projectID";
             addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
             myAdapter.Fill(myDataSet, "Item");

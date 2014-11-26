@@ -1,4 +1,5 @@
 ﻿using Lanban.AccessLayer;
+using Lanban.Model;
 using System;
 using System.Threading;
 using System.Web;
@@ -23,31 +24,47 @@ namespace Lanban
         private void StartTask(Object workItemState)
         {
             var param = _context.Request.Params;
-            int projectID = Convert.ToInt32(_context.Session["projectID"]);
-            int userID = Convert.ToInt32(_context.Session["userID"]);
-
-            switch (action)
+            int projectID = Convert.ToInt32(param["projectID"]);
+            int taskID;
+            var user = (UserModel)_context.Session["user"];
+            if (!myAccess.IsProjectMember(projectID, user.User_ID, user.Role))
             {
-                /***********************************************/
-                // Upload files
-                case "uploadFile":
-                    result = new FileManager().uploadFile(_context, myAccess, projectID);
-                    break;
+                RedirectPage(errorPage);
+            }
+            else
+            {
+                switch (action)
+                {
+                    /***********************************************/
+                    // Upload files
+                    case "uploadFile":
+                        taskID = Convert.ToInt32(param["taskID"]);
+                        if (myAccess.IsInProject(projectID, taskID, "Task"))
+                            result = new FileManager().uploadFile(_context, myAccess, projectID);
+                        else RedirectPage(errorPage);
+                        break;
 
-                // Get list of all files belong to a task
-                case "viewTaskFile":
-                    result = myAccess.viewTaskFile(Convert.ToInt32(param["taskID"]));
-                    break;
+                    // Get list of all files belong to a task
+                    case "viewTaskFile":
+                        taskID = Convert.ToInt32(param["taskID"]);
+                        if (myAccess.IsInProject(projectID, taskID, "Task"))
+                            result = myAccess.viewTaskFile(taskID);
+                        else RedirectPage(errorPage);
+                        break;
 
-                // Delete a file belongs to a task
-                case "deleteTaskFile":
-                    new FileManager().deleteFile(_context, myAccess);
-                    break;
+                    // Delete a file belongs to a task
+                    case "deleteTaskFile":
+                        taskID = Convert.ToInt32(param["taskID"]);
+                        if (myAccess.IsInProject(projectID, taskID, "Task") && myAccess.IsInTask(param["fileID"], taskID))
+                            new FileManager().deleteFile(_context, myAccess);
+                        else RedirectPage(errorPage);
+                        break;
 
-                // Upload screenshot of a project
-                case "uploadScreenshot":
-                    new FileManager().uploadScreenshot(_context, projectID);
-                    break;
+                    // Upload screenshot of a project
+                    case "uploadScreenshot":
+                        new FileManager().uploadScreenshot(_context, projectID);
+                        break;
+                }
             }
 
             FinishWork();

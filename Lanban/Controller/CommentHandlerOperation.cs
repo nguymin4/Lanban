@@ -13,7 +13,7 @@ namespace Lanban
         CommentAccess myAccess;
 
         public CommentHandlerOperation(AsyncCallback callback, HttpContext context, Object state)
-            :base(callback, context, state)
+            : base(callback, context, state)
         {
             myAccess = new CommentAccess();
         }
@@ -26,39 +26,51 @@ namespace Lanban
         private void StartTask(Object workItemState)
         {
             var param = _context.Request.Params;
-            int projectID = Convert.ToInt32(_context.Session["projectID"]);
-            int userID = Convert.ToInt32(_context.Session["userID"]);
-
-            switch (action)
+            int projectID = Convert.ToInt32(param["projectID"]);
+            int taskID, userID;
+            var user = (UserModel)_context.Session["user"];
+            if (!myAccess.IsProjectMember(projectID, user.User_ID, user.Role))
             {
-                /***********************************************/
-                // Submit a new comment of a task
-                case "insertTaskComment":
-                    if (userID == Convert.ToInt32(param["userID"]))
-                        result = myAccess.insertTaskComment(param["taskID"], param["content"], userID);
-                    else RedirectPage(errorPage);
-                    break;
-
-                // View all comments of a task
-                case "viewTaskComment":
-                    result = myAccess.viewTaskComment(param["itemID"], userID);
-                    break;
-
-                // Delete a comment of a task
-                case "deleteTaskComment":
-                    if (userID == Convert.ToInt32(param["userID"]))
-                        result = myAccess.deleteTaskComment(param["itemID"], userID);
-                    else RedirectPage(errorPage);
-                    break;
-
-                // Edit a comment of a task
-                case "updateTaskComment":
-                    if (userID == Convert.ToInt32(param["userID"]))
-                        result = myAccess.updateTaskComment(param["itemID"], param["content"], userID);
-                    else RedirectPage(errorPage);
-                    break;
+                RedirectPage(errorPage);
             }
-            
+            else
+            {
+                switch (action)
+                {
+                    /***********************************************/
+                    // Submit a new comment of a task
+                    case "insertTaskComment":
+                        userID = Convert.ToInt32(param["userID"]);
+                        taskID = Convert.ToInt32(param["taskID"]);
+                        if ((userID == user.User_ID) && (myAccess.IsInProject(projectID, taskID, "Task")))
+                            result = myAccess.insertTaskComment(param["taskID"], param["content"], user.User_ID);
+                        else RedirectPage(errorPage);
+                        break;
+
+                    // View all comments of a task
+                    case "viewTaskComment":
+                        taskID = Convert.ToInt32(param["taskID"]);
+                        if (myAccess.IsInProject(projectID, taskID, "Task"))
+                            result = myAccess.viewTaskComment(param["taskID"], user.User_ID);
+                        else RedirectPage(errorPage);
+                        break;
+
+                    // Delete a comment of a task
+                    case "deleteTaskComment":
+                        if (user.User_ID == Convert.ToInt32(param["userID"]))
+                            result = myAccess.deleteTaskComment(param["commentID"], user.User_ID);
+                        else RedirectPage(errorPage);
+                        break;
+
+                    // Edit a comment of a task
+                    case "updateTaskComment":
+                        if (user.User_ID == Convert.ToInt32(param["userID"]))
+                            result = myAccess.updateTaskComment(param["commentID"], param["content"], user.User_ID);
+                        else RedirectPage(errorPage);
+                        break;
+                }
+            }
+
             FinishWork();
             myAccess.Dipose();
         }

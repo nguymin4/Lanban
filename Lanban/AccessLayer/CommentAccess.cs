@@ -14,7 +14,7 @@ namespace Lanban.AccessLayer
         public string viewTaskComment(string taskID, int userID)
         {
             myCommand.CommandText = "SELECT Comment_ID, A.User_ID, Content, Name, Avatar FROM " +
-                "(SELECT * FROM Task_Comment WHERE Task_ID=@id) AS A INNER JOIN Users ON A.User_ID = Users.User_ID ";
+                "(SELECT * FROM Task_Comment WHERE Task_ID=@id) AS A INNER JOIN Users ON A.User_ID = Users.User_ID";
             addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(taskID));
 
             StringBuilder result = new StringBuilder();

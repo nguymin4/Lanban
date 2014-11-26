@@ -9,6 +9,16 @@ namespace Lanban.AccessLayer
     /* Working with task comments */
     public class FileAccess: Query
     {
+        // Check whether a file belongs to a task
+        public bool IsInTask(string fileID, int taskID)
+        {
+            myCommand.CommandText = "SELECT Task_ID FROM Task_File WHERE File_ID = @fileID";
+            addParameter<int>("@fileID", SqlDbType.Int, Convert.ToInt32(fileID));
+            bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == taskID);
+            myCommand.Parameters.Clear();
+            return result;
+        }
+
         // 2.9.1 Link the task to uploaded file
         public string linkTaskFile(FileModel file)
         {

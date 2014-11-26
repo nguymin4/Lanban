@@ -26,7 +26,6 @@ namespace Lanban
         private void StartTask(Object workItemState)
         {
             var param = _context.Request.Params;
-            int projectID = Convert.ToInt32(_context.Session["projectID"]);
             int userID = Convert.ToInt32(_context.Session["userID"]);
 
             switch (action)
@@ -45,7 +44,7 @@ namespace Lanban
 
                 // Delete a project
                 case "deleteProject":
-                    projectID = Convert.ToInt32(param["projectID"]);
+                    int projectID = Convert.ToInt32(param["projectID"]);
                     myAccess.deleteProject(projectID);
                     new FileManager().deleteProjectFolder(_context, projectID);
                     break;
@@ -54,8 +53,6 @@ namespace Lanban
                 case "fetchSupervisor":
                     result = myAccess.fetchSupervisor(Convert.ToInt32(param["projectID"]));
                     break;
-
-
             }
 
             FinishWork();
