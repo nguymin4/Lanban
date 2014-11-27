@@ -21,14 +21,7 @@ namespace Lanban.Controller
         public FormsAuthenticationTicket GetAuthenTicket(string username, string userdata, int timeout)
         {
             var now = DateTime.Now;
-            return new FormsAuthenticationTicket(1, username, now, now.AddMinutes(30), false, userdata, FormsAuthentication.FormsCookiePath);
-        }
-
-        public FormsAuthenticationTicket ParseTicket<T>(T request)
-        {
-            HttpRequest temp = request as HttpRequest;
-            var cookie = temp.Cookies[FormsAuthentication.FormsCookieName];
-            return FormsAuthentication.Decrypt(cookie.Value);
+            return new FormsAuthenticationTicket(1, username, now, now.AddMinutes(timeout), false, userdata, FormsAuthentication.FormsCookiePath);
         }
     }
 }

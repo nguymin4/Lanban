@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNet.SignalR;
 using System.Threading.Tasks;
+using System.Web.Security;
 
 namespace Lanban.Hubs
 {

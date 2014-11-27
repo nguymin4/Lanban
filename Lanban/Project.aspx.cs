@@ -27,8 +27,10 @@ namespace Lanban
                 lists = new StringBuilder();
 
                 var timer = System.Diagnostics.Stopwatch.StartNew();
-                await loadProject(userID, role);
-                await Task.Run(() => loadUser(userID));
+                Task task1 = Task.Run(() => loadProject(userID, role));
+                Task task2 = Task.Run(() => loadUser(userID));
+                await task1;
+                await task2;
                 timer.Stop();
                 System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
                 ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "projectScript", lists.ToString(), true);
@@ -47,7 +49,8 @@ namespace Lanban
             ProjectAccess myAccess = new ProjectAccess();
             myAccess.fetchProject(userID, role);
             var project = myAccess.MyDataSet.Tables["Project"];
-            await Task.Run(() =>
+            
+            Task task1 = Task.Run(() =>
             {
                 for (int i = 0; i < project.Rows.Count; i++)
                 {
@@ -57,13 +60,15 @@ namespace Lanban
             });
             
             // Send project list in JSON to client for further processing
-            await Task.Run(() =>
+            Task task2 = Task.Run(() =>
             {
                 StringBuilder projectList = new StringBuilder("projectList = ");
                 projectList.Append(JsonConvert.SerializeObject(project));
                 projectList.Append(";");
                 lists.Append(projectList);
             });
+
+            Task.WaitAll(task1, task2);
         }
 
         // 1.1 Display each project in box

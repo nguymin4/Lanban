@@ -27,18 +27,22 @@ $(document).ready(function () {
     $(".viewIndicator").on("click", function () {
         showView(this.getAttribute("data-view-indicator"));
     });
+
+    // Connect to hub
+    init_UserHub();
 });
 
 // Unload page loading spinner
 function unloadPageSpinner() {
     $("#overlay").fadeOut(1000, "swing");
     $("#container").fadeOut(1000, "swing", function () {
+        $("#notification").fadeIn(1000);
         $("#container").fadeIn(1000);
     });
 }
 
 // Load page loading spinner
-function loadPageSpinner() {
+ function loadPageSpinner() {
     $("#container").fadeOut(250, "linear", function () {
         $("#overlay").fadeIn(250, "linear");
     });
@@ -123,4 +127,31 @@ function showProcessingDiaglog() {
     $(".diaglog.success .content-holder").html("<div class='loading-spinner'></div>");
     $(".diaglog.success input").css("display", "none");
     $(".diaglog.success").addClass("show").fadeIn(200);
+}
+
+
+/***************************/
+/* Real-time communication */
+var connUser;
+var proxyUser;
+
+function init_UserHub() {
+    connUser = $.hubConnection();
+    proxyUser = connUser.createHubProxy("userHub");
+
+    proxyUser.on("receiveMessage", function (message) {
+        console.log(message);
+    });
+
+    proxyUser.on("receiveInvite", function (invite) {
+
+    });
+
+    connUser.start().done(function () {
+    });
+}
+
+// Test zone
+function sendMessage(userID, message) {
+    proxyUser.invoke("sendMessage", userID, message);
 }

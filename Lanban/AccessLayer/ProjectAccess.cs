@@ -1,5 +1,6 @@
 ﻿using Lanban.Model;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
@@ -88,6 +89,19 @@ namespace Lanban.AccessLayer
             catch { addParameter<DBNull>("@startDate", SqlDbType.DateTime2, DBNull.Value); }
             addParameter("@projectID", SqlDbType.Int, project.Project_ID);
             myCommand.ExecuteNonQuery();
+        }
+
+        // Get Supervisor id list 
+        public List<int> getProjectMemberID(int projectID)
+        {
+            List<int> IDs = new List<int>();
+            myCommand.CommandText = "SELECT User_ID FROM Project_User WHERE Project_ID = @projectID UNION " +
+                "SELECT User_ID FROM Project_Supervisor WHERE Project_ID = @projectID ";
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
+            myReader = myCommand.ExecuteReader();
+            while (myReader.Read())
+                IDs.Add(Convert.ToInt32(myReader[0]));
+            return IDs;
         }
     }
 }

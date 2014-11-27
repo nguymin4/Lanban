@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNet.SignalR;
 using System.Threading.Tasks;
+using System.Web.Security;
 
 namespace Lanban.Hubs
 {
@@ -37,9 +38,11 @@ namespace Lanban.Hubs
         }
 
         // Join a channel
-        public Task JoinChannel(string channelID)
+        public Task JoinChannel()
         {
-            return Groups.Add(Context.ConnectionId, channelID);
+            var cookie = Context.RequestCookies[FormsAuthentication.FormsCookieName];
+            var ticket = FormsAuthentication.Decrypt(cookie.Value);
+            return Groups.Add(Context.ConnectionId, ticket.UserData);
         }
 
         // Leave the channel

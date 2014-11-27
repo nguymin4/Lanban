@@ -33,6 +33,7 @@
             <div id="info">
                 <hr />
                 <asp:Image runat="server" ID="profile" />
+                <div id="notification">10</div>
                 <input type="button" runat="server" title="Log out" class="sidebar_icon_med" id="btnLogout" onclick="loadPageSpinner();" onserverclick="btnLogout_ServerClick" />
             </div>
         </div>

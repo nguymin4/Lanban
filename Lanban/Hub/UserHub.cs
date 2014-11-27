@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNet.SignalR;
+﻿using Lanban.AccessLayer;
+using Microsoft.AspNet.SignalR;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Web.SessionState;
-using System.Web;
-using System.Web.Security;
 
 namespace Lanban.Hubs
 {
@@ -11,9 +10,20 @@ namespace Lanban.Hubs
     {
         public void SendMessage(string userID, string message)
         {
+
             Clients.User(userID).receiveMessage(message);
         }
-        
+
+        public async Task UpdateProject(string projectID)
+        {
+            string username = Context.User.Identity.Name;
+            Task<int> task1 = Task.Run(() => new UserAccess().getUserID(username));
+            Task<List<int>> task2 = Task.Run(() 
+                => new ProjectAccess().getProjectMemberID(Convert.ToInt32(projectID)));
+            int uid = await task1;
+            List<int> ids = await task2;
+        }
+
         public void DeleteProject(List<string> userList, string projectID)
         {
             string userID = "";

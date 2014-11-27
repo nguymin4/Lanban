@@ -479,6 +479,9 @@ function viewDetailNote(itemID, type) {
         success: function (result) {
             result = result[0];
             (type == "backlog") ? displayBacklogDetail(result) : displayTaskDetail(result);
+
+            // Connect to Task Hub
+            if (type == "task") proxyTC.invoke("joinChannel", itemID);
         }
     });
 
@@ -498,9 +501,6 @@ function viewDetailNote(itemID, type) {
         viewTaskFile(itemID);
         $("#btnSubmitComment").attr("data-task-id", itemID);
         $("#inputUploadFile").attr("data-task-id", itemID).val("");
-
-        // Connect to Task Hub
-        proxyTC.invoke("joinChannel", itemID);
     }
 }
 
@@ -630,6 +630,7 @@ function updateTaskComment(commentID) {
 /*4.3.5 Insert new comment for a task */
 function submitTaskComment() {
     var taskID = $("#btnSubmitComment").attr("data-task-id");
+
     $.ajax({
         url: "Handler/CommentHandler.ashx",
         data: {
@@ -686,12 +687,7 @@ function saveItem(itemID, type) {
         global: false,
         type: "post",
         success: function (result) {
-            var note = document.getElementById(type + "." + itemID);
-            var header = note.getElementsByClassName("note-header")[0];
-            header.style.background = item.Color.substr(0, 7);
-            var content = note.getElementsByClassName("note-content")[0];
-            content.style.background = item.Color.substr(8, 7);
-            content.innerHTML = item.Title;
+            updateVisualNote(type + "." + itemID, item.Title, item.Color);
 
             // Update note in other clients
             proxyNote.invoke("updateNote", item.Project_ID, type + "." + itemID, item.Title, item.Color);
@@ -699,7 +695,6 @@ function saveItem(itemID, type) {
     });
 
     var saveAssignee = (assigneeChange == true) ? updateAssignee(itemID, type) : null;
-    console.log(saveAssignee);
 
     // Turn off processing window and display success message
     // Send new info to other clients
@@ -708,6 +703,16 @@ function saveItem(itemID, type) {
     });
 }
 
+function updateVisualNote(id, title, color) {
+    var note = document.getElementById(id);
+    var header = note.getElementsByClassName("note-header")[0];
+    header.style.background = color.substr(0, 7);
+    var content = note.getElementsByClassName("note-content")[0];
+    content.style.background = color.substr(8, 7);
+    content.innerHTML = title;
+    var footer = note.getElementsByClassName("note-footer")[0];
+    footer.style.background = color.substr(8, 7);
+}
 
 /***************************************************/
 /*6. Delete an item*/
@@ -1136,14 +1141,7 @@ function init_NoteHub() {
 
     // Update a note
     proxyNote.on("updateNote", function (noteID, title, color) {
-        var note = document.getElementById(noteID);
-
-        var header = note.getElementsByClassName("note-header")[0];
-        header.style.background = color.substr(0, 7);
-
-        var content = note.getElementsByClassName("note-content")[0];
-        content.style.background = color.substr(8, 7);
-        content.innerHTML = title;
+        updateVisualNote(noteID, title, color);
     })
 
     // Change position
@@ -1168,7 +1166,7 @@ function init_NoteHub() {
 
     // Start connection and join group
     connNote.start().done(function () {
-        proxyNote.invoke("joinChannel", projectID);
+        proxyNote.invoke("joinChannel");
     });
 }
 

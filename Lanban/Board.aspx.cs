@@ -1,11 +1,12 @@
 ﻿using Lanban.AccessLayer;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
-using System.Web.Security;
 
 namespace Lanban
 {
@@ -15,32 +16,39 @@ namespace Lanban
         int projectID;
         int userID;
 
-        protected async void Page_Load(object sender, EventArgs e)
+        protected void Page_Load(object sender, EventArgs e)
         {
-            if (!User.Identity.IsAuthenticated) FormsAuthentication.RedirectToLoginPage();
-            if (!IsPostBack)
-            {
-                projectID = Convert.ToInt32(Session["projectID"]);
-                userID = Convert.ToInt32(Session["userID"]);
-                string name = Session["projectName"].ToString();
-                Page.Title = "Lanban " + name;
-                lblProjectName.Text = name;
-                var timer = System.Diagnostics.Stopwatch.StartNew();
-                await createKanban();
-                await Task.Run(() => initDropdownList());
-                timer.Stop();
-                System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds);
-
-                string script = "const userID = " + userID + "; const projectID = " + projectID + ";";
-                ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "boardScript", script, true);
-            }
+            if (Session["projectID"] == null)
+                Response.Redirect("Login.aspx");
             else
-            {
-                if (Request.Params["__EVENTTARGET"].Equals("RedirectProject"))
-                {
-                    await Task.Run(() => Response.Redirect("Project.aspx"));
-                }
-            }
+                if (!IsPostBack)
+                    InitBoard();
+                else
+                    if (Request.Params["__EVENTTARGET"].Equals("RedirectProject"))
+                        Response.Redirect("Project.aspx");
+        }
+
+        protected async void InitBoard()
+        {
+            projectID = Convert.ToInt32(Session["projectID"]);
+            userID = Convert.ToInt32(Session["userID"]);
+            string name = Session["projectName"].ToString();
+            Page.Title = "Lanban " + name;
+            lblProjectName.Text = name;
+            var timer = System.Diagnostics.Stopwatch.StartNew();
+            Task task1 = Task.Run(() => createKanban());
+            Task task2 = Task.Run(() => initDropdownList());
+
+            // Authentication
+            var authen = new Controller.LanbanAuthentication();
+            var ticket = authen.GetAuthenTicket("nguymin4", projectID.ToString(), 30);
+            string script = "const userID = " + userID + "; const projectID = " + projectID + ";";
+            ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "boardScript", script, true);
+            
+            await task1;
+            await task2;
+            timer.Stop();
+            System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds);
         }
 
         //1. Create the kanban board
@@ -51,13 +59,20 @@ namespace Lanban
             myAccess.fetchSwimlane(projectID);
             var swimlane = myAccess.MyDataSet.Tables["Swimlane"];
             cell = new TableCell[swimlane.Rows.Count];
+            
             //Create header row and add the cell in the same column
             for (int i = 0; i < swimlane.Rows.Count; i++)
             {
                 var row = swimlane.Rows[i];
-                await Task.Run(() => panelKanbanHeader.Controls.Add(createHeader(row, i)));
-                await createCell(row, i);
-                panelKanbanBody.Controls.Add(cell[i]);
+                Task headerTask = Task.Run(() => panelKanbanHeader.Controls.Add(createHeader(row, i)));
+                Task cellTask = Task.Run(() =>
+                {
+                    cell[i] = new TableCell();
+                    panelKanbanBody.Controls.Add(cell[i]);
+                    createCell(row, i);
+                });
+                await headerTask;
+                await cellTask;
             }
         }
 
@@ -84,22 +99,21 @@ namespace Lanban
         }
 
         //1.2 Add table cell to kanban board with sticky note
-        protected async Task createCell(DataRow row, int position)
+        protected void createCell(DataRow row, int position)
         {
             int swimlane_id = Convert.ToInt32(row["Swimlane_ID"]);
             string type = row["Type"].ToString();
             //Initialize
-            cell[position] = new TableCell();
             var td = cell[position];
             td.CssClass = "connected";
             td.Attributes.Add("data-id", swimlane_id.ToString());
             td.Attributes.Add("data-lane-type", type);
             td.Attributes.Add("data-status", row["Data_status"].ToString());
-            await addNotes(swimlane_id, type, position);
+            addNotes(swimlane_id, type, position);
         }
 
         //1.3 Add content to the cell at position [position]
-        protected async Task addNotes(int swimlane_id, string type, int position)
+        protected void addNotes(int swimlane_id, string type, int position)
         {
             SwimlaneAccess tempAccess = new SwimlaneAccess();
             //Fetch data
@@ -110,16 +124,15 @@ namespace Lanban
                 var tempTable = tempAccess.MyDataSet.Tables["init_temp"];
                 //Add notes to this cell
                 for (int i = 0; i < tempTable.Rows.Count; i++)
-                    cell[position].Controls.Add(await Task.Run(
-                        () => createNote(tempTable.Rows[i], type)));
+                    cell[position].Controls.Add(createNote(tempTable.Rows[i], type));
+
             }
             else
             {
                 tempAccess.fetchDoneNote(swimlane_id);
                 //Add notes to this cell
                 foreach (DataRow row in tempAccess.MyDataSet.Tables["init_temp"].Rows)
-                    cell[position].Controls.Add(await Task.Run(
-                        () => createNote(row, row["Type"].ToString())));
+                    cell[position].Controls.Add(createNote(row, row["Type"].ToString()));
             }
 
             //Clear table for the next fetch
@@ -225,11 +238,5 @@ namespace Lanban
             ddlTaskColor.SelectedIndex = 0;
         }
 
-        // Define Javascriipt property - constant - read-only
-        protected string defineJSProp(string property, string value)
-        {
-            return "Object.defineProperty(o,'" + property + "', { value: "+value+","+
-                   "writable: false, configurable: false, enumerable: false});";
-        }
     }
 }

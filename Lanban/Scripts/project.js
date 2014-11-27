@@ -34,8 +34,7 @@ $(document).ready(function () {
     });
     $("#projectbrowser").append($("#projectdetail"));
 
-    // Connect to hub
-    init_UserHub();
+    init_ProjectHub_Listener();
 });
 
 $(window).load(function () {
@@ -350,6 +349,9 @@ function updateProject(id) {
         type: "post",
         success: function () {
             projectList[getProjectIndex(id)] = project;
+
+            // Ask other user who share the same project updating project
+            proxyUser.invoke("updateProject", id);
         }
     });
 
@@ -412,28 +414,8 @@ function deleteProject(id) {
     }, 1000);
 }
 
-/*B. Real-time communication */
-var connUser;
-var proxyUser;
 
-function init_UserHub() {
-    connUser = $.hubConnection();
-    proxyUser = connUser.createHubProxy("userHub");
-
-    proxyUser.on("deleteProject", function (projectID) {
-
-    });
-
-    proxyUser.on("receiveMessage", function (message) {
-        console.log(message);
-    });
-
-    connUser.start().done(function () {
-    });
-}
-
-
-/*C. Others*/
+/*B. Others*/
 // Scroll project browser to the position of project detail box.
 function scrollProjectBrowser(index) {
     var container = $(".project-container");
@@ -490,7 +472,17 @@ function resetAddProjectWindow() {
 }
 
 
-// Test zone
-function sendMessage(userID, message) {
-    proxyUser.invoke("sendMessage", userID, message);
+// Add Project hub listeners - Project hub share same connection and proxy with User Hub
+function init_ProjectHub_Listener() {
+    proxyUser.on("createProject", function (projectID) {
+
+    });
+
+    proxyUser.on("deleteProject", function (projectID) {
+
+    });
+
+    proxyUser.on("editProject", function (project) {
+
+    });
 }
