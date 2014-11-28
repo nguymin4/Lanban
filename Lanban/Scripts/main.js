@@ -1,3 +1,28 @@
+/*****************************************************************************/
+//Function to change working window
+var view;
+var currentView;
+var viewIndicator
+function showView(index) {
+    if (index != currentView) {
+        //Hide secondary window when it is opening in the Board.aspx
+        if (document.getElementById("kanbanWindow") != null)
+            if (!((currentView != 0) && (index != 0))) hideWindow();
+
+        //Change main window
+        view[currentView].setAttribute("class", "window view");
+        setTimeout(function () {
+            view[currentView].style.display = "none";
+            viewIndicator[currentView].setAttribute("class", "viewIndicator");
+            view[index].style.display = "block";
+            view[index].setAttribute("class", "window view show");
+            viewIndicator[index].setAttribute("class", "viewIndicator show")
+            currentView = index;
+        }, 250);
+    }
+}
+
+
 var _avatar, _name;
 $(document).ready(function () {
     var profile = $("#profile");
@@ -28,50 +53,53 @@ $(document).ready(function () {
         showView(this.getAttribute("data-view-indicator"));
     });
 
+    // Nofication center
+    initNotificationCenter();
+
     // Connect to hub
     init_UserHub();
 });
 
+
+/*****************************************************************************/
 // Unload page loading spinner
 function unloadPageSpinner() {
     $("#overlay").fadeOut(1000, "swing");
     $("#container").fadeOut(1000, "swing", function () {
-        $("#notification").fadeIn(1000);
+        $("#notiIndicator").fadeIn(1000);
         $("#container").fadeIn(1000);
     });
 }
 
 // Load page loading spinner
- function loadPageSpinner() {
+function loadPageSpinner() {
     $("#container").fadeOut(250, "linear", function () {
         $("#overlay").fadeIn(250, "linear");
     });
 }
 
-//Function to change working window
-var view;
-var currentView;
-var viewIndicator
-function showView(index) {
-    if (index != currentView) {
-        //Hide secondary window when it is opening in the Board.aspx
-        if (document.getElementById("kanbanWindow") != null)
-            if (!((currentView!=0)&&(index!=0))) hideWindow();
 
-        //Change main window
-        view[currentView].setAttribute("class", "window view");
-        setTimeout(function () {
-            view[currentView].style.display = "none";
-            viewIndicator[currentView].setAttribute("class", "viewIndicator");
-            view[index].style.display = "block";
-            view[index].setAttribute("class", "window view show");
-            viewIndicator[index].setAttribute("class", "viewIndicator show")
-            currentView = index;
-        }, 250);
-    }
+/*****************************************************************************/
+// Init Notification center
+function initNotificationCenter() {
+    $("#notiCenter").perfectScrollbar({
+        wheelSpeed: 3,
+        wheelPropagation: false
+    });
+
+    $("#notiIndicator").on("click", function (e) {
+        e.stopImmediatePropagation();
+        $(this).fadeOut("fast").html("");
+        $("#notiCenter").fadeIn("fast").perfectScrollbar("update");
+    });
+
+    $("#container").on("click", function () {
+        $("#notiCenter").fadeOut("fast");
+    });
 }
 
 
+/*****************************************************************************/
 // Support function for both board.js and project.js
 // Parse JSonDate to dd.mm.yyyy
 function parseJSONDate(jsonDate) {
@@ -96,6 +124,8 @@ function formatDate(date) {
     return date;
 }
 
+
+/*****************************************************************************/
 /* Diaglog */
 // Show error diaglog  - content taken from an array based on parameter
 var errorMsg = ["Cannot drop that item because it is not the same type with the items in column.", "Operation failed"];

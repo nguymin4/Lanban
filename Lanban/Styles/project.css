@@ -32,7 +32,7 @@
         left: 0;
     }
 
-#txtSearch {
+.txtSearch {
     background: rgba(25, 15, 15, 0.5);
     height: 28px;
     min-width: 200px;
@@ -40,9 +40,10 @@
     border-radius: 6px;
     border: solid 1px rgb(128, 128, 128);
     margin-bottom: 15px;
+    cursor: text;
 }
 
-    #txtSearch div {
+    .txtSearch .searchIcon {
         display: inline-block;
         background: url("../images/sidebar/search.png") no-repeat center;
         background-size: cover;
@@ -50,7 +51,7 @@
         height: 30px;
     }
 
-input[name="txtSearchProject"] {
+.txtSearchBox {
     position: relative;
     top: -10px;
     border: none;
@@ -257,9 +258,14 @@ input[name="txtSearchProject"] {
 
 /* A box contain avatar and name of the person*/
 .person {
+    position: relative;
     display: inline-block;
     text-align: center;
     margin: auto 5px;
+}
+
+.person:hover .person-remove {
+    display: block;
 }
 
 .person-avatar {
@@ -279,6 +285,26 @@ input[name="txtSearchProject"] {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.person-remove {
+    display: none;
+    position: absolute;
+    background: url('/images/sidebar/remove.png');
+    background-size: cover;
+    right: 6px;
+    top: -3px;
+    z-index: 1000;
+    display: none;
+    width: 18px;
+    height: 18px;
+    transition: 0.2s ease;
+    cursor: pointer;
+}
+
+    .person-remove:hover {
+        width: 20px;
+        height: 20px;
+    }
 
 /* Project input box */
 .input-project {
@@ -358,4 +384,14 @@ textarea.input-project {
 .searchRecord:hover {
     background: rgba(230, 230, 230, 0.50);
     border-radius: 3px;
+}
+
+
+/*Sharing window*/
+#sharingWindow .window-content {
+    padding: 10px 20px;
+}
+
+#userList {
+    margin-top: 10px;
 }

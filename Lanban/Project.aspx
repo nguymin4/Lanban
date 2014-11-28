@@ -1,4 +1,4 @@
-﻿<%@ Page Title="Lanban - Projects" Language="C#" MasterPageFile="~/Lanban.Master" AutoEventWireup="true" CodeBehind="Project.aspx.cs" Inherits="Lanban.Project" Async="true" EnableEventValidation="false"%>
+﻿<%@ Page Title="Lanban - Projects" Language="C#" MasterPageFile="~/Lanban.Master" AutoEventWireup="true" CodeBehind="Project.aspx.cs" Inherits="Lanban.Project" Async="true" EnableEventValidation="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="contentHead" runat="server">
     <script src="Scripts/project.js"></script>
@@ -9,7 +9,7 @@
     <li class="viewIndicator show" style="background-image: url('images/logo.png')" data-view-indicator="0"></li>
     <li style="background-image: url('images/sidebar/add_project.png')" onclick="openAddProjectWindow(1)"></li>
     <li class="viewIndicator" style="background-image: url('images/sidebar/schedule.png')" data-view-indicator="1"></li>
-    <li class="viewIndicator" style="background-image: url('images/sidebar/share.png')" data-view-indicator="2"></li>
+    <li class="viewIndicator" style="display: none;" data-view-indicator="2"></li>
     <li class="viewIndicator" style="background-image: url('images/sidebar/setting.png')" data-view-indicator="3"></li>
 </asp:Content>
 
@@ -24,9 +24,11 @@
                     <div id="projectdetail-left">
                         <img id="screenshot" src="images/screenshot.jpg" />
                         <div id="projectdetail-panel">
-                            <img src="images/sidebar/open.png" class="project-detail-button" id="btnOpenProject" title="Open"/>
+                            <img src="images/sidebar/open.png" class="project-detail-button" id="btnOpenProject" title="Open" />
                             <img src="images/sidebar/edit_note.png" class="project-detail-button" id="btnEditProject" title="Edit" />
                             <img src="images/sidebar/delete_note.png" class="project-detail-button" id="btnDeleteProject" title="Delete" />
+                            <img src="images/sidebar/share.png" class="project-detail-button" id="btnShareProject" title="Share" />
+                            <img src="images/sidebar/quit.png" class="project-detail-button" id="btnQuitProject" title="Quit" />
                         </div>
                         <div id="project-supervisor">
                             <div class="criteria project-field">Supervisor</div>
@@ -51,13 +53,13 @@
                     <div id="projectdetail-close" onclick="hideProjectDetail()"></div>
                 </div>
             </asp:Panel>
-            
+
             <!-- End list of all project -->
             <!-- Start - Project search and filter -->
             <div id="projectfilter" class="right-window-content show">
-                <div id="txtSearch">
-                    <div title="Back to Search" onclick="openAddProjectWindow(0)"></div>
-                    <input name="txtSearchProject" type="text" placeholder="Search..." />
+                <div class="txtSearch">
+                    <div class="searchIcon"></div>
+                    <input class="txtSearchBox" name="txtSearchProject" type="text" placeholder="Search..." />
                 </div>
                 <div>
                     <h4>Search by: </h4>
@@ -75,7 +77,7 @@
                 <div id="backProjectSearch" onclick="openAddProjectWindow(0)"></div>
                 <h3>Add new project</h3>
                 Name:
-                <input type="text" class="input-project" id="txtProjectName"/>
+                <input type="text" class="input-project" id="txtProjectName" />
                 Description:
                 <textarea class="input-project" id="txtProjectDescription" spellcheck="false"></textarea>
                 Start date:
@@ -84,15 +86,15 @@
                 <input type="text" class="input-project" id="txtSupervisor"
                     onkeyup="searchUser(this, 2)" onblur="clearResult(this)" />
                 <div id="projectSupervisor"></div>
-                <img src="images/sidebar/add_project.png" class="project-detail-button" 
+                <img src="images/sidebar/add_project.png" class="project-detail-button"
                     id="btnAddProject" title="Add new project" onclick="addProject()" />
             </div>
-            
+
             <!-- End - Add new project - -->
         </div>
     </div>
     <!-- End - The window for Project browser  -->
-    
+
     <!-- Start - The window for Schedule-->
     <div class="window view">
         <div class="title-bar">Schedule</div>
@@ -100,15 +102,21 @@
         </div>
     </div>
     <!-- End - The window for Schedule  -->
-    
+
+
     <!-- Start - The window for Share -->
-    <div class="window view">
+    <div id="sharingWindow" class="window view">
         <div class="title-bar">Share</div>
         <div class="window-content">
+            <div class="txtSearch">
+                <div class="searchIcon"></div>
+                <input class="txtSearchBox" id="txtSearchMember" type="text" placeholder="Search..." onkeyup="searchUser(this, 1)" onblur="clearResult(this)" />
+            </div>
+            <div id="userList"></div>
         </div>
     </div>
-    <!-- End - The window for Setting  -->
-    
+    <!-- End - The window for Share  -->
+
     <!-- Start - The window for Setting -->
     <div class="window view">
         <div class="title-bar">Setting</div>
@@ -116,6 +124,10 @@
         </div>
     </div>
     <!-- End - The window for Setting  -->
+
+
+
+
 
     <!-- Other elements  -->
     <div id="searchContainer"></div>

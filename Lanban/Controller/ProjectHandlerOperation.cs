@@ -26,32 +26,53 @@ namespace Lanban
         private void StartTask(Object workItemState)
         {
             var param = _context.Request.Params;
-            int userID = Convert.ToInt32(_context.Session["userID"]);
-
+            var user = (UserModel)_context.Session["user"];
+            int userID = user.User_ID;
+            int projectID = Convert.ToInt32(param["projectID"]);
+            ProjectModel project;
             switch (action)
             {
                 /***********************************************/
                 // Create new project
                 case "createProject":
-                    result = myAccess.createProject(JsonConvert.DeserializeObject<ProjectModel>(param["project"]));
-                    new FileManager().createProjectFolder(_context, result);
+                    project = JsonConvert.DeserializeObject<ProjectModel>(param["project"]);
+                    if (userID == project.Owner)
+                    {
+                        result = myAccess.createProject(project);
+                        new FileManager().createProjectFolder(_context, result);
+                    }
+                    else RedirectPage(errorPage);
                     break;
 
                 // Update project
                 case "updateProject":
-                    myAccess.updateProject(JsonConvert.DeserializeObject<ProjectModel>(param["project"]));
+                    project = JsonConvert.DeserializeObject<ProjectModel>(param["project"]);
+                    if (!myAccess.updateProject(project , userID)) RedirectPage(errorPage);
                     break;
 
                 // Delete a project
                 case "deleteProject":
-                    int projectID = Convert.ToInt32(param["projectID"]);
-                    myAccess.deleteProject(projectID);
-                    new FileManager().deleteProjectFolder(_context, projectID);
+                    if (myAccess.deleteProject(projectID, userID))
+                        new FileManager().deleteProjectFolder(_context, projectID);
+                    else RedirectPage(errorPage);
+                    break;
+
+                case "quitProject":
+                    if (!myAccess.quitProject(projectID, userID, user.Role)) RedirectPage(errorPage);
                     break;
 
                 // Get data of all supervisors in a project
                 case "fetchSupervisor":
-                    result = myAccess.fetchSupervisor(Convert.ToInt32(param["projectID"]));
+                    if (myAccess.IsProjectMember(projectID, userID, user.Role))
+                        result = myAccess.fetchSupervisor(projectID);
+                    else RedirectPage(errorPage);
+                    break;
+
+                // Get data of all user in a project
+                case "fetchUser":
+                    if (myAccess.IsProjectMember(projectID, userID, user.Role))
+                        result = myAccess.fetchUser(projectID, userID);
+                    else RedirectPage(errorPage);
                     break;
             }
 

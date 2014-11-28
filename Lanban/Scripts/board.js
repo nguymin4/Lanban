@@ -823,12 +823,6 @@ function uploadFile(i, taskID) {
         if (req.readyState == 4 && req.status == 200) {
             // Upload completed
             document.getElementById("fileList").innerHTML += req.responseText;
-            $("#fileList .file-container").on("mouseover", function () {
-                this.getElementsByClassName("file-remove")[0].style.display = "block";
-            });
-            $("#fileList .file-container").on("mouseout", function () {
-                this.getElementsByClassName("file-remove")[0].style.display = "none";
-            });
 
             // Send the visual to other clients
             proxyTC.invoke("sendUploadedFile", taskID, req.responseText);

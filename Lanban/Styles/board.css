@@ -520,6 +520,10 @@ img[title='Upload'] {
         transform: rotate(-10deg);
     }
 
+    .file-container:hover .file-remove {
+        display: block;
+    }
+
 .file-icon {
     display: block;
     width: 60px;

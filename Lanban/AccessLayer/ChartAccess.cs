@@ -26,9 +26,8 @@ namespace Lanban.AccessLayer
 
             // Create a pie chart instance and then use JSON Convert to serialize it to JSON string
             PieChart myPie = new PieChart();
-            bool available = myReader.Read();
             int index = 0;
-            while (available)
+            while (myReader.Read())
             {
                 PiePart temp = new PiePart();
                 temp.value = Convert.ToInt32(myReader.GetValue(0));
@@ -36,7 +35,6 @@ namespace Lanban.AccessLayer
                 temp.highlight = colorHex[0, index];
                 temp.label = myReader.GetValue(1).ToString();
                 myPie.part.Add(temp);
-                available = myReader.Read();
                 index++;
             }
             myCommand.Parameters.Clear();

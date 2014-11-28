@@ -8,7 +8,7 @@ using System.Text;
 namespace Lanban.AccessLayer
 {
     /* Working with task comments */
-    public class ProjectAccess: Query
+    public class ProjectAccess : Query
     {
         /*5. Project page */
         // 5.1 Fetch project list that a user has been joining 
@@ -23,7 +23,7 @@ namespace Lanban.AccessLayer
             myCommand.Parameters.Clear();
         }
 
-        // 5.2 Fetch user list of those who share the same project with user has [userID]
+        // 5.2 Fetch user list of those who share the same projects with user has [userID]
         public void fetchSharedProjectUser(int userID)
         {
             myCommand.CommandText = "SELECT B.User_ID, [Name], Avatar FROM Users INNER JOIN " +
@@ -45,11 +45,37 @@ namespace Lanban.AccessLayer
             myReader = myCommand.ExecuteReader();
             while (myReader.Read())
             {
-                result.Append("<div class='person' data-id='" + myReader["User_ID"] + "' title='" + myReader["Name"] + "'>");
-                result.Append("<img class='person-avatar' src='" + myReader["Avatar"] + "' />");
-                result.Append("<div class='person-name'>" + myReader["Name"] + "</div></div>");
+                result.Append(getPersonContainer(myReader, false));
             }
             return result.ToString();
+        }
+
+        // Fetch all user of a project
+        public string fetchUser(int projectID, int userID)
+        {
+            bool owner = IsOwner(projectID, userID);
+
+            StringBuilder result = new StringBuilder();
+            myCommand.CommandText = "SELECT Users.User_ID, [Name], Avatar FROM Users INNER JOIN " +
+                "(SELECT User_ID FROM Project_User WHERE Project_ID = @projectID) AS A ON A.User_ID = Users.User_ID";
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
+            myReader = myCommand.ExecuteReader();
+            while (myReader.Read())
+            {
+                result.Append(getPersonContainer(myReader, owner));
+                string temp = myReader["User_ID"].ToString();
+            }
+            return result.ToString();
+        }
+
+        // Check whether a user is owner of a project
+        public bool IsOwner(int projectID, int userID)
+        {
+            myCommand.CommandText = "SELECT Owner FROM Project WHERE Project_ID=@projectID";
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
+            bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == userID);
+            myCommand.Parameters.Clear();
+            return result;
         }
 
         // 5.4 Create new project
@@ -71,27 +97,41 @@ namespace Lanban.AccessLayer
         }
 
         // 5.5 Delete project
-        public void deleteProject(int projectID)
+        public bool deleteProject(int projectID, int userID)
         {
-            myCommand.CommandText = "DELETE FROM Project WHERE Project_ID=@projectID;";
+            myCommand.CommandText = "DELETE FROM Project WHERE Project_ID=@projectID AND Owner=@userID;";
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
-            myCommand.ExecuteNonQuery();
+            addParameter<int>("@userID", SqlDbType.Int, userID);
+            bool result = (myCommand.ExecuteNonQuery() == 1);
+            return result;
         }
 
         // 5.6 Update project
-        public void updateProject(ProjectModel project)
+        public bool updateProject(ProjectModel project, int userID)
         {
             myCommand.CommandText = "UPDATE Project SET Name = @name, Description = @description, " +
-                "Start_Date = @startDate WHERE Project_ID = @projectID";
+                "Start_Date = @startDate WHERE Project_ID = @projectID AND Owner=@userID";
             addParameter<string>("@name", SqlDbType.NVarChar, project.Name);
             addParameter<string>("@description", SqlDbType.NVarChar, project.Description);
             try { addParameter<DateTime>("@startDate", SqlDbType.DateTime2, DateTime.ParseExact(project.Start_Date, "dd.MM.yyyy", null)); }
             catch { addParameter<DBNull>("@startDate", SqlDbType.DateTime2, DBNull.Value); }
             addParameter("@projectID", SqlDbType.Int, project.Project_ID);
-            myCommand.ExecuteNonQuery();
+            bool result = (myCommand.ExecuteNonQuery() == 1);
+            return result;
         }
 
-        // Get Supervisor id list 
+        // 5.7 Quit project
+        public bool quitProject(int projectID, int userID, int role)
+        {
+            string table = (role == 1) ? "Project_User" : "Project_Supervisor";
+            myCommand.CommandText = "DELETE FROM " + table + " WHERE Project_ID=@projectID AND User_ID=@userID";
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
+            addParameter<int>("@userID", SqlDbType.Int, userID);
+            bool result = (myCommand.ExecuteNonQuery() == 1);
+            return result;
+        }
+
+        // Get Supervisor and User ID list 
         public List<int> getProjectMemberID(int projectID)
         {
             List<int> IDs = new List<int>();

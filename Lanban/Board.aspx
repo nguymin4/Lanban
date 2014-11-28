@@ -198,10 +198,9 @@
                         </tr>
                         <tr>
                             <td>Due date:<br />
-                                (dd.mm.yyyy)
                             </td>
                             <td>
-                                <asp:TextBox runat="server" ID="txtTaskDueDate" CssClass="inputBox"></asp:TextBox></td>
+                                <asp:TextBox runat="server" ID="txtTaskDueDate" CssClass="inputBox" placeholder="dd.mm.yyyy"></asp:TextBox></td>
                         </tr>
                         <tr>
                             <td>Completion date:</td>

@@ -34,6 +34,11 @@ $(document).ready(function () {
     });
     $("#projectbrowser").append($("#projectdetail"));
 
+    $(".txtSearch").on("click", function () {
+        this.getElementsByClassName("txtSearchBox")[0].focus();
+    });
+
+    // Initialize project hub event listener
     init_ProjectHub_Listener();
 });
 
@@ -114,9 +119,19 @@ function loadProjectDetailInfo(project, id) {
 
     $("#btnOpenProject").attr("onclick", "loadPageSpinner();" +
         "__doPostBack('RedirectBoard', '" + id + "$" + project.Name + "');");
+    $("#btnShareProject").attr("onclick", "shareProject(" + id + ")");
 
-    $("#btnDeleteProject").attr("onclick", "deleteProject(" + id + ")");
-    $("#btnEditProject").attr("onclick", "editProject(" + id + ")");
+    if (project.Owner == userID) {
+        $("#btnDeleteProject").css("display", "inline-block").attr("onclick", "deleteProject(" + id + ")");
+        $("#btnEditProject").css("display", "inline-block").attr("onclick", "editProject(" + id + ")");
+        $("#btnQuitProject").css("display", "none");
+    }
+    else {
+        $("#btnDeleteProject").css("display", "none");
+        $("#btnEditProject").css("display", "none");
+        $("#btnQuitProject").css("display", "inline-block").attr("onclick", "quitProject(" + id + ")");
+    }
+
 
     $("#projectdetail-name").html(project.Name);
     $("#projectdetail-description").html(project.Description);
@@ -244,6 +259,8 @@ function searchUser(searchBox, role) {
                     var pos = searchBox.getBoundingClientRect();
                     $(searchContainer).css("top", pos.top + 40).css("left", pos.left);
                     $(searchContainer).html(result).fadeIn("fast");
+                    var func = (role == 1) ? "addUser(this)" : "addSupervisor(this)";
+                    $("#searchContainer .searchRecord").attr("onclick", func);
                 }
             });
         }, 200);
@@ -256,31 +273,34 @@ function addUser(obj, role) {
     var id = obj.getAttribute("data-id");
     var name = obj.innerHTML;
     var avatar = obj.getAttribute("data-avatar");
-    var objtext = "<div class='person' data-id='"+id+"' title='" + name + "' onclick='removeUser(this)' style='cursor: pointer;'>" +
-        "<img class='person-avatar' src='" + avatar + "'></img><div class='person-name'>" + name + "</div></div>";
-
-    if (role == 2) {
-        $("#txtSupervisor").val("").focus();
-        var box = $("#projectSupervisor");
-        var person = $(objtext);
-        person.css("display", "none");
-        if (!box.hasClass("expand")) {
-            box.addClass("expand").append(person);
-            person.fadeIn(500);
-        }
-        else {
-            box.append(person);
-            person.fadeIn(500);
-        }
-        supervisorChange = true;
-    }
+    $("#txtSearchUser").val("").focus();
+    var objtext = "<div class='person' data-id='" + id + "' title='" + name + "'>" +
+    "<img class='person-avatar' src='" + avatar + "'></img><div class='person-name'>" + name + "</div></div>";
+    $("#userList").append(objtext);
 }
 
+function addSupervisor(obj) {
+    var objtext = "<div class='person' data-id='" + id + "' title='" + name + "' onclick='removeSupervisor(this)' style='cursor: pointer;'>" +
+    "<img class='person-avatar' src='" + avatar + "'></img><div class='person-name'>" + name + "</div></div>";
+    $("#txtSupervisor").val("").focus();
+    var box = $("#projectSupervisor");
+    var person = $(objtext);
+    person.css("display", "none");
+    if (!box.hasClass("expand")) {
+        box.addClass("expand").append(person);
+        person.fadeIn(500);
+    }
+    else {
+        box.append(person);
+        person.fadeIn(500);
+    }
+    supervisorChange = true;
+}
 // When click on active user then it's removed
-function removeUser(obj) {
+function removeSupervisor(obj) {
     var parent = obj.parentElement;
-    if (parent === $("#projectSupervisor")) supervisorChange = true;
     parent.removeChild(obj);
+    supervisorChange = true;
 }
 
 // Clear search result
@@ -301,7 +321,7 @@ function editProject(id) {
     $("#txtProjectName").val(project.Name);
     $("#txtProjectDescription").val(project.Description.replace(/<br>/g, '\n'));
     $("#txtProjectStartDate").val(parseJSONDate(project.Start_Date));
-    if (supervisorList!= "") $("#projectSupervisor").attr("class", "expand").html(supervisorList);
+    if (supervisorList != "") $("#projectSupervisor").attr("class", "expand").html(supervisorList);
     $("#projectSupervisor .person").on("click", function () { removeUser(this) });
     $("#projectSupervisor .person").css("cursor", "pointer");
     supervisorChange = false;
@@ -362,7 +382,6 @@ function updateProject(id) {
     $.when(saveData, saveSupervisor).done(function () {
         showSuccessDiaglog(1);
 
-        console.log("Save OK");
         // Update projectbrowser view
         $("#project" + id + " .project-header").html(id + ". " + project.Name);
 
@@ -406,6 +425,27 @@ function deleteProject(id) {
             // Delete project in other clients
         }
     });
+    doAfterDeleteProject();
+}
+
+/*7 Quit project */
+function quitProject(id) {
+    $.ajax({
+        url: "Handler/ProjectHandler.ashx",
+        data: {
+            action: "quitProject",
+            projectID: id
+        },
+        global: false,
+        type: "get",
+        success: function () {
+            //  In other clients
+        }
+    });
+    doAfterDeleteProject();
+}
+
+function doAfterDeleteProject() {
     hideProjectDetail();
     var project = $("#project" + id);
     project.fadeOut("fast", function () { project.remove() });
@@ -414,6 +454,24 @@ function deleteProject(id) {
     }, 1000);
 }
 
+/* Share project */
+function shareProject(id) {
+    showProcessingDiaglog();
+    showView(2);
+    $.ajax({
+        url: "Handler/ProjectHandler.ashx",
+        data: {
+            action: "fetchUser",
+            projectID: id
+        },
+        global: false,
+        type: "get",
+        success: function (result) {
+            $(".diaglog.success").fadeOut(100);
+            $("#userList").html(result);
+        }
+    });
+}
 
 /*B. Others*/
 // Scroll project browser to the position of project detail box.

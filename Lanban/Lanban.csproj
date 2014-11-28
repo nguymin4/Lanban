@@ -115,6 +115,7 @@
     <Content Include="images\sidebar\dashboard.png" />
     <Content Include="images\sidebar\delete_note.png" />
     <Content Include="images\sidebar\edit_note.png" />
+    <Content Include="images\sidebar\quit.png" />
     <Content Include="images\sidebar\update.png" />
     <Content Include="images\sidebar\open.png" />
     <Content Include="images\sidebar\stat.png" />

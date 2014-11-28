@@ -36,7 +36,11 @@ namespace Lanban
 
         public void Dipose()
         {
+            myDataSet.Dispose();
+            myAdapter.Dispose();
+            myCommand.Dispose();
             myConnection.Close();
+            myConnection.Dispose();
             // Suppress finalization.
             GC.SuppressFinalize(this);
         }
@@ -53,6 +57,20 @@ namespace Lanban
         {
             string display = "<div class='assignee-name-active' data-id='" + id + "' onclick='removeAssignee(this)'>" + name + "</div>";
             return display;
+        }
+
+        protected string getPersonContainer(SqlDataReader reader, bool removeable, int projectID = 0)
+        {
+            StringBuilder result = new StringBuilder();
+            string id = reader["User_ID"].ToString();
+            string name = reader["Name"].ToString();
+            string avatar = reader["avatar"].ToString();
+            result.Append("<div class='person' data-id='" + id + "' title='" + name + "'>");
+            result.Append("<img class='person-avatar' src='" + avatar + "' />");
+            result.Append("<div class='person-name'>" + name + "</div>");
+            if (removeable) result.Append("<div class='person-remove' title='Remove' onclick=\"removeMember("+projectID+"," + id+ ")\"></div>");
+            result.Append("</div>");
+            return result.ToString();
         }
 
         //a.1.1 Helper a.1
@@ -107,10 +125,9 @@ namespace Lanban
         public bool IsProjectMember(int projectID, int userID, int role)
         {
             string table = (role == 1) ? "Project_User" : "Project_Supervisor";
-            myCommand.CommandText = "SELECT Count(*) FROM " + table + " WHERE Project_ID=@projectID AND User_ID=@userID";
+            myCommand.CommandText = "SELECT User_ID FROM " + table + " WHERE Project_ID=@projectID";
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
-            addParameter<int>("@userID", SqlDbType.Int, userID);
-            bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == 1);
+            bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == userID);
             myCommand.Parameters.Clear();
             return result;
         }
@@ -121,8 +138,7 @@ namespace Lanban
             myCommand.CommandText = "SELECT * FROM Users WHERE Username = @username";
             addParameter<string>("@username", SqlDbType.VarChar, username);
             myReader = myCommand.ExecuteReader();
-            bool available = myReader.Read();
-            if (available == true)
+            if (myReader.Read() == true)
             {
                 if (password.Equals(myReader["Password"]))
                 {

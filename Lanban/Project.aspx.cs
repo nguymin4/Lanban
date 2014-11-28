@@ -6,14 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
-using System.Web.Security;
 
 namespace Lanban
 {
     public partial class Project : System.Web.UI.Page
     {
         StringBuilder lists;
-        protected async void Page_Load(object sender, EventArgs e) 
+        protected async void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
@@ -24,7 +23,7 @@ namespace Lanban
                 int role = user.Role;
                 Session["user"] = user;
                 Session["userID"] = user.User_ID;
-                lists = new StringBuilder();
+                lists = new StringBuilder("const userID=" + userID + ";");
 
                 var timer = System.Diagnostics.Stopwatch.StartNew();
                 Task task1 = Task.Run(() => loadProject(userID, role));
@@ -49,7 +48,7 @@ namespace Lanban
             ProjectAccess myAccess = new ProjectAccess();
             myAccess.fetchProject(userID, role);
             var project = myAccess.MyDataSet.Tables["Project"];
-            
+
             Task task1 = Task.Run(() =>
             {
                 for (int i = 0; i < project.Rows.Count; i++)
@@ -58,7 +57,7 @@ namespace Lanban
                     projectbrowser.Controls.Add(ProjectBox(row));
                 }
             });
-            
+
             // Send project list in JSON to client for further processing
             Task task2 = Task.Run(() =>
             {
@@ -68,7 +67,8 @@ namespace Lanban
                 lists.Append(projectList);
             });
 
-            Task.WaitAll(task1, task2);
+            await Task.WhenAll(task1, task2);
+            myAccess.Dipose();
         }
 
         // 1.1 Display each project in box
@@ -76,17 +76,17 @@ namespace Lanban
         {
             string id = row["Project_ID"].ToString();
             string name = row["Name"].ToString();
-            
+
             // Container
             HtmlGenericControl div = new HtmlGenericControl("div");
-            div.ID = "project"+id;
+            div.ID = "project" + id;
             div.Attributes.Add("class", "project-container");
             div.Attributes.Add("onclick", "viewProjectDetail(this, " + id + ")");
 
             // Header
             HtmlGenericControl header = new HtmlGenericControl("div");
             header.Attributes.Add("class", "project-header");
-            header.InnerHtml = id+". "+name;
+            header.InnerHtml = id + ". " + name;
             div.Controls.Add(header);
 
             // Thumbnail
@@ -99,9 +99,9 @@ namespace Lanban
         }
 
         // 1.2 Event handler of clicking on a project box
-        public void gotoProject(string data) 
+        public void gotoProject(string data)
         {
-            
+
             string[] info = data.Split('$');
             Session["projectID"] = info[0];
             Session["projectName"] = info[1];

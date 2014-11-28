@@ -7,7 +7,7 @@ using System.Text;
 namespace Lanban.AccessLayer
 {
     /* Working with task comments */
-    public class UserAccess: Query
+    public class UserAccess : Query
     {
         // Get User ID based on username
         public int getUserID(string username)
@@ -36,10 +36,10 @@ namespace Lanban.AccessLayer
             myCommand.Parameters.Clear();
         }
 
-        //2.7 View assignee/member of a task/backlog/project
+        //2.7 View assignee/member of a task/backlog
         public string viewAssignee(string id, string type)
         {
-            myCommand.CommandText = "SELECT Users.User_ID, Users.[Name] FROM Users INNER JOIN " +
+            myCommand.CommandText = "SELECT Users.User_ID, Users.[Name], Avatar FROM Users INNER JOIN " +
                 "(SELECT User_ID FROM " + type + "_User WHERE " + type + "_ID=@id) AS A ON A.User_ID = Users.User_ID";
             addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
 
@@ -93,8 +93,7 @@ namespace Lanban.AccessLayer
             while (myReader.Read())
             {
                 result.Append("<div class='searchRecord' data-id='" + myReader["User_ID"] + "' ");
-                result.Append("data-avatar='" + myReader["Avatar"] + "' onclick='addUser(this, 2)'>");
-                result.Append(myReader["Name"] + "</div>");
+                result.Append("data-avatar='" + myReader["Avatar"] + "'>" + myReader["Name"] + "</div>");
             }
             if (result.ToString().Equals("")) return "No records found.";
             return result.ToString();
@@ -108,7 +107,7 @@ namespace Lanban.AccessLayer
             addParameter<int>("@supervisorID", SqlDbType.Int, supervisorID);
             myCommand.ExecuteNonQuery();
         }
-        
+
         // 5.9.2 Edit supervisor
         public void deleteSupervisor(int projectID)
         {
@@ -116,5 +115,6 @@ namespace Lanban.AccessLayer
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
             myCommand.ExecuteNonQuery();
         }
+
     }
 }
