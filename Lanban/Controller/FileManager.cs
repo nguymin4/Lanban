@@ -15,7 +15,9 @@ namespace Lanban
             string name = getFileName(uploadFile.FileName);
             string path = "/Uploads/Project_" + projectID.ToString() + "/" + name;
             var filePath = _context.Server.MapPath(path);
-            uploadFile.SaveAs(filePath);
+            
+            try { uploadFile.SaveAs(filePath); }
+            catch (Exception) { }
 
             var param = _context.Request.Params;
             // Create new file object and save info of uploaded file to database
@@ -33,8 +35,12 @@ namespace Lanban
         {
             int fileID = Convert.ToInt32(_context.Request.Params["fileID"]);
             string path = myAccess.getFilePath(fileID);
-            System.IO.File.Delete(_context.Server.MapPath(path));
-            myAccess.deleteTaskFile(fileID, Convert.ToInt32(_context.Session["userID"]));
+            try
+            {
+                System.IO.File.Delete(_context.Server.MapPath(path));
+                myAccess.deleteTaskFile(fileID, Convert.ToInt32(_context.Session["userID"]));
+            }
+            catch (Exception) { };
         }
 
         string[] generalType = { "image", "audio", "video" };
@@ -80,13 +86,22 @@ namespace Lanban
             System.IO.File.Delete(filePath);
 
             // Create new one
+
             using (FileStream fs = new FileStream(filePath, FileMode.Create))
             {
-                using (BinaryWriter bw = new BinaryWriter(fs))
+                try
                 {
-                    byte[] data = Convert.FromBase64String(screenshot);
-                    bw.Write(data);
-                    bw.Close();
+                    using (BinaryWriter bw = new BinaryWriter(fs))
+                    {
+                        byte[] data = Convert.FromBase64String(screenshot);
+                        bw.Write(data);
+                        bw.Close();
+                    }
+                }
+                catch (Exception)
+                {
+                    string path2 = _context.Server.MapPath("~/images/screenshot.jpg");
+                    System.IO.File.Copy(path2, screenshot);
                 }
             }
         }

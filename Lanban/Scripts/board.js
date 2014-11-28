@@ -111,6 +111,17 @@ $(document).ready(function () {
     $("#fileUploadContainer input").val("");
 
     /*Board drag and drop functionality*/
+    init_SortableNote();
+
+    /* Real-time communication */
+    init_TaskCommentHub();
+    init_NoteHub();
+
+});
+
+
+/*Board drag and drop functionality*/
+function init_SortableNote() {
     $(".connected").sortable({
         connectWith: ".connected",
         receive: function (event, ui) {
@@ -179,12 +190,7 @@ $(document).ready(function () {
             }
         }
     }).disableSelection();
-
-    /* Real-time communication */
-    init_TaskCommentHub();
-    init_NoteHub();
-
-});
+}
 
 /* Class: Backlog */
 function Backlog() {
@@ -904,8 +910,9 @@ function showChartWindow() {
 
 //Load pie chart data
 function fetchPieChartData() {
-    var chartPie = document.getElementById("chartPie").getContext("2d");
+    var chartPie = document.getElementById("chartPie");
     var spinner = loadChartSpinner(chartPie);
+    var ctx = chartPie.getContext("2d");
     $.ajax({
         url: "Handler/ChartHandler.ashx",
         data: {
@@ -914,18 +921,18 @@ function fetchPieChartData() {
         },
         type: "get",
         success: function (pieChartData) {
-            $(spinner).fadeOut("fast");
-            $(chartPie).fadeIn("fast");
+            unloadChartSpinner(chartPie);
             if (myPie != null) myPie.destroy();
-            myPie = new Chart(chartPie).Pie(pieChartData);
+            myPie = new Chart(ctx).Pie(pieChartData);
         }
     });
 }
 
 //Load bar chart data
 function fetchBarChartData() {
-    var chartBar = document.getElementById("chartBar").getContext("2d");
+    var chartBar = document.getElementById("chartBar");
     var spinner = loadChartSpinner(chartBar);
+    var ctx = chartBar.getContext("2d");
     $.ajax({
         url: "Handler/ChartHandler.ashx",
         data: {
@@ -934,10 +941,9 @@ function fetchBarChartData() {
         },
         type: "get",
         success: function (barChartData) {
-            $(spinner).fadeOut("fast");
-            $(chartBar).fadeIn("fast");
+            unloadChartSpinner(chartBar);
             if (myBarChart != null) myBarChart.destroy();
-            myBarChart = new Chart(chartBar).Bar(barChartData, {
+            myBarChart = new Chart(ctx).Bar(barChartData, {
                 scaleFontColor: "#FFFFFF",
                 scaleGridLineColor: "rgba(128, 128, 128, 0.2)"
             });
@@ -947,8 +953,9 @@ function fetchBarChartData() {
 
 //Load bar chart data
 function fetchLineGraphData() {
-    var graphLine = document.getElementById("graphLine").getContext("2d");
-    var spinner = loadChartSpinner(graphLine);
+    var graphLine = document.getElementById("graphLine");
+    loadChartSpinner(graphLine);
+    var ctx = graphLine.getContext("2d");
     $.ajax({
         url: "Handler/ChartHandler.ashx",
         data: {
@@ -957,10 +964,9 @@ function fetchLineGraphData() {
         },
         type: "get",
         success: function (lineGraphData) {
-            $(spinner).fadeOut("fast");
-            $(graphLine).fadeIn("fast");
+            unloadChartSpinner(graphLine);
             if (myLineGraph != null) myLineGraph.destroy();
-            myLineGraph = new Chart(graphLine).Line(lineGraphData, {
+            myLineGraph = new Chart(ctx).Line(lineGraphData, {
                 bezierCurve: false,
                 datasetFill: true,
                 scaleFontColor: "#FFFFFF",
@@ -973,10 +979,17 @@ function fetchLineGraphData() {
 // Load spinner while waiting for fetching chart
 function loadChartSpinner(chart) {
     $(chart).css("display", "none");
-    var parent = $(chart).parent();
-    var spinner = parent.find($("loading-spinner"));
+    var parent = chart.parentElement;
+    var spinner = $(parent).find($(".loading-spinner"));
     $(spinner).fadeIn("fast");
-    return spinner;
+}
+
+// Unload spinner after fetching chart
+function unloadChartSpinner(chart) {
+    var parent = chart.parentElement;
+    var spinner = $(parent).find($(".loading-spinner"));
+    $(spinner).fadeOut("fast");
+    $(chart).fadeIn("fast");
 }
 
 /***************************************************/

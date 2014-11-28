@@ -388,10 +388,25 @@ textarea.input-project {
 
 
 /*Sharing window*/
-#sharingWindow .window-content {
-    padding: 10px 20px;
+#sharingWindow {
+    height: 400px;
+    width: 700px;
+}
+
+.left-pane {
+    float: left;
+    width: 360px;
+    margin-left: 20px;
+    margin-top: 20px;
+}
+
+.right-pane {
+    float: left;
+    width: 280px;
+    margin: 30px 20px 0px 20px;
 }
 
 #userList {
     margin-top: 10px;
+    height: 100%;
 }

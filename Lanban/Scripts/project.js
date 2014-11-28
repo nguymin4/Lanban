@@ -38,9 +38,13 @@ $(document).ready(function () {
         this.getElementsByClassName("txtSearchBox")[0].focus();
     });
 
+    // Initialize drag and drop user box
+    init_DragDropUserList();
+
     // Initialize project hub event listener
     init_ProjectHub_Listener();
 });
+
 
 $(window).load(function () {
     unloadPageSpinner();
@@ -275,11 +279,15 @@ function addUser(obj, role) {
     var avatar = obj.getAttribute("data-avatar");
     $("#txtSearchUser").val("").focus();
     var objtext = "<div class='person' data-id='" + id + "' title='" + name + "'>" +
-    "<img class='person-avatar' src='" + avatar + "'></img><div class='person-name'>" + name + "</div></div>";
-    $("#userList").append(objtext);
+    "<img class='person-avatar' src='" + avatar + "'></img><div class='person-name'>" + name + "</div>" +
+    "<div class='person-remove' onclick='removeMember(this)'></div></div>";
+    $("#tempUserList").append(objtext);
 }
 
 function addSupervisor(obj) {
+    var id = obj.getAttribute("data-id");
+    var name = obj.innerHTML;
+    var avatar = obj.getAttribute("data-avatar");
     var objtext = "<div class='person' data-id='" + id + "' title='" + name + "' onclick='removeSupervisor(this)' style='cursor: pointer;'>" +
     "<img class='person-avatar' src='" + avatar + "'></img><div class='person-name'>" + name + "</div></div>";
     $("#txtSupervisor").val("").focus();
@@ -296,7 +304,8 @@ function addSupervisor(obj) {
     }
     supervisorChange = true;
 }
-// When click on active user then it's removed
+
+// When click on active user then remove
 function removeSupervisor(obj) {
     var parent = obj.parentElement;
     parent.removeChild(obj);
@@ -543,4 +552,18 @@ function init_ProjectHub_Listener() {
     proxyUser.on("editProject", function (project) {
 
     });
+}
+
+
+// Initialize drag and drop user in list
+function init_DragDropUserList() {
+    $(".user-list-connected").sortable({
+        connectWith: ".user-list-connected",
+        receive: function (ui, event) {
+            if (!$(ui.target).is("#userList")) {
+                
+            }
+            else $(ui.sender).sortable("cancel");
+        }
+    }).disableSelection();
 }

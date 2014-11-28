@@ -58,8 +58,9 @@ namespace Lanban
                         break;
                 }
             }
-            FinishWork();
+
             myAccess.Dipose();
+            FinishWork();
         }
     }
 }

@@ -92,8 +92,8 @@ namespace Lanban
                 }
             }
 
-            FinishWork();
             myAccess.Dipose();
+            FinishWork();
         }
     }
 }

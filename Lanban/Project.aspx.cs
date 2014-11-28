@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
+using System.Web.UI.WebControls;
 
 namespace Lanban
 {
@@ -16,29 +17,47 @@ namespace Lanban
         {
             if (!IsPostBack)
             {
-                Model.UserModel user = new Query().login("nguymin4", "Lanban2014");
-                new Controller.LanbanAuthentication().Authenticate(Response, user);
-
-                int userID = user.User_ID;
-                int role = user.Role;
-                Session["user"] = user;
-                Session["userID"] = user.User_ID;
-                lists = new StringBuilder("const userID=" + userID + ";");
-
-                var timer = System.Diagnostics.Stopwatch.StartNew();
-                Task task1 = Task.Run(() => loadProject(userID, role));
-                Task task2 = Task.Run(() => loadUser(userID));
-                await task1;
-                await task2;
-                timer.Stop();
-                System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
-                ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "projectScript", lists.ToString(), true);
+                try { await InitProject(); }
+                catch (Exception) { }
             }
             else
             {
                 if (Request.Params["__EVENTTARGET"].Equals("RedirectBoard"))
                     await Task.Run(() => gotoProject(Request.Params["__EVENTARGUMENT"]));
             }
+        }
+
+        protected async Task InitProject()
+        {
+            // Login - temporary for fast testing
+            Query query = new Query();
+            Model.UserModel user = query.login("nguymin4", "Lanban2014");
+            Session["user"] = user;
+            Session["userID"] = user.User_ID;
+            query.Dipose();
+
+            // Init variables
+            int userID = user.User_ID;
+            int role = user.Role;
+            lists = new StringBuilder("const userID=" + userID + ";");
+
+            // Start tasks
+            var timer = System.Diagnostics.Stopwatch.StartNew();
+            Task[] task = new Task[2];
+            task[0] = Task.Run(() => loadProject(userID, role));
+            task[1] = Task.Run(() => loadUser(userID));
+
+            // Profile area
+            var profile = (Image)Master.FindControl("profile");
+            profile.ToolTip = user.Name;
+            profile.ImageUrl = user.Avatar;
+            new Controller.LanbanAuthentication().Authenticate(Response, user);
+
+            // Wait all tasks to be completed
+            await Task.WhenAll(task);
+            timer.Stop();
+            System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
+            ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "projectScript", lists.ToString(), true);
         }
 
         //1. Load all projects

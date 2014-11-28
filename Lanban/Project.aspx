@@ -108,11 +108,16 @@
     <div id="sharingWindow" class="window view">
         <div class="title-bar">Share</div>
         <div class="window-content">
-            <div class="txtSearch">
-                <div class="searchIcon"></div>
-                <input class="txtSearchBox" id="txtSearchMember" type="text" placeholder="Search..." onkeyup="searchUser(this, 1)" onblur="clearResult(this)" />
+            <div class="left-pane">
+                <div class="user-list-connected" id="userList"></div>
             </div>
-            <div id="userList"></div>
+            <div class="right-pane">
+                <div class="txtSearch">
+                    <div class="searchIcon"></div>
+                    <input class="txtSearchBox" id="txtSearchMember" type="text" placeholder="Search..." onkeyup="searchUser(this, 1)" onblur="clearResult(this)" />
+                </div>
+                <div class="user-list-connected" id="tempUserList"></div>
+            </div>
         </div>
     </div>
     <!-- End - The window for Share  -->
@@ -124,10 +129,6 @@
         </div>
     </div>
     <!-- End - The window for Setting  -->
-
-
-
-
 
     <!-- Other elements  -->
     <div id="searchContainer"></div>

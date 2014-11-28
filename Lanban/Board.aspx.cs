@@ -20,28 +20,44 @@ namespace Lanban
         protected void Page_Load(object sender, EventArgs e)
         {
             if ((Session["projectID"] == null) || (!User.Identity.IsAuthenticated))
+            {
                 Response.Redirect("Login.aspx");
+            }
             else
+            {
                 if (!IsPostBack)
-                    InitBoard();
+                {
+                    try { InitBoard(); }
+                    catch (Exception) { }
+                }
                 else
+                {
                     if (Request.Params["__EVENTTARGET"].Equals("RedirectProject"))
                         Response.Redirect("Project.aspx");
+                }
+            }
         }
 
         protected async void InitBoard()
         {
+            Model.UserModel user = (Model.UserModel)Session["user"];
+            userID = user.User_ID;
             projectID = Convert.ToInt32(Session["projectID"]);
-            userID = Convert.ToInt32(Session["userID"]);
-            string name = Session["projectName"].ToString();
-            Page.Title = "Lanban " + name;
-            lblProjectName.Text = name;
-
 
             // Start initialize
             var timer = System.Diagnostics.Stopwatch.StartNew();
             Task task1 = createKanban();
             Task task2 = Task.Run(() => initDropdownList());
+
+            // Profile general info
+            string name = Session["projectName"].ToString();
+            Page.Title = "Lanban " + name;
+            lblProjectName.Text = name;
+
+            //Profile area
+            var profile = (Image)Master.FindControl("profile");
+            profile.ToolTip = user.Name;
+            profile.ImageUrl = user.Avatar;
 
             // Authentication
             var authen = new Controller.LanbanAuthentication();
@@ -50,8 +66,7 @@ namespace Lanban
             ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "boardScript", script, true);
 
             // Wait all task to complete
-            await task1;
-            await task2;
+            await Task.WhenAll(task1, task2);
             timer.Stop();
             System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds);
         }
@@ -88,7 +103,7 @@ namespace Lanban
 
                 tasks.Add(Task.Run(() => createHeader(row, tempi)));
                 tasks.Add(Task.Run(() => createCell(row, tempi)));
-                System.Diagnostics.Debug.WriteLine("Column" + tempi);
+                //System.Diagnostics.Debug.WriteLine("Column" + tempi);
             }
 
             await Task.WhenAll(tasks.ToArray());
@@ -120,7 +135,7 @@ namespace Lanban
         //1.2 Add table cell to kanban board with sticky note
         protected async Task createCell(DataRow row, int position)
         {
-            System.Diagnostics.Debug.WriteLine("Cell" + position);
+            //System.Diagnostics.Debug.WriteLine("Cell" + position);
             int swimlane_id = Convert.ToInt32(row["Swimlane_ID"]);
             string type = row["Type"].ToString();
             //Initialize
@@ -138,7 +153,7 @@ namespace Lanban
         protected async Task addNotes(int swimlane_id, string type, int position)
         {
             SwimlaneAccess tempAccess = new SwimlaneAccess();
-            
+
             //Fetch data
             if (!type.Equals("3"))
             {
@@ -147,10 +162,10 @@ namespace Lanban
             }
             else
                 tempAccess.fetchDoneNote(swimlane_id);
-            
+
             var tempTable = tempAccess.MyDataSet.Tables["init_temp"];
             int count = tempTable.Rows.Count;
-            
+
             // Reserve the slot for note
             HtmlGenericControl[] notes = new HtmlGenericControl[count];
             for (int i = 0; i < count; i++)
@@ -176,7 +191,7 @@ namespace Lanban
                 {
                     var tempi = i;
                     var row = tempTable.Rows[i];
-                    task.Add(Task.Run(() => 
+                    task.Add(Task.Run(() =>
                         createNote(ref notes[tempi], row, row["Type"].ToString())));
                 }
             }

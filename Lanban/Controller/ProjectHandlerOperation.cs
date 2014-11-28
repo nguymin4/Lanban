@@ -75,9 +75,8 @@ namespace Lanban
                     else RedirectPage(errorPage);
                     break;
             }
-
-            FinishWork();
             myAccess.Dipose();
+            FinishWork();
         }
     }
 }

@@ -70,9 +70,8 @@ namespace Lanban
                     myAccess.saveSupervisor(projectID, Convert.ToInt32(param["supervisorID"]));
                     break;
             }
-            
-            FinishWork();
             myAccess.Dipose();
+            FinishWork();
         }
     }
 }
