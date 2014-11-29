@@ -26,7 +26,6 @@ function openAddProjectWindow(index) {
     }
 }
 
-
 $(document).ready(function () {
     /*Add customized scroll bar*/
     $("#projectbrowser, #projectdetail-description, .right-window-content").perfectScrollbar({
@@ -593,7 +592,8 @@ function addMember(arg, projectID) {
             },
             global: false,
             type: "get",
-            success: function (result) {
+            success: function () {
+                proxyUser.invoke("addUser", projectID, arg);
             }
         });
     }

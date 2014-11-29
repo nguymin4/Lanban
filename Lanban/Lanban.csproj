@@ -221,7 +221,7 @@
       <DependentUpon>Login.aspx</DependentUpon>
     </Compile>
     <Compile Include="Model\Item.cs" />
-    <Compile Include="Model\UserModel.cs" />
+    <Compile Include="Model\User.cs" />
     <Compile Include="Project.aspx.cs">
       <DependentUpon>Project.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

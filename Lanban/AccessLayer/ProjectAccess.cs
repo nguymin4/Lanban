@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using Newtonsoft.Json;
 
 
 namespace Lanban.AccessLayer
@@ -66,6 +67,7 @@ namespace Lanban.AccessLayer
                 result.Append(getPersonContainer(myReader, owner, projectID));
                 string temp = myReader["User_ID"].ToString();
             }
+            myReader.Close();
             myCommand.Parameters.Clear();
             return result.ToString();
         }
@@ -144,8 +146,21 @@ namespace Lanban.AccessLayer
             myReader = myCommand.ExecuteReader();
             while (myReader.Read())
                 IDs.Add(Convert.ToInt32(myReader[0]));
+            myReader.Close();
             myCommand.Parameters.Clear();
             return IDs;
         }
+
+        // Get Project Data
+        public Dictionary<string,object> getProjectData(int projectID)
+        {
+            myCommand.CommandText = "SELECT * FROM Project WHERE Project_ID=@projectID";
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
+            myReader = myCommand.ExecuteReader();
+            myReader.Read();
+            var projectData = SerializeRow(myReader);
+            myReader.Close();
+            return projectData;
+        }
     }
-}
+} 

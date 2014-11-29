@@ -6,8 +6,13 @@ var viewIndicator
 function showView(index) {
     if (index != currentView) {
         //Hide secondary window when it is opening in the Board.aspx
-        if (document.getElementById("kanbanWindow") != null)
+        if (document.getElementById("kanbanWindow") != null) {
             if (!((currentView != 0) && (index != 0))) hideWindow();
+        }
+        // Reset data-project-id sharingWindow Project.aspx
+        else {
+            if (currentView == 2) view[currentView].setAttribute("data-project-id", "");
+        }
 
         //Change main window
         view[currentView].setAttribute("class", "window view");
@@ -66,8 +71,8 @@ $(document).ready(function () {
 function unloadPageSpinner() {
     $("#overlay").fadeOut(1000, "swing");
     $("#container").fadeOut(1000, "swing", function () {
-        $("#notiIndicator").fadeIn(1000);
         $("#container").fadeIn(1000);
+        if ($("#notiIndicator").html() != "") $("#notiIndicator").fadeIn(0);
     });
 }
 
@@ -84,13 +89,16 @@ function loadPageSpinner() {
 function initNotificationCenter() {
     $("#notiCenter").perfectScrollbar({
         wheelSpeed: 3,
-        wheelPropagation: false
+        wheelPropagation: false,
+        suppressScrollX: true,
+        includePadding: true
     });
 
-    $("#notiIndicator").on("click", function (e) {
+    $("#notiIndicator, #profile").on("click", function (e) {
         e.stopImmediatePropagation();
-        $(this).fadeOut("fast").html("");
-        $("#notiCenter").fadeIn("fast").perfectScrollbar("update");
+        $("#notiIndicator").fadeOut("fast").html("");
+        if ($("#notiCenter").find($(".noti-msg")).get(0) != null)
+            $("#notiCenter").fadeIn("fast").perfectScrollbar("update");
     });
 
     $("#container").on("click", function () {
@@ -169,19 +177,30 @@ function init_UserHub() {
     connUser = $.hubConnection();
     proxyUser = connUser.createHubProxy("userHub");
 
-    proxyUser.on("receiveMessage", function (message) {
-        console.log(message);
-    });
-
-    proxyUser.on("receiveInvite", function (invite) {
-
+    proxyUser.on("msgAddUser", function (sender, newMem, projectName) {
+        if (newMem.User_ID != userID)
+            newMsgAddUser(sender.Avatar, sender.Name, newMem.Name, projectName);
+        else
+            newMsgAddUser(sender.Avatar, sender.Name, "You", projectName);
     });
 
     connUser.start().done(function () {
     });
 }
 
-// Test zone
-function sendMessage(userID, message) {
-    proxyUser.invoke("sendMessage", userID, message);
+/* Notification center */
+function newMsgAddUser(avatar, name, newMem, project) {
+    content = "<div class='noti-msg'><img src='" + avatar + "' class='noti-msg-avatar' />" +
+        "<div class='noti-msg-content'><span class='subject'>"+name+"</span> added "+
+        "<span class='target'>" + newMem + "</span> to <i>" + project + "</i></div>";
+    $("#notiCenter").prepend(content);
+    updateNotiIndicator();
+}
+
+function updateNotiIndicator() {
+    var msgNum = $("#notiIndicator").html();
+    if (msgNum == "") msgNum = 1;
+    else msgNum++;
+    console.log(msgNum);
+    $("#notiIndicator").html(msgNum).fadeIn("fast");
 }

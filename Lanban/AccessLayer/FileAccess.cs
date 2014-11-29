@@ -29,9 +29,9 @@ namespace Lanban.AccessLayer
             addParameter<string>("@name", SqlDbType.NVarChar, file.Name);
             addParameter<string>("@type", SqlDbType.VarChar, file.Type);
             addParameter<string>("@path", SqlDbType.NVarChar, file.Path);
-            string id = myCommand.ExecuteScalar().ToString();
+            file.File_ID = Convert.ToInt32(myCommand.ExecuteScalar());
             myCommand.Parameters.Clear();
-            return getFileDisplay(id, file);
+            return getFileDisplay(file);
         }
 
         // 2.9.2 Delete a file of a task
@@ -52,19 +52,10 @@ namespace Lanban.AccessLayer
 
             StringBuilder result = new StringBuilder();
             myReader = myCommand.ExecuteReader();
-            bool available = myReader.Read();
-            if (available == false) result.Append("");
-            else
+            while (myReader.Read())
             {
-                while (available)
-                {
-                    FileModel temp = new FileModel();
-                    temp.Name = myReader["Name"].ToString();
-                    temp.Type = myReader["Type"].ToString();
-                    temp.Path = myReader["Path"].ToString();
-                    result.Append(getFileDisplay(myReader["File_ID"].ToString(), temp));
-                    available = myReader.Read();
-                }
+                FileModel file = SerializeTo<FileModel>(myReader);
+                result.Append(getFileDisplay(file));
             }
             myReader.Close();
             myCommand.Parameters.Clear();
@@ -72,14 +63,14 @@ namespace Lanban.AccessLayer
         }
 
         // 2.9.a Get Visual display of a file
-        public string getFileDisplay(string fileID, FileModel file)
+        public string getFileDisplay(FileModel file)
         {
             StringBuilder result = new StringBuilder();
-            result.Append("<div class='file-container' data-id=" + fileID + " title='" + file.Name + "'>");
+            result.Append("<div class='file-container' data-id=" + file.File_ID + " title='" + file.Name + "'>");
             result.Append("<a href='" + file.Path + "'>");
             result.Append("<img class='file-icon' src='images/files/" + file.Type + ".png' />");
             result.Append("<div class='file-name'>" + file.Name + "</div></a>");
-            result.Append("<div class='file-remove' title='Delete' onclick=\"deleteFile(" + fileID + ")\"></div></div>");
+            result.Append("<div class='file-remove' title='Delete' onclick=\"deleteFile(" + file.File_ID + ")\"></div></div>");
             return result.ToString();
         }
 

@@ -256,56 +256,6 @@ input[name="txtSearchProject"]:focus {
     margin-bottom: 10px;
 }
 
-/* A box contain avatar and name of the person*/
-.person {
-    position: relative;
-    display: inline-block;
-    text-align: center;
-    margin: 5px;
-}
-
-    .person:hover .person-remove {
-        display: block;
-    }
-
-.person-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    margin: auto;
-}
-
-.person-name {
-    width: 75px;
-    height: 18px;
-    line-height: 18px;
-    font-size: 14px;
-    overflow: hidden;
-    word-wrap: break-word;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.person-remove {
-    display: none;
-    position: absolute;
-    background: url('/images/sidebar/remove.png');
-    background-size: cover;
-    right: 6px;
-    top: -3px;
-    z-index: 1000;
-    display: none;
-    width: 18px;
-    height: 18px;
-    transition: 0.2s ease;
-    cursor: pointer;
-}
-
-    .person-remove:hover {
-        width: 20px;
-        height: 20px;
-    }
-
 /* Project input box */
 .input-project {
     display: block;

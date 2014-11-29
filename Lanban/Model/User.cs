@@ -14,4 +14,13 @@ namespace Lanban.Model
         public int Role { get; set; }
         public string Avatar { get; set; }
     }
+
+    public class Comment
+    {
+        public int Comment_ID { get; set; }
+        public int User_ID { get; set; }
+        public string Content { get; set; }
+        public string Name { get; set; }
+        public string Avatar { get; set; }
+    }
 }

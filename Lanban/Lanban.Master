@@ -1,4 +1,4 @@
-﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Lanban.master.cs" Inherits="Lanban.Lanban" ClientIDMode="Static"%>
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Lanban.master.cs" Inherits="Lanban.Lanban" ClientIDMode="Static" %>
 
 <html>
 <head runat="server">
@@ -32,10 +32,11 @@
             <%-- End Part 2: --%>
             <div id="info">
                 <hr />
-                <asp:Image runat="server" ID="profile" />
-                <div id="notiIndicator">1</div>
+                <asp:Image runat="server" ID="profile" CssClass="person-avatar" />
+                <div id="notiIndicator"></div>
                 <div id="notiCenter"></div>
-                <input type="button" runat="server" title="Log out" class="sidebar_icon_med" id="btnLogout" onclick="loadPageSpinner();" onserverclick="btnLogout_ServerClick" />
+                <input type="button" runat="server" title="Log out" class="sidebar_icon_med" id="btnLogout"
+                    onclick="loadPageSpinner();" onserverclick="btnLogout_ServerClick" />
             </div>
         </div>
 

@@ -104,10 +104,8 @@ body {
 }
 
 #profile {
-    width: 48px;
-    height: 48px;
     margin: auto auto 8px auto;
-    border-radius:  50%;
+    cursor: pointer;
 }
 
 #btnLogout {
@@ -306,6 +304,57 @@ body {
 }
 
 
+/* A box contain avatar and name of the person*/
+.person {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    margin: 5px;
+}
+
+    .person:hover .person-remove {
+        display: block;
+    }
+
+.person-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin: auto;
+}
+
+.person-name {
+    width: 75px;
+    height: 18px;
+    line-height: 18px;
+    font-size: 14px;
+    overflow: hidden;
+    word-wrap: break-word;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.person-remove {
+    display: none;
+    position: absolute;
+    background: url('/images/sidebar/remove.png');
+    background-size: cover;
+    right: 6px;
+    top: -3px;
+    z-index: 1000;
+    display: none;
+    width: 18px;
+    height: 18px;
+    transition: 0.2s ease;
+    cursor: pointer;
+}
+
+    .person-remove:hover {
+        width: 20px;
+        height: 20px;
+    }
+
+
 /*Notification*/
 #notiIndicator {
     position: absolute;
@@ -327,24 +376,48 @@ body {
     position: absolute;
     display: none;
     z-index: 1000;
-    width: 200px;
-    height: 200px;
-    bottom: 10px;
+    width: 290px;
+    max-height: 200px;
+    bottom: 35px;
     left: 70px;
-    background: rgba(25, 15, 15, 0.35);
+    background: url("../images/background/main_background.jpg");
     background-size: cover;
     border-radius: 8px;
-    box-shadow: 0px 10px 20px 5px #000;
+    box-shadow: 0px 5px 20px 1px #000;
     border: 1px solid gray;
-}
-
-#notiCenter:first-child {
-    margin-top: 5px;
+    overflow: hidden;
 }
 
 .noti-msg {
-    width: 180px;
-    height: 50px;
-    border: solid 1px gray;
-    margin: auto auto 5px auto;
+    width: 100%;
+    clear: both;
+    padding: 5px;
+}
+
+.noti-msg-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: block;
+    float: left;
+    margin-top: 2px;
+}
+
+.noti-msg-content {
+    float: left;
+    width: 200px;
+    height: 54px;
+    color: gray;
+    white-space: normal;
+    font-size: 12px;
+    line-height: 18px;
+    background: white;
+    border-radius: 6px;
+    margin: auto auto 5px 10px;
+    padding: 5px;
+}
+
+.noti-msg .subject, .noti-msg .target {
+    font-weight: 600;
+    color: black;
 }

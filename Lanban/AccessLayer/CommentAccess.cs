@@ -2,12 +2,13 @@
 using System.Data;
 using System.Text;
 using System.Text.RegularExpressions;
+using Lanban.Model;
 
 
 namespace Lanban.AccessLayer
 {
     /* Working with task comments */
-    public class CommentAccess: Query
+    public class CommentAccess : Query
     {
         /* Working with task comments */
         // View all comments of a task
@@ -19,15 +20,10 @@ namespace Lanban.AccessLayer
 
             StringBuilder result = new StringBuilder();
             myReader = myCommand.ExecuteReader();
-            bool available = myReader.Read();
-            if (available == false) result.Append("");
-            else
+            while (myReader.Read())
             {
-                while (available)
-                {
-                    result.Append(getCommentDisplay(userID));
-                    available = myReader.Read();
-                }
+                var comment = SerializeTo<Comment>(myReader);
+                result.Append(getCommentDisplay(userID, comment));
             }
             myReader.Close();
             myCommand.Parameters.Clear();
@@ -73,16 +69,17 @@ namespace Lanban.AccessLayer
         }
 
         // Get comment visual object
-        protected string getCommentDisplay(int userID)
+        protected string getCommentDisplay(int userID, Comment comment)
         {
-            int id = Convert.ToInt32(myReader["Comment_ID"]);
-            int owner = Convert.ToInt32(myReader["User_ID"]);
-            string content = myReader["Content"].ToString();
+            int id = comment.Comment_ID;
+            int owner = comment.User_ID;
+            string content = comment.Content;
             content = Regex.Replace(content, @"\r\n?|\n", "<br />");
             StringBuilder result = new StringBuilder();
+
             if (owner == userID) result.Append("<div class='comment-box' id='comment." + id + "'><div class='comment-panel'>");
             else result.Append("<div class='comment-box'><div class='comment-panel'>");
-            result.Append("<img class='comment-profile' src='" + myReader["Avatar"] + "' title='" + myReader["Name"] + "' /></div>");
+            result.Append("<img class='comment-profile' src='" + comment.Avatar + "' title='" + comment.Name + "' /></div>");
             result.Append("<div class='comment-container'><div class='comment-content'>" + content + "</div>");
             if (owner == userID)
             {

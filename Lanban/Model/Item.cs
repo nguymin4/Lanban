@@ -41,6 +41,7 @@ namespace Lanban.Model
 
     public class FileModel
     {
+        public int File_ID { get; set; }
         public int Task_ID { get; set; }
         public int User_ID { get; set; }
         public string Name { get; set; }

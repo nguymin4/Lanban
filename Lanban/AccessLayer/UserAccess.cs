@@ -14,7 +14,35 @@ namespace Lanban.AccessLayer
         {
             myCommand.CommandText = "SELECT User_ID FROM Users WHERE Username = @username";
             addParameter<string>("@username", SqlDbType.NVarChar, username);
-            return Convert.ToInt32(myCommand.ExecuteScalar());
+            int result = Convert.ToInt32(myCommand.ExecuteScalar());
+            myCommand.Parameters.Clear();
+            return result;
+        }
+
+        // Get user data  based on username/id
+        public UserModel getUserData<T>(T id)
+        {
+            dynamic uid = id;
+            string type = uid.GetType().ToString();
+            if (type.Contains("String"))
+            {
+                myCommand.CommandText = "SELECT * FROM Users WHERE Username = @username";
+                addParameter<string>("@username", SqlDbType.NVarChar, uid);
+            }
+            else
+            {
+                myCommand.CommandText = "SELECT * FROM Users WHERE User_ID = @uid";
+                addParameter<int>("@uid", SqlDbType.Int, uid);
+            }
+            
+            UserModel user = null;
+            myReader = myCommand.ExecuteReader();
+            if (myReader.Read())
+                user = SerializeTo<UserModel>(myReader);
+
+            myReader.Close();
+            myCommand.Parameters.Clear();
+            return user;
         }
 
         //2.6.1 Save assignee/member of a task/backlog/project
@@ -45,16 +73,9 @@ namespace Lanban.AccessLayer
 
             StringBuilder result = new StringBuilder();
             myReader = myCommand.ExecuteReader();
-            bool available = myReader.Read();
-            if (available == false) result.Append("");
-            else
-            {
-                while (available)
-                {
-                    result.Append(getAssigneeDisplay(myReader[0].ToString(), myReader[1].ToString()));
-                    available = myReader.Read();
-                }
-            }
+            while (myReader.Read())
+                result.Append(getAssigneeDisplay(myReader[0].ToString(), myReader[1].ToString()));
+            
             myReader.Close();
             myCommand.Parameters.Clear();
             return result.ToString();

@@ -1,6 +1,7 @@
 ﻿using Lanban.Model;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
@@ -51,7 +52,7 @@ namespace Lanban
             myCommand.Parameters.Add(parameter, type);
             myCommand.Parameters[parameter].Value = value;
         }
-        
+
         //2.7.1 Helper 2.7
         protected string getAssigneeDisplay(string id, string name)
         {
@@ -59,16 +60,28 @@ namespace Lanban
             return display;
         }
 
-        protected string getPersonContainer(SqlDataReader reader, bool removeable, int projectID = 0)
+        public string getPersonContainer<T>(T obj, bool removeable, int projectID = 0)
         {
             StringBuilder result = new StringBuilder();
-            string id = reader["User_ID"].ToString();
-            string name = reader["Name"].ToString();
-            string avatar = reader["avatar"].ToString();
+            string id = "", name = "", avatar = "";
+            dynamic reader = obj;
+            string type = obj.GetType().ToString();
+            if (obj.GetType().ToString().Contains("SqlDataReader"))
+            {
+                id = reader["User_ID"].ToString();
+                name = reader["Name"].ToString();
+                avatar = reader["avatar"].ToString();
+            }
+            else
+            {
+                id = reader.User_ID.ToString();
+                name = reader.Name;
+                avatar = reader.Avatar;
+            }
             result.Append("<div class='person' data-id='" + id + "' title='" + name + "'>");
             result.Append("<img class='person-avatar' src='" + avatar + "' />");
             result.Append("<div class='person-name'>" + name + "</div>");
-            if (removeable) result.Append("<div class='person-remove' title='Remove' onclick=\"removeMember(this.parentElement,"+projectID+")\"></div>");
+            if (removeable) result.Append("<div class='person-remove' title='Remove' onclick=\"removeMember(this.parentElement," + projectID + ")\"></div>");
             result.Append("</div>");
             return result.ToString();
         }
@@ -132,27 +145,35 @@ namespace Lanban
             return result;
         }
 
+        // Serialize row of reader
+        public Dictionary<string, object> SerializeRow(SqlDataReader reader)
+        {
+            var result = new Dictionary<string, object>();
+            for (int i = 0; i < reader.FieldCount; i++)
+                result.Add(reader.GetName(i), reader.GetValue(i));
+            return result;
+        }
+
+        // Convert a reader to object
+        public T SerializeTo<T>(SqlDataReader reader) {
+            var temp = JsonConvert.SerializeObject(SerializeRow(reader));
+            return JsonConvert.DeserializeObject<T>(temp);
+        }
+
         /*4. Login page */
         public UserModel login(string username, string password)
         {
             myCommand.CommandText = "SELECT * FROM Users WHERE Username = @username";
             addParameter<string>("@username", SqlDbType.VarChar, username);
             myReader = myCommand.ExecuteReader();
-            if (myReader.Read() == true)
+            UserModel user = null;
+            if (myReader.Read())
             {
                 if (password.Equals(myReader["Password"]))
-                {
-                    UserModel user = new UserModel();
-                    user.User_ID = Convert.ToInt32(myReader["User_ID"]);
-                    user.Username = myReader["Username"].ToString();
-                    user.Name = myReader["Name"].ToString();
-                    user.Role = Convert.ToInt32(myReader["Role"]);
-                    user.Avatar = myReader["Avatar"].ToString();
-                    return user;
-                }
+                    user = SerializeTo<UserModel>(myReader);
+                myReader.Close();
             }
-            return null;
+            return user;
         }
-        
     }
 }
