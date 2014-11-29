@@ -111,7 +111,7 @@ $(document).ready(function () {
     $("#fileUploadContainer input").val("");
 
     /*Board drag and drop functionality*/
-    init_SortableNote();
+    init_BoardDragDrop();
 
     /* Real-time communication */
     init_TaskCommentHub();
@@ -119,9 +119,8 @@ $(document).ready(function () {
 
 });
 
-
 /*Board drag and drop functionality*/
-function init_SortableNote() {
+function init_BoardDragDrop() {
     $(".connected").sortable({
         connectWith: ".connected",
         receive: function (event, ui) {
@@ -164,7 +163,6 @@ function init_SortableNote() {
             ui.item.type = $(ui.item).attr("data-type");
         },
         stop: function (event, ui) {
-
             //If the note didn't move to another swimlane
             if ((ui.item.targetLane == null) && (ui.item.startPos != ui.item.index())) {
                 var index = ui.item.index();
@@ -311,6 +309,7 @@ function updatePosition(itemID, pos, type) {
         url: "Handler/ItemHandler.ashx",
         data: {
             action: "updatePosition",
+            projectID: projectID,
             type: table,
             itemID: itemID,
             pos: pos
@@ -330,6 +329,7 @@ function changeLane(itemID, type, swimlane_id, pos) {
         url: "Handler/ItemHandler.ashx",
         data: {
             action: "changeSwimlane",
+            projectID: projectID,
             type: table,
             itemID: itemID,
             swimlane: swimlane_id,

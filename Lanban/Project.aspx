@@ -109,6 +109,7 @@
         <div class="title-bar">Share</div>
         <div class="window-content">
             <div class="left-pane">
+                <div id="userListOverlay"><span>Drop here</span></div>
                 <div class="user-list-connected" id="userList"></div>
             </div>
             <div class="right-pane">

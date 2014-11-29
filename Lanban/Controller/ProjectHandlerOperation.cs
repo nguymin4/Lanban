@@ -57,10 +57,6 @@ namespace Lanban
                     else RedirectPage(errorPage);
                     break;
 
-                case "quitProject":
-                    if (!myAccess.quitProject(projectID, userID, user.Role)) RedirectPage(errorPage);
-                    break;
-
                 // Get data of all supervisors in a project
                 case "fetchSupervisor":
                     if (myAccess.IsProjectMember(projectID, userID, user.Role))
@@ -72,6 +68,13 @@ namespace Lanban
                 case "fetchUser":
                     if (myAccess.IsProjectMember(projectID, userID, user.Role))
                         result = myAccess.fetchUser(projectID, userID);
+                    else RedirectPage(errorPage);
+                    break;
+                
+                // Kick a user
+                case "kickUser":
+                    if (myAccess.IsOwner(projectID, userID))
+                        myAccess.kickUser(projectID, Convert.ToInt32(param["uid"]));
                     else RedirectPage(errorPage);
                     break;
             }

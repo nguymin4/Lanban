@@ -68,7 +68,7 @@ namespace Lanban
             result.Append("<div class='person' data-id='" + id + "' title='" + name + "'>");
             result.Append("<img class='person-avatar' src='" + avatar + "' />");
             result.Append("<div class='person-name'>" + name + "</div>");
-            if (removeable) result.Append("<div class='person-remove' title='Remove' onclick=\"removeMember("+projectID+"," + id+ ")\"></div>");
+            if (removeable) result.Append("<div class='person-remove' title='Remove' onclick=\"removeMember(this.parentElement,"+projectID+")\"></div>");
             result.Append("</div>");
             return result.ToString();
         }

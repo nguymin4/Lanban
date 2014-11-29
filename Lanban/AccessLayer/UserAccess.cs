@@ -116,5 +116,16 @@ namespace Lanban.AccessLayer
             myCommand.ExecuteNonQuery();
         }
 
+        // 5.7 A member quit project
+        public bool quitProject(int projectID, int userID, int role)
+        {
+            string table = (role == 1) ? "Project_User" : "Project_Supervisor";
+            myCommand.CommandText = "DELETE FROM " + table + " WHERE Project_ID=@projectID AND User_ID=@userID";
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
+            addParameter<int>("@userID", SqlDbType.Int, userID);
+            bool result = (myCommand.ExecuteNonQuery() == 1);
+            myCommand.Parameters.Clear();
+            return result;
+        }
     }
 }

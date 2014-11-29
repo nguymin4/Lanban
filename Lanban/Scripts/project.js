@@ -26,6 +26,7 @@ function openAddProjectWindow(index) {
     }
 }
 
+
 $(document).ready(function () {
     /*Add customized scroll bar*/
     $("#projectbrowser, #projectdetail-description, .right-window-content").perfectScrollbar({
@@ -39,16 +40,36 @@ $(document).ready(function () {
     });
 
     // Initialize drag and drop user box
-    init_DragDropUserList();
+    init_UserDragDrop();
 
     // Initialize project hub event listener
     init_ProjectHub_Listener();
 });
 
-
 $(window).load(function () {
     unloadPageSpinner();
 });
+
+// Initialize drag and drop user box
+function init_UserDragDrop() {
+    $(".user-list-connected").sortable({
+        connectWith: ".user-list-connected",
+        receive: function (event, ui) {
+            if ($(this).is($("#userList"))) {
+                var item = $(ui.item);
+                var projectID = $("#sharingWindow").attr("data-project-id");
+
+                if (userID != findProject(projectID).Owner) $(".person-remove", item).remove();
+                else
+                    $(".person-remove", item).attr("onclick", "removeMember(this.parentElement," + projectID + ")");
+
+                // Update database
+                addMember(item.attr("data-id"), projectID);
+            }
+            else $(ui.sender).sortable("cancel");
+        }
+    }).disableSelection();
+}
 
 /* A.Business logic */
 /* Class Project */
@@ -263,25 +284,13 @@ function searchUser(searchBox, role) {
                     var pos = searchBox.getBoundingClientRect();
                     $(searchContainer).css("top", pos.top + 40).css("left", pos.left);
                     $(searchContainer).html(result).fadeIn("fast");
-                    var func = (role == 1) ? "addUser(this)" : "addSupervisor(this)";
+                    var func = (role == 1) ? "addMember(this)" : "addSupervisor(this)";
                     $("#searchContainer .searchRecord").attr("onclick", func);
                 }
             });
         }, 200);
     }
     else clearResult();
-}
-
-// Add assignee name result
-function addUser(obj, role) {
-    var id = obj.getAttribute("data-id");
-    var name = obj.innerHTML;
-    var avatar = obj.getAttribute("data-avatar");
-    $("#txtSearchUser").val("").focus();
-    var objtext = "<div class='person' data-id='" + id + "' title='" + name + "'>" +
-    "<img class='person-avatar' src='" + avatar + "'></img><div class='person-name'>" + name + "</div>" +
-    "<div class='person-remove' onclick='removeMember(this)'></div></div>";
-    $("#tempUserList").append(objtext);
 }
 
 function addSupervisor(obj) {
@@ -434,13 +443,13 @@ function deleteProject(id) {
             // Delete project in other clients
         }
     });
-    doAfterDeleteProject();
+    doAfterDeleteProject(id);
 }
 
 /*7 Quit project */
 function quitProject(id) {
     $.ajax({
-        url: "Handler/ProjectHandler.ashx",
+        url: "Handler/UserHandler.ashx",
         data: {
             action: "quitProject",
             projectID: id
@@ -451,10 +460,10 @@ function quitProject(id) {
             //  In other clients
         }
     });
-    doAfterDeleteProject();
+    doAfterDeleteProject(id);
 }
 
-function doAfterDeleteProject() {
+function doAfterDeleteProject(id) {
     hideProjectDetail();
     var project = $("#project" + id);
     project.fadeOut("fast", function () { project.remove() });
@@ -467,6 +476,7 @@ function doAfterDeleteProject() {
 function shareProject(id) {
     showProcessingDiaglog();
     showView(2);
+    $("#sharingWindow").attr("data-project-id", id);
     $.ajax({
         url: "Handler/ProjectHandler.ashx",
         data: {
@@ -555,15 +565,57 @@ function init_ProjectHub_Listener() {
 }
 
 
-// Initialize drag and drop user in list
-function init_DragDropUserList() {
-    $(".user-list-connected").sortable({
-        connectWith: ".user-list-connected",
-        receive: function (ui, event) {
-            if (!$(ui.target).is("#userList")) {
-                
+/* Add new user to the project */
+
+// Based on teh number of parameter
+// 1. Add project member to temp list
+// 2. Add project member to official list and update data in server
+function addMember(arg, projectID) {
+    if (arguments.length - 1 == 0) {
+        var obj = arg;
+        var id = obj.getAttribute("data-id");
+        var name = obj.innerHTML;
+        var avatar = obj.getAttribute("data-avatar");
+        $("#txtSearchUser").val("").focus();
+        var objtext = "<div class='person' data-id='" + id + "' title='" + name + "'>" +
+        "<img class='person-avatar' src='" + avatar + "'></img><div class='person-name'>" + name + "</div>" +
+        "<div class='person-remove' onclick='removeMember(this.parentElement)'></div></div>";
+        $("#tempUserList").append(objtext);
+    }
+    else {
+        $.ajax({
+            url: "Handler/UserHandler.ashx",
+            data: {
+                action: "saveAssignee",
+                itemID: projectID,
+                assigneeID: arg,
+                type: "Project"
+            },
+            global: false,
+            type: "get",
+            success: function (result) {
             }
-            else $(ui.sender).sortable("cancel");
-        }
-    }).disableSelection();
+        });
+    }
+}
+
+// Remove project member - based on number of args
+// 1. Remove project member in temporary list
+// 2. Kick the memeber out of project update database
+function removeMember(obj, projectID) {
+    if (arguments.length == 2) {
+        $.ajax({
+            url: "Handler/ProjectHandler.ashx",
+            data: {
+                action: "kickUser",
+                projectID: projectID,
+                uid: $(obj).attr("data-id")
+            },
+            global: false,
+            type: "get"
+        });
+    }
+
+    // Remove visual
+    $(obj).remove();
 }

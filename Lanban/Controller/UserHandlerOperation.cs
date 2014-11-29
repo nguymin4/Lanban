@@ -27,7 +27,8 @@ namespace Lanban
         {
             var param = _context.Request.Params;
             int projectID = Convert.ToInt32(param["projectID"]);
-            int userID = Convert.ToInt32(_context.Session["userID"]);
+            var user = (UserModel)_context.Session["user"];
+            int userID = user.User_ID;
 
             switch (action)
             {
@@ -37,20 +38,25 @@ namespace Lanban
                     result = myAccess.searchAssignee(projectID, param["keyword"], param["type"]);
                     break;
                 
-                // View all assignees/members of an item
+                // View all assignees/members of an item - Backlog/Task
                 case "viewAssignee":
                     result = myAccess.viewAssignee(param["itemID"], param["type"]);
                     break;
 
-                // Save assignee/member of an object
+                // Save assignee/member of an object - Project/Backlog/Task
                 case "saveAssignee":
                     string aID = param["assigneeID"];
                     myAccess.saveAssignee(param["itemID"], param["type"], aID);
                     break;
 
-                // Delete all assignees/member of an object
+                // Delete all assignees/member of an object - Backlog/Task
                 case "deleteAssignee":
                     myAccess.deleteAssignee(param["itemID"], param["type"]);
+                    break;
+
+                // A user quit a project
+                case "quitProject":
+                    if (!myAccess.quitProject(projectID, userID, user.Role)) RedirectPage(errorPage);
                     break;
 
                 // Get the user data based on name and role

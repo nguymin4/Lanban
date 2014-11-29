@@ -47,6 +47,7 @@ namespace Lanban.AccessLayer
             {
                 result.Append(getPersonContainer(myReader, false));
             }
+            myCommand.Parameters.Clear();
             return result.ToString();
         }
 
@@ -62,9 +63,10 @@ namespace Lanban.AccessLayer
             myReader = myCommand.ExecuteReader();
             while (myReader.Read())
             {
-                result.Append(getPersonContainer(myReader, owner));
+                result.Append(getPersonContainer(myReader, owner, projectID));
                 string temp = myReader["User_ID"].ToString();
             }
+            myCommand.Parameters.Clear();
             return result.ToString();
         }
 
@@ -103,6 +105,7 @@ namespace Lanban.AccessLayer
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
             addParameter<int>("@userID", SqlDbType.Int, userID);
             bool result = (myCommand.ExecuteNonQuery() == 1);
+            myCommand.Parameters.Clear();
             return result;
         }
 
@@ -117,18 +120,18 @@ namespace Lanban.AccessLayer
             catch { addParameter<DBNull>("@startDate", SqlDbType.DateTime2, DBNull.Value); }
             addParameter("@projectID", SqlDbType.Int, project.Project_ID);
             bool result = (myCommand.ExecuteNonQuery() == 1);
+            myCommand.Parameters.Clear();
             return result;
         }
 
-        // 5.7 Quit project
-        public bool quitProject(int projectID, int userID, int role)
+        // 5.7 Kick a user
+        public void kickUser(int projectID, int uid)
         {
-            string table = (role == 1) ? "Project_User" : "Project_Supervisor";
-            myCommand.CommandText = "DELETE FROM " + table + " WHERE Project_ID=@projectID AND User_ID=@userID";
+            myCommand.CommandText = "DELETE FROM Project_User WHERE Project_ID=@projectID AND User_ID=@uid;";
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
-            addParameter<int>("@userID", SqlDbType.Int, userID);
-            bool result = (myCommand.ExecuteNonQuery() == 1);
-            return result;
+            addParameter<int>("@uid", SqlDbType.Int, uid);
+            myCommand.ExecuteNonQuery();
+            myCommand.Parameters.Clear();
         }
 
         // Get Supervisor and User ID list 
@@ -141,6 +144,7 @@ namespace Lanban.AccessLayer
             myReader = myCommand.ExecuteReader();
             while (myReader.Read())
                 IDs.Add(Convert.ToInt32(myReader[0]));
+            myCommand.Parameters.Clear();
             return IDs;
         }
     }
