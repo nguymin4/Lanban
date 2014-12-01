@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Web.Security;
 
 namespace Lanban
 {
@@ -13,6 +14,7 @@ namespace Lanban
         {
             Session.Clear();
             Session.Abandon();
+            FormsAuthentication.SignOut();
             Response.Redirect("Login.aspx");
         }
     }

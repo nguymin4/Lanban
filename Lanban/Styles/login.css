@@ -6,10 +6,12 @@ body {
     font-family: "Open Sans",sans-serif;
     margin: 0px;
     min-width: 900px;
+    height: 100%;
+    overflow: hidden;
 }
 
 #layer {
-    background: rgba(255, 255, 255, 0.59);
+    background: rgba(255, 255, 255, 0.39);
     height: 100%;
     width: 100%;
     text-align: center;
@@ -18,27 +20,46 @@ body {
 
 #left-panel, #right-panel {
     float: left;
+    position: relative;
     height: 100%;
     width: 50%;
     min-width: 400px;
 }
 
-/*Login*/
-#login {
+/*Login and register*/
+#login, #register {
     text-align: center;
-    position: relative;
-    top: 35%;
-    margin: auto;
+    position: absolute;
     background: rgba(25, 15, 15, 0.79);
-    width: 375px;
-    height: 150px;
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.82);
-    padding: 30px 20px 10px 30px;
+    padding: 20px 20px 10px 20px;
     color: #e5e5e5;
+    margin-left: 100px;
+    transition: 1s ease;
+}
+
+#login {
+    width: 375px;
+    height: 150px;
+    top: calc(50%  - 75px);
+}
+
+#login.hidden {
+    top: -200px;
+}
+
+#register {
+    height: 225px;
+    top: calc(50%  - 120px);
+}
+
+#register.hidden {
+    top: 101%;
 }
 
 table {
+    width: 100%;
     margin: auto auto 5px auto;
 }
 
@@ -49,7 +70,7 @@ td {
 }
 
 .button {
-    display: block;
+    display: inline-block;
     cursor: pointer;
     transition: 0.25s ease 0s;
     text-decoration: none;
@@ -57,18 +78,15 @@ td {
     color: white;
     text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
     text-align: center;
-}
-
-#btnLogin {
     height: 30px;
     border: none;
     border-radius: 8px;
     font-size: 16px;
     width: 100px;
-    margin: 30px auto auto auto;
+    margin: 20px 10px auto 5px;
 }
 
-    #btnLogin:hover {
+    .button:hover {
         background-color: white;
         color: rgb(251, 130, 44);
         border: 1px solid rgb(251, 130, 44);
@@ -82,22 +100,26 @@ input[type="text"], input[type="password"] {
     border-radius: 5px;
     border: 1px solid #ffffff;
     padding-left: 5px;
-    margin-left: 20px;
+    color:  #808080;
 }
 
 .label {
-    width: 100px;
+    width: 140px;
     font-size: 16px;
     font-weight: bold;
 }
 
-.required {
+.validator, .required {
     margin-left: 10px;
     font-style:  italic;
     color: rgb(251, 130, 44);
 }
 
-#lblMsg {
+.validator {
+    display: none;
+}
+
+#lblMsg, #lblStatus {
     display: none;
 }
 

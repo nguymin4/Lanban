@@ -26,10 +26,20 @@ namespace Lanban
         private void StartTask(Object workItemState)
         {
             var param = _context.Request.Params;
-            int projectID = Convert.ToInt32(param["projectID"]);
-            var user = (UserModel)_context.Session["user"];
-            int userID = user.User_ID;
+            int projectID = 0, userID = 0, role = 0;
+            dynamic user;
 
+            // Check whether a username is taken - only for login page
+            if (action.Equals("checkUsername")) 
+                result = myAccess.checkUsername(param["username"]);
+            else
+            {
+                projectID = Convert.ToInt32(param["projectID"]);
+                user = (UserModel)_context.Session["user"];
+                userID = user.User_ID;
+                role = user.Role;
+            }
+            
             switch (action)
             {
                  /***********************************************/
@@ -56,7 +66,7 @@ namespace Lanban
 
                 // A user quit a project
                 case "quitProject":
-                    if (!myAccess.quitProject(projectID, userID, user.Role)) RedirectPage(errorPage);
+                    if (!myAccess.quitProject(projectID, userID, role)) RedirectPage(errorPage);
                     break;
 
                 // Get the user data based on name and role

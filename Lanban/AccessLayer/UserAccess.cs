@@ -148,5 +148,14 @@ namespace Lanban.AccessLayer
             myCommand.Parameters.Clear();
             return result;
         }
+
+        // Check whether a username is taken
+        public string checkUsername(string username)
+        {
+            myCommand.CommandText = "SELECT * FROM Users WHERE Username=@username";
+            addParameter<string>("@username", SqlDbType.VarChar, username);
+            if (Convert.ToInt32(myCommand.ExecuteScalar()) == 0) return "";
+            return "Existed";
+        }
     }
 }

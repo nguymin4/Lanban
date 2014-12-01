@@ -51,7 +51,7 @@ namespace Lanban
 
             // Profile general info
             string name = Session["projectName"].ToString();
-            Page.Title = "Lanban " + name;
+            Page.Title = "Lanban - " + name;
             lblProjectName.Text = name;
 
             //Profile area

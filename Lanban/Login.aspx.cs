@@ -8,7 +8,13 @@ namespace Lanban
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            txtRUsername.Attributes["onkeyup"] = "checkName()";
+            if (IsPostBack)
+            {
+                if (Request.Params["__EVENTTARGET"].Equals("Register")) {
+                    btnRRegister_Click();
+                }
+            }
         }
 
         protected void btnLogin_Click(object sender, EventArgs e)
@@ -28,11 +34,15 @@ namespace Lanban
             }
             else
             {
-                btnLogin.Style["margin-top"] = "15px";
+                btnLogin.Style["margin-top"] = "10px";
+                btnLRegister.Style["margin-top"] = "10px";
                 lblMsg.Style["display"] = "block";
                 lblMsg.Text = "Wrong Username and/or Password";
             }
         }
 
+        protected void btnRRegister_Click()
+        {
+        }
     }
 }

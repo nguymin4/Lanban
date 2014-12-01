@@ -225,24 +225,20 @@ function msgProject(sender, context, project) {
 // the owner of the project delete the project then show this message
 function redirectAfterDeleting(name) {
     if (document.getElementById("kanbanWindow") != null) {
-        var content = $(".diaglog.error .content-holder");
+        $(".diaglog.error").fadeIn(200).addClass("show");
+        $(".diaglog.error .btnOK").hide();
         var context = "<strong>" + name + "</strong> has deleted this project.</br></br>" +
-            "Redirect to Project page in 10 seconds.";
-        content.attr("data-timeout", 10).html(context);
+            "Redirect to Project page in <span id='timeout'>10</span> seconds.";
+        $(".diaglog.error .content-holder").html(context);
 
         setInterval(function () {
-            var count = content.attr("data-timeout") - 1;
-            context = "<strong>" + name + "</strong> has deleted this project.</br></br>" +
-            "Redirect to Project page in " + count + " seconds.";
-            content.html(context).attr("data-timeout", count);
+            var count = $("#timeout").html() - 1;
+            $("#timeout").html(count);
         }, 999);
 
         setTimeout(function () {
             window.location.href = "Project.aspx";
         }, 10000);
-
-        $(".diaglog.error").fadeIn(200).addClass("show");
-        $(".diaglog.error .btnOK").hide();
     }
 }
 

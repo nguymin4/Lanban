@@ -4,6 +4,7 @@
 <head runat="server">
     <title>Login - Welcome to Lanban</title>
     <script src="Scripts/jquery-2.1.1.min.js"></script>
+    <script src="Scripts/login.js"></script>
     <link href="Styles/login.css" rel="stylesheet" />
 </head>
 <body>
@@ -34,6 +35,34 @@
                 </table>
                 <asp:Label runat="server" ID="lblMsg" CssClass="required"></asp:Label>
                 <asp:Button runat="server" ID="btnLogin" CssClass="button" Text="Login" OnClick="btnLogin_Click" />
+                <input type="button" runat="server" id="btnLRegister" class="button" value="Register" onclick="openRegister(true)" />
+            </div>
+            <div id="register" class="hidden">
+                <table>
+                    <tr>
+                        <td class="label">Fullname:</td>
+                        <td><asp:TextBox runat="server" ID="txtFullname"></asp:TextBox></td>
+                        <td><span id="validateFullname" class="validator"></span></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Username:</td>
+                        <td><asp:TextBox runat="server" ID="txtRUsername"></asp:TextBox></td>
+                        <td><span id="checkUsername" class="validator"></span></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Password:</td>
+                        <td><asp:TextBox runat="server" ID="txtRPassword" TextMode="Password"></asp:TextBox></td>
+                        <td><span id="validatePassword" class="validator"></span></td>
+                    </tr>
+                    <tr>
+                        <td class="label">Repeat Password:</td>
+                        <td><asp:TextBox runat="server" ID="txtRPasswordRepeat" TextMode="Password"></asp:TextBox></td>
+                        <td><span id="checkPassword" class="validator"></span></td>
+                    </tr>
+                </table>
+                <asp:Label runat="server" ID="lblStatus" CssClass="required"></asp:Label>
+                <input type="button" runat="server" class="button"  onclick="registerUser()" value="Register"/>
+                <input type="button" class="button" onclick="openRegister(false)" value="Cancel" />
             </div>
         </div>
         <div id="right-panel">
