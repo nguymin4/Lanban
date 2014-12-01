@@ -30,11 +30,19 @@ namespace Lanban
         protected async Task InitProject()
         {
             // Login - temporary for fast testing
-            Query query = new Query();
-            Model.UserModel user = query.login("nguymin4", "Lanban2014");
-            Session["user"] = user;
-            Session["userID"] = user.User_ID;
-            query.Dipose();
+            Model.UserModel user;
+            if (Session["user"] == null)
+            {
+                Query query = new Query();
+                user = query.login("nguymin4", "Lanban2014");
+                Session["user"] = user;
+                Session["userID"] = user.User_ID;
+                query.Dipose();
+            }
+            else
+            {
+                user = (Model.UserModel) Session["user"];
+            }
 
             // Init variables
             int userID = user.User_ID;

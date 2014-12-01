@@ -22,12 +22,27 @@ namespace Lanban.AccessLayer
             myReader = myCommand.ExecuteReader();
             while (myReader.Read())
             {
-                var comment = SerializeTo<Comment>(myReader);
+                var comment = SerializeTo<CommentDisplay>(myReader);
                 result.Append(getCommentDisplay(userID, comment));
             }
             myReader.Close();
             myCommand.Parameters.Clear();
             return result.ToString();
+        }
+
+        // Get a comment based on its ID
+        public string getTaskComment(int commentID, int user)
+        {
+            myCommand.CommandText = "SELECT Comment_ID, A.User_ID, Content, Name, Avatar FROM " +
+                "(SELECT * FROM Task_Comment WHERE Comment_ID=@id) AS A INNER JOIN Users ON A.User_ID = Users.User_ID";
+            addParameter<int>("@id", SqlDbType.Int, commentID);
+            myReader = myCommand.ExecuteReader();
+            myReader.Read();
+            var comment = SerializeTo<CommentDisplay>(myReader);
+            string result = getCommentDisplay(user, comment);
+            myReader.Close();
+            myCommand.Parameters.Clear();
+            return result;
         }
 
         // Delete a comment
@@ -56,20 +71,21 @@ namespace Lanban.AccessLayer
         }
 
         // Insert new comment
-        public string insertTaskComment(string taskID, string content, int userID)
+        public string insertTaskComment(CommentModel comment)
         {
-            myCommand.CommandText = "INSERT INTO Task_Comment (Task_ID, Content, User_ID) VALUES(@taskID, @content, @userID);" +
-                                    "SELECT SCOPE_IDENTITY();";
-            addParameter<int>("@taskID", SqlDbType.Int, Convert.ToInt32(taskID));
-            addParameter<string>("@content", SqlDbType.Text, content);
-            addParameter<int>("@userID", SqlDbType.Int, userID);
+            myCommand.CommandText = "INSERT INTO Task_Comment (Task_ID, Project_ID, Content, User_ID) "+
+                "VALUES(@taskID, @projectID, @content, @userID); SELECT SCOPE_IDENTITY();";
+            addParameter<int>("@taskID", SqlDbType.Int, comment.Task_ID);
+            addParameter<int>("@projectID", SqlDbType.Int, comment.Project_ID);
+            addParameter<string>("@content", SqlDbType.Text, comment.Content);
+            addParameter<int>("@userID", SqlDbType.Int, comment.User_ID);
             string id = myCommand.ExecuteScalar().ToString();
             myCommand.Parameters.Clear();
             return id;
         }
 
         // Get comment visual object
-        protected string getCommentDisplay(int userID, Comment comment)
+        public string getCommentDisplay(int userID, dynamic comment)
         {
             int id = comment.Comment_ID;
             int owner = comment.User_ID;
@@ -77,8 +93,7 @@ namespace Lanban.AccessLayer
             content = Regex.Replace(content, @"\r\n?|\n", "<br />");
             StringBuilder result = new StringBuilder();
 
-            if (owner == userID) result.Append("<div class='comment-box' id='comment." + id + "'><div class='comment-panel'>");
-            else result.Append("<div class='comment-box'><div class='comment-panel'>");
+            result.Append("<div class='comment-box' id='comment." + id + "'><div class='comment-panel'>");
             result.Append("<img class='comment-profile' src='" + comment.Avatar + "' title='" + comment.Name + "' /></div>");
             result.Append("<div class='comment-container'><div class='comment-content'>" + content + "</div>");
             if (owner == userID)
@@ -91,5 +106,20 @@ namespace Lanban.AccessLayer
             result.Append("</div></div>");
             return result.ToString();
         }
+
+        // Get comment object
+        public CommentModel getComment(int commentID)
+        {
+            myCommand.CommandText = "SELECT * FROM Task_Comment WHERE Comment_ID=@id";
+            addParameter<int>("@id", SqlDbType.Int, commentID);
+            myReader = myCommand.ExecuteReader();
+            myReader.Read();
+            var comment = SerializeTo<CommentModel>(myReader);
+            myReader.Close();
+            myCommand.Parameters.Clear();
+            return comment;
+        }
+
+        
     }
 }

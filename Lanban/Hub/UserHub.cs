@@ -15,6 +15,7 @@ namespace Lanban.Hubs
         Model.UserModel sender;
         List<string> ids;
 
+        // Fetch list of user will receive the message and data
         protected async Task FetchUserData(int projectID)
         {
             string username = Context.User.Identity.Name;
@@ -24,53 +25,108 @@ namespace Lanban.Hubs
             sender = await task1;
             ids = (await task2).ConvertAll(x => x.ToString());
         }
-        
-        public void SendMessage(string userID, string message)
-        {
-            Clients.User(userID).receiveMessage(message);
-        }
 
+        // Send updated info of a project to all member
         public async Task UpdateProject(int projectID)
         {
             await FetchUserData(projectID);
+
+            if (myPA.IsOwner(projectID, sender.User_ID))
+            {
+                // Get project data
+                Task<Model.ProjectModel> task1 = Task.Run(() => myPA.getProjectData(projectID));
+                var project = await task1;
+                DiposeConnection();
+
+                // Message for notification center
+                Task task2 = Task.Run(()
+                    => Clients.Users(ids).msgProject(sender, "updated", projectID, project.Name));
+
+                // Updated project object for other user
+                Clients.Users(ids).updateProject(project);
+
+                await task2;
+            }
         }
 
-        public void DeleteProject(List<string> userList, string projectID)
+        // Announce to all member about the deleted project
+        public void DeleteProject(int projectID, string projectName, int userID)
         {
-            string userID = "";
-            Clients.User(userID).deleteProject(projectID);
+            string username = Context.User.Identity.Name;
+            sender = myUA.getUserData(username);
+            DiposeConnection();
+
+            if (sender.User_ID == userID)
+            {
+                // Message for notification center
+                Clients.Others.msgProject(sender, "deleted", projectID, projectName);
+
+                // Deleted project object for other user
+                Clients.Others.deleteProject(projectID);
+            }
         }
 
+        // When a member add new user to the project
         public async Task AddUser(int projectID, int addedMember)
         {
-            var watch = System.Diagnostics.Stopwatch.StartNew();
             await FetchUserData(projectID);
             Model.UserModel target = myUA.getUserData(addedMember);
             Task<string> task1 = Task.Run(() => 
                 myUA.getPersonContainer<Model.UserModel>(target, true, projectID));
 
-            Task<Dictionary<string, object>> task2 = Task.Run(() => myPA.getProjectData(projectID));
+            // Get project data
+            Task<Model.ProjectModel> task2 = Task.Run(() => myPA.getProjectData(projectID));
+            var project = await task2;
             string personContainer = await task1;
-            Dictionary<string, object> data = await task2;
+            DiposeConnection();
 
             // Message for notification center
             Task task3 = Task.Run(() 
-                => Clients.Users(ids).msgAddUser(sender, target, data.ElementAt(1).Value));
+                => Clients.Users(ids).msgAddUser(sender, target, project.Name));
             
             // Person Object for display in other member display
             Task task4 = Task.Run(() => Clients.Users(ids).addUser(projectID, personContainer));
 
             // Project object for the added person
-            Clients.User(addedMember.ToString()).addProject(JsonConvert.SerializeObject(data));
+            Clients.User(addedMember.ToString()).addProject(project);
 
             await Task.WhenAll(task3, task4);
+        }
+
+        // The owner kick a member
+        public async Task RemoveUser(int projectID, int personID)
+        {
+            await FetchUserData(projectID);
+            
+            // Check in case of javascript injection
+            if (myPA.IsOwner(projectID, sender.User_ID))
+            {
+                DiposeConnection();
+                // Delete person in other view
+                Clients.Users(ids).removeUser(projectID, personID);
+            }
+        }
+
+        // When a member leave the project
+        public async Task QuitProject(int projectID, int personID)
+        {
+            await FetchUserData(projectID);
+            DiposeConnection();
+
+            // Check in case of javascript injection
+            if (sender.User_ID == personID)
+                Clients.Users(ids).removeUser(projectID, personID);
+        }
+
+        // Dispose all access
+        public void DiposeConnection()
+        {
             myPA.Dipose();
             myUA.Dipose();
-            watch.Stop();
-            System.Diagnostics.Debug.WriteLine("Send msg: " + watch.ElapsedMilliseconds);
         }
     }
 
+    /* ID Provider for Hubs */
     public class UserHubIdProvider: IUserIdProvider
     {
         public string GetUserId(IRequest request)

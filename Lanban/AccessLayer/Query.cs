@@ -138,25 +138,21 @@ namespace Lanban
         public bool IsProjectMember(int projectID, int userID, int role)
         {
             string table = (role == 1) ? "Project_User" : "Project_Supervisor";
-            myCommand.CommandText = "SELECT User_ID FROM " + table + " WHERE Project_ID=@projectID";
+            myCommand.CommandText = "SELECT COUNT(*) FROM " + table + " WHERE Project_ID=@projectID AND User_ID=@userID";
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
-            bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == userID);
+            addParameter<int>("@userID", SqlDbType.Int, userID);
+            bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == 1);
             myCommand.Parameters.Clear();
-            return result;
-        }
-
-        // Serialize row of reader
-        public Dictionary<string, object> SerializeRow(SqlDataReader reader)
-        {
-            var result = new Dictionary<string, object>();
-            for (int i = 0; i < reader.FieldCount; i++)
-                result.Add(reader.GetName(i), reader.GetValue(i));
             return result;
         }
 
         // Convert a reader to object
         public T SerializeTo<T>(SqlDataReader reader) {
-            var temp = JsonConvert.SerializeObject(SerializeRow(reader));
+            var result = new Dictionary<string, object>();
+            for (int i = 0; i < reader.FieldCount; i++)
+                result.Add(reader.GetName(i), reader.GetValue(i));
+            
+            var temp = JsonConvert.SerializeObject(result);
             return JsonConvert.DeserializeObject<T>(temp);
         }
 

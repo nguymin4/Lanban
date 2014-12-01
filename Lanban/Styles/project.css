@@ -360,8 +360,8 @@ textarea.input-project {
 #userList {
     background: rgba(25, 15, 15, 0.5);
     margin-top: 10px;
-    height: 320px;
-    padding: 20px;
+    height: 344px;
+    padding: 10px;
     border-radius: 8px;
 }
 

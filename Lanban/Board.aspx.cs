@@ -61,7 +61,8 @@ namespace Lanban
 
             // Authentication
             var authen = new Controller.LanbanAuthentication();
-            var ticket = authen.GetAuthenTicket("nguymin4", projectID.ToString(), 30);
+            var ticket = authen.GetAuthenTicket(user.Username, projectID.ToString(), 30);
+            authen.SetAuthenCookie(Response, ticket);
             string script = "const userID = " + userID + "; const projectID = " + projectID + ";";
             ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "boardScript", script, true);
 

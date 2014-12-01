@@ -49,34 +49,13 @@ $(window).load(function () {
     unloadPageSpinner();
 });
 
-// Initialize drag and drop user box
-function init_UserDragDrop() {
-    $(".user-list-connected").sortable({
-        connectWith: ".user-list-connected",
-        receive: function (event, ui) {
-            if ($(this).is($("#userList"))) {
-                var item = $(ui.item);
-                var projectID = $("#sharingWindow").attr("data-project-id");
-
-                if (userID != findProject(projectID).Owner) $(".person-remove", item).remove();
-                else
-                    $(".person-remove", item).attr("onclick", "removeMember(this.parentElement," + projectID + ")");
-
-                // Update database
-                addMember(item.attr("data-id"), projectID);
-            }
-            else $(ui.sender).sortable("cancel");
-        }
-    }).disableSelection();
-}
-
 /* A.Business logic */
 /* Class Project */
 function Project() {
     this.Project_ID = null;
     this.Name = $("#txtProjectName").val();
     this.Description = $("#txtProjectDescription").val().replace(new RegExp('\r?\n', 'g'), '<br />');
-    this.Owner = 0;
+    this.Owner = userID;
     this.Start_Date = $("#txtProjectStartDate").val();
 }
 
@@ -90,6 +69,7 @@ function findProject(id) {
             return projectList[i];
         }
     }
+    return null;
 }
 
 /*1.1.2 Get a project index based on its ID */
@@ -119,7 +99,7 @@ function viewProjectDetail(obj, id) {
     // Insert the project detail box after that last container
     var index = getLastIndexContainer(obj);
     index = (index >= container.length) ? (index - 1) : index;
-    $("#projectdetail").insertAfter($(container[index]));
+    $("#projectdetail").insertAfter($(container[index])).attr("data-project-id", id);
 
     // Open project detail box and load info
     fetchSupervisor(id);
@@ -143,7 +123,7 @@ function loadProjectDetailInfo(project, id) {
 
     $("#btnOpenProject").attr("onclick", "loadPageSpinner();" +
         "__doPostBack('RedirectBoard', '" + id + "$" + project.Name + "');");
-    $("#btnShareProject").attr("onclick", "shareProject(" + id + ")");
+    $("#btnShareProject").attr("onclick", "shareProject(" + id + ",'" + project.Name + "')");
 
     if (project.Owner == userID) {
         $("#btnDeleteProject").css("display", "inline-block").attr("onclick", "deleteProject(" + id + ")");
@@ -227,8 +207,6 @@ function addProject() {
             var objtext = getVisualProject(id, project.Name);
             $("#projectbrowser").prepend(objtext);
             $(".input-project").val("");
-
-            // Send to other clients
         }
     });
 }
@@ -408,7 +386,6 @@ function updateProject(id) {
             $("#project-supervisor .project-data").html(supervisorList);
             $("#projectdetail").fadeIn("fast");
         });
-        // Send to other clients
     });
 }
 
@@ -430,6 +407,7 @@ function updateSupervisor(id) {
 
 /*6 Delete project */
 function deleteProject(id) {
+    var name = findProject(id).Name;
     $.ajax({
         url: "Handler/ProjectHandler.ashx",
         data: {
@@ -440,42 +418,50 @@ function deleteProject(id) {
         type: "get",
         success: function () {
             // Delete project in other clients
+            proxyUser.invoke("deleteProject", id, name, userID);
         }
     });
     doAfterDeleteProject(id);
 }
 
 /*7 Quit project */
-function quitProject(id) {
+function quitProject(projectID) {
     $.ajax({
         url: "Handler/UserHandler.ashx",
         data: {
             action: "quitProject",
-            projectID: id
+            projectID: projectID
         },
         global: false,
         type: "get",
         success: function () {
             //  In other clients
+            proxyUser.invoke("quitProject", projectID, userID);
         }
     });
-    doAfterDeleteProject(id);
+    doAfterDeleteProject(projectID);
 }
 
 function doAfterDeleteProject(id) {
-    hideProjectDetail();
+    if ($("#projectdetail").attr("data-project-id") == id)
+        hideProjectDetail();
+
     var project = $("#project" + id);
     project.fadeOut("fast", function () { project.remove() });
     setTimeout(function () {
         $("#projectbrowser").append($("#projectdetail"));
     }, 1000);
+
+    // Remove data in project list
+    projectList.splice(getProjectIndex(id), 1);
 }
 
 /* Share project */
-function shareProject(id) {
+function shareProject(id, name) {
     showProcessingDiaglog();
     showView(2);
     $("#sharingWindow").attr("data-project-id", id);
+    $("#sharingWindow .title-bar").html(name);
     $.ajax({
         url: "Handler/ProjectHandler.ashx",
         data: {
@@ -548,23 +534,93 @@ function resetAddProjectWindow() {
 }
 
 
+/*C. Real-time communication */
 // Add Project hub listeners - Project hub share same connection and proxy with User Hub
 function init_ProjectHub_Listener() {
-    proxyUser.on("createProject", function (projectID) {
+    /* Project User */
+    proxyUser.on("addUser", function (projectID, personContainer) {
+        var currentProject = $("#sharingWindow").attr("data-project-id");
+        var personID = $(personContainer).attr("data-id");
 
+        if (currentProject == projectID && !isInProject(personID)) {
+            $("#userList").append(personContainer);
+            if (userID != findProject(projectID).Owner) $(".person-remove", personContainer).remove();
+        }
+
+    });
+
+    proxyUser.on("removeUser", function (projectID, personID) {
+        var currentProject = $("#sharingWindow").attr("data-project-id");
+        if (currentProject == projectID && isInProject(personID)) {
+            $(".person[data-id='" + personID + "']", $("#sharingWindow")).remove();
+            console.log("Removed Person");
+        }
+    });
+
+    /* Project */
+    proxyUser.on("addProject", function (project) {
+        // Only added user receive this data
+        var objtext = getVisualProject(project.Project_ID, project.Name);
+        $("#projectbrowser").prepend(objtext);
+        projectList.push(project);
     });
 
     proxyUser.on("deleteProject", function (projectID) {
-
+        if (findProject(projectID) != null) doAfterDeleteProject(projectID);
+        var currentProject = $("#sharingWindow").attr("data-project-id");
+        if (currentProject == projectID) {
+            showView(0);
+            $("#sharingWindow .title-bar").html("Share");
+            $("#sharingWindow").attr("data-project-id", "0");
+        }
     });
 
-    proxyUser.on("editProject", function (project) {
+    proxyUser.on("updateProject", function (project) {
+        var id = project.Project_ID;
+        // Update data in project list
+        projectList[getProjectIndex(id)] = project;
 
+        // Update projectbrowser view
+        $("#project" + id + " .project-header").html(id + ". " + project.Name);
+
+        // Udate projectdetail view if the current project detail displaying the updated project
+        var currentProject = $("#projectdetail").attr("data-project-id");
+        if (currentProject == id) {
+            $("#projectdetail").fadeOut("fast", function () {
+                loadProjectDetailInfo(project, id);
+                fetchSupervisor(id);
+                $("#projectdetail").fadeIn("fast");
+            });
+        }
     });
 }
 
 
 /* Add new user to the project */
+// Initialize drag and drop user box
+function init_UserDragDrop() {
+    $(".user-list-connected").sortable({
+        connectWith: ".user-list-connected",
+        start: function (event, ui) {
+            ui.item.id = $(ui.item).attr("data-id");
+            ui.item.drop = $(this).is($("#tempUserList")) && !isInProject(ui.item.id);
+        },
+        receive: function (event, ui) {
+            if (ui.item.drop) {
+                var person = $(ui.item);
+                var projectID = $("#sharingWindow").attr("data-project-id");
+
+                if (userID != findProject(projectID).Owner) $(".person-remove", person).remove();
+                else
+                    $(".person-remove", person).attr("onclick", "removeMember(this.parentElement," + projectID + ")");
+
+                // Update database
+                addMember(ui.item.id, projectID);
+            }
+            else $(ui.sender).sortable("cancel");
+        }
+    }).disableSelection();
+}
 
 // Based on teh number of parameter
 // 1. Add project member to temp list
@@ -604,18 +660,31 @@ function addMember(arg, projectID) {
 // 2. Kick the memeber out of project update database
 function removeMember(obj, projectID) {
     if (arguments.length == 2) {
+        var uid = $(obj).attr("data-id");
         $.ajax({
             url: "Handler/ProjectHandler.ashx",
             data: {
                 action: "kickUser",
                 projectID: projectID,
-                uid: $(obj).attr("data-id")
+                uid: uid
             },
             global: false,
-            type: "get"
+            type: "get",
+            success: function() {
+                proxyUser.invoke("removeUser", projectID, uid);
+            }
         });
     }
 
     // Remove visual
     $(obj).remove();
+}
+
+// Check whether a person is already in the user list
+function isInProject(personID) {
+    var members = $("#userList .person");
+    for (var i = 0; i < members.length; i++) {
+        if ($(members[i]).attr("data-id") == personID) return true;
+    }
+    return false;
 }

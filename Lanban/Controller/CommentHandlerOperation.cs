@@ -40,10 +40,12 @@ namespace Lanban
                     /***********************************************/
                     // Submit a new comment of a task
                     case "insertTaskComment":
-                        userID = Convert.ToInt32(param["userID"]);
-                        taskID = Convert.ToInt32(param["taskID"]);
+                        CommentModel comment = JsonConvert.DeserializeObject<CommentModel>(param["comment"]);
+                        userID = comment.User_ID;
+                        projectID = comment.Project_ID;
+                        taskID = comment.Task_ID;
                         if ((userID == user.User_ID) && (myAccess.IsInProject(projectID, taskID, "Task")))
-                            result = myAccess.insertTaskComment(param["taskID"], param["content"], user.User_ID);
+                            result = myAccess.insertTaskComment(comment);
                         else RedirectPage(errorPage);
                         break;
 

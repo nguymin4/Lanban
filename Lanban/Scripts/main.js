@@ -9,7 +9,7 @@ function showView(index) {
         if (document.getElementById("kanbanWindow") != null) {
             if (!((currentView != 0) && (index != 0))) hideWindow();
         }
-        // Reset data-project-id sharingWindow Project.aspx
+            // Reset data-project-id sharingWindow Project.aspx
         else {
             if (currentView == 2) view[currentView].setAttribute("data-project-id", "");
         }
@@ -140,7 +140,7 @@ var errorMsg = ["Cannot drop that item because it is not the same type with the 
 
 function showErrorDialog(i) {
     $(".diaglog.error .content-holder").text(errorMsg[i]);
-    $(".diaglog.error").addClass("show");
+    $(".diaglog.error").addClass("show").fadeIn(200);
 }
 
 // Show success diaglog - content taken from an array based on parameter
@@ -178,10 +178,24 @@ function init_UserHub() {
     proxyUser = connUser.createHubProxy("userHub");
 
     proxyUser.on("msgAddUser", function (sender, newMem, projectName) {
+        if (sender.User_ID == userID) sender.Name = "You";
+
         if (newMem.User_ID != userID)
-            newMsgAddUser(sender.Avatar, sender.Name, newMem.Name, projectName);
+            msgAddUser(sender, newMem.Name, projectName);
         else
-            newMsgAddUser(sender.Avatar, sender.Name, "You", projectName);
+            msgAddUser(sender, "you", projectName);
+    });
+
+    proxyUser.on("msgProject", function (sender, context, projectID, projectName) {
+        if (sender.User_ID != userID)
+            msgProject(sender, context, projectName);
+        else
+        {
+            sender.Name = "You";
+            msgProject(sender, context, projectName);
+        }
+
+        redirectAfterDeleting(sender.Name);
     });
 
     connUser.start().done(function () {
@@ -189,18 +203,54 @@ function init_UserHub() {
 }
 
 /* Notification center */
-function newMsgAddUser(avatar, name, newMem, project) {
-    content = "<div class='noti-msg'><img src='" + avatar + "' class='noti-msg-avatar' />" +
-        "<div class='noti-msg-content'><span class='subject'>"+name+"</span> added "+
+// New member added
+function msgAddUser(sender, newMem, project) {
+    content = "<div class='noti-msg'><img src='" + sender.Avatar + "' class='noti-msg-avatar' />" +
+        "<div class='noti-msg-content'><span class='subject'>" + sender.Name + "</span> added " +
         "<span class='target'>" + newMem + "</span> to <i>" + project + "</i></div>";
     $("#notiCenter").prepend(content);
     updateNotiIndicator();
 }
 
+// Project updated or deleted
+function msgProject(sender, context, project) {
+    content = "<div class='noti-msg'><img src='" + sender.Avatar + "' class='noti-msg-avatar' />" +
+        "<div class='noti-msg-content'><span class='subject'>" + sender.Name + "</span> " + context +
+        " <i>" + project + "</i></div>";
+    $("#notiCenter").prepend(content);
+    updateNotiIndicator();
+}
+
+// When a user in board page and 
+// the owner of the project delete the project then show this message
+function redirectAfterDeleting(name) {
+    if (document.getElementById("kanbanWindow") != null) {
+        var content = $(".diaglog.error .content-holder");
+        var context = "<strong>" + name + "</strong> has deleted this project.</br></br>" +
+            "Redirect to Project page in 10 seconds.";
+        content.attr("data-timeout", 10).html(context);
+
+        setInterval(function () {
+            var count = content.attr("data-timeout") - 1;
+            context = "<strong>" + name + "</strong> has deleted this project.</br></br>" +
+            "Redirect to Project page in " + count + " seconds.";
+            content.html(context).attr("data-timeout", count);
+        }, 999);
+
+        setTimeout(function () {
+            window.location.href = "Project.aspx";
+        }, 10000);
+
+        $(".diaglog.error").fadeIn(200).addClass("show");
+        $(".diaglog.error .btnOK").hide();
+    }
+}
+
+
+// Update notification
 function updateNotiIndicator() {
     var msgNum = $("#notiIndicator").html();
     if (msgNum == "") msgNum = 1;
     else msgNum++;
-    console.log(msgNum);
     $("#notiIndicator").html(msgNum).fadeIn("fast");
 }

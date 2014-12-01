@@ -15,12 +15,20 @@ namespace Lanban.Model
         public string Avatar { get; set; }
     }
 
-    public class Comment
+    public class CommentDisplay
     {
         public int Comment_ID { get; set; }
         public int User_ID { get; set; }
         public string Content { get; set; }
         public string Name { get; set; }
         public string Avatar { get; set; }
+    }
+
+    public class CommentModel
+    {
+        public int Task_ID { get; set; }
+        public int Project_ID { get; set; }
+        public int User_ID { get; set; }
+        public string Content { get; set; }
     }
 }

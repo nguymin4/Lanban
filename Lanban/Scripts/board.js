@@ -42,13 +42,7 @@ function hideWindow() {
         $(viewIndicator[0]).addClass("show");
     }, 250);
 
-    // Leave the current Task Hub group
-    try {
-        proxyTC.invoke("leaveGroup", $("#btnSubmitComment").attr("data-task-id"));
-    }
-    catch (e) {
-        console.log(e);
-    }
+    $("#taskWindow")
 }
 
 /* In backlogWindow and taskWindow there are 2 pages: */
@@ -149,7 +143,7 @@ function init_BoardDragDrop() {
                 // Update new position in clients
                 var noteID = $(ui.item).attr("id");
                 var swimlanePosition = $(".connected").index(this);
-                proxyNote.invoke("changePosition", projectID, noteID, swimlanePosition, index);
+                proxyNote.invoke("changePosition", noteID, swimlanePosition, index);
             }
             else {
                 $(ui.sender).sortable("cancel");
@@ -184,7 +178,7 @@ function init_BoardDragDrop() {
                 // Update new position in clients
                 var noteID = $(ui.item).attr("id");
                 var swimlanePosition = $(".connected").index(this);
-                proxyNote.invoke("changePosition", projectID, noteID, swimlanePosition, index);
+                proxyNote.invoke("changePosition", noteID, swimlanePosition, index);
             }
         }
     }).disableSelection();
@@ -245,7 +239,7 @@ function insertItem(type) {
             (type == "backlog") ? clearBacklogWindow() : clearTaskWindow();
 
             // Send to other clients
-            proxyNote.invoke("sendInsertedNote", item.Project_ID, swimlanePosition, objtext);
+            proxyNote.invoke("sendInsertedNote", swimlanePosition, objtext);
         }
     });
 }
@@ -486,8 +480,7 @@ function viewDetailNote(itemID, type) {
             result = result[0];
             (type == "backlog") ? displayBacklogDetail(result) : displayTaskDetail(result);
 
-            // Connect to Task Hub
-            if (type == "task") proxyTC.invoke("joinChannel", itemID);
+            $("#taskWindow").attr("data-task-id", itemID);
         }
     });
 
@@ -583,7 +576,7 @@ function deleteTaskComment(commentID) {
         global: false,
         type: "get",
         success: function (message) {
-            if (message == "Success") proxyTC.invoke("deleteComment", taskID, commentID);
+            if (message == "Success") proxyTC.invoke("deleteComment", commentID);
             else window.location.href = "/404/404.html";
         }
     });
@@ -621,7 +614,7 @@ function updateTaskComment(commentID) {
             if (message == "Success") {
                 // Update comment content in other clients' view
                 var taskID = $("#btnSubmitComment").attr("data-task-id");
-                proxyTC.invoke("updateComment", taskID, commentID, contentText);
+                proxyTC.invoke("updateComment", commentID, contentText);
             }
             else window.location.href = "/404/404.html";
         }
@@ -637,14 +630,19 @@ function updateTaskComment(commentID) {
 function submitTaskComment() {
     var taskID = $("#btnSubmitComment").attr("data-task-id");
 
+    var comment = {
+        Task_ID: taskID,
+        Project_ID: projectID,
+        User_ID: userID,
+        Content: $("#txtTaskComment").val()
+    }
+
     $.ajax({
         url: "Handler/CommentHandler.ashx",
         data: {
             action: "insertTaskComment",
             projectID: projectID,
-            taskID: taskID,
-            userID: userID,
-            content: $("#txtTaskComment").val()
+            comment: JSON.stringify(comment)
         },
         global: false,
         type: "post",
@@ -661,8 +659,7 @@ function submitTaskComment() {
             $("#txtTaskComment").val("");
 
             // Send objtext to other client who is also viewing the task
-            if ((id != "") && ("comment." + id == $(objtext).attr("id"))) proxyTC.invoke("sendSubmittedComment", taskID, userID, objtext);
-            else window.location.href = "/404/404.html";
+            proxyTC.invoke("sendSubmittedComment", id);
         }
     });
 }
@@ -696,7 +693,7 @@ function saveItem(itemID, type) {
             updateVisualNote(type + "." + itemID, item.Title, item.Color);
 
             // Update note in other clients
-            proxyNote.invoke("updateNote", item.Project_ID, type + "." + itemID, item.Title, item.Color);
+            proxyNote.invoke("updateNote", type + "." + itemID, item.Title, item.Color);
         }
     });
 
@@ -723,6 +720,11 @@ function updateVisualNote(id, title, color) {
 /***************************************************/
 /*6. Delete an item*/
 function deleteItem(itemID, type) {
+    // Delete object on the board
+    var id = type + "." + itemID;
+    var note = document.getElementById(id);
+    note.parentElement.removeChild(note);
+
     $.ajax({
         url: "Handler/ItemHandler.ashx",
         data: {
@@ -735,14 +737,9 @@ function deleteItem(itemID, type) {
         type: "get",
         success: function () {
             // Delete in other clients
-            proxyNote.invoke("deleteNote", projectID, id);
+            proxyNote.invoke("deleteNote", id);
         }
     });
-
-    // Delete object on the board
-    var id = type + "." + itemID;
-    var note = document.getElementById(id);
-    note.parentElement.removeChild(note);
 }
 
 
@@ -1084,47 +1081,58 @@ function init_TaskCommentHub() {
 
     // When other client send data, we listen by these
     // Receive new comment
-    proxyTC.on("receiveSubmittedComment", function (uid, msgObj) {
-        $("#commentBox").append(msgObj);
-        if (userID != parseInt(uid)) {
-            var comment = document.getElementById($(msgObj).attr("id"));
-            $(comment.getElementsByClassName("comment-footer")).remove();
-            comment.removeAttribute("id");
+    proxyTC.on("receiveSubmittedComment", function (taskID, uid, msgObj) {
+        var currentTask = $("#taskWindow").attr("data-task-id");
+        if (currentTask == taskID) {
+            $("#commentBox").append(msgObj);
+            if (userID != uid)
+                $(msgObj).remove($(".comment-footer"), false);
+
+            $("#commentBox").scrollTop(document.getElementById("commentBox").scrollHeight);
         }
-        $("#commentBox").scrollTop(document.getElementById("commentBox").scrollHeight);
     });
 
     // Delete a comment
     proxyTC.on("deleteComment", function (commentID) {
         var obj = document.getElementById("comment." + commentID);
-        obj.parentElement.removeChild(obj);
+        $(obj).remove();
+        $("#commentBox").scrollTop(document.getElementById("commentBox").scrollHeight);
     });
 
     // Update content of a comment
-    proxyTC.on("updateComment", function (commentID, content) {
-        var comment = document.getElementById("comment." + commentID);
-        comment.getElementsByClassName("comment-content")[0].innerHTML = content;
-    })
+    proxyTC.on("updateComment", function (taskID, commentID, content) {
+        var currentTask = $("#taskWindow").attr("data-task-id");
+        if (currentTask == taskID) {
+            var comment = document.getElementById("comment." + commentID);
+            comment.getElementsByClassName("comment-content")[0].innerHTML = content;
+        }
+    });
 
     // Receive new document visual
-    proxyTC.on("receiveUploadedFile", function (msgObj) {
-        document.getElementById("fileList").innerHTML += msgObj;
-        $("#fileList .file-container").on("mouseover", function () {
-            this.getElementsByClassName("file-remove")[0].style.display = "block";
-        });
-        $("#fileList .file-container").on("mouseout", function () {
-            this.getElementsByClassName("file-remove")[0].style.display = "none";
-        });
+    proxyTC.on("receiveUploadedFile", function (taskID, msgObj) {
+        var currentTask = $("#taskWindow").attr("data-task-id");
+        if (currentTask == taskID) {
+            document.getElementById("fileList").innerHTML += msgObj;
+            $("#fileList .file-container").on("mouseover", function () {
+                this.getElementsByClassName("file-remove")[0].style.display = "block";
+            });
+            $("#fileList .file-container").on("mouseout", function () {
+                this.getElementsByClassName("file-remove")[0].style.display = "none";
+            });
+        }
     });
 
     // Delete a document
-    proxyTC.on("deleteFile", function (fileID) {
-        $("#fileList div[data-id='" + fileID + "']").remove();
+    proxyTC.on("deleteFile", function (taskID, fileID) {
+        var currentTask = $("#taskWindow").attr("data-task-id");
+        if (currentTask == taskID) {
+            $("#fileList .file-container[data-id='" + fileID + "']").remove();
+        }
     });
 
     // Start connection and join group
     connTC.start().done(function () {
-
+        proxyTC.invoke("joinChannel");
     });
 }
 

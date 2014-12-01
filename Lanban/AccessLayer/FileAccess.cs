@@ -12,9 +12,10 @@ namespace Lanban.AccessLayer
         // Check whether a file belongs to a task
         public bool IsInTask(string fileID, int taskID)
         {
-            myCommand.CommandText = "SELECT Task_ID FROM Task_File WHERE File_ID = @fileID";
+            myCommand.CommandText = "SELECT COUNT(*) FROM Task_File WHERE File_ID = @fileID AND Task_ID = @taskID";
             addParameter<int>("@fileID", SqlDbType.Int, Convert.ToInt32(fileID));
-            bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == taskID);
+            addParameter<int>("@taskID", SqlDbType.Int, taskID);
+            bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == 1);
             myCommand.Parameters.Clear();
             return result;
         }
@@ -83,6 +84,15 @@ namespace Lanban.AccessLayer
             myCommand.Parameters.Clear();
             return path;
         }
-        
+
+        // Get Task ID of the File
+        public int getTaskID(int fileID)
+        {
+            myCommand.CommandText = "SELECT Task_ID FROM Task_File WHERE File_ID = @fileID;";
+            addParameter<int>("@fileID", SqlDbType.Int, Convert.ToInt32(fileID));
+            int result = Convert.ToInt32(myCommand.ExecuteScalar());
+            myCommand.Parameters.Clear();
+            return result;
+        }
     }
 }

@@ -75,9 +75,10 @@ namespace Lanban.AccessLayer
         // Check whether a user is owner of a project
         public bool IsOwner(int projectID, int userID)
         {
-            myCommand.CommandText = "SELECT Owner FROM Project WHERE Project_ID=@projectID";
+            myCommand.CommandText = "SELECT Count(*) FROM Project WHERE Project_ID=@projectID AND Owner=@userID";
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
-            bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == userID);
+            addParameter<int>("@userID", SqlDbType.Int, userID);
+            bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == 1);
             myCommand.Parameters.Clear();
             return result;
         }
@@ -121,6 +122,7 @@ namespace Lanban.AccessLayer
             try { addParameter<DateTime>("@startDate", SqlDbType.DateTime2, DateTime.ParseExact(project.Start_Date, "dd.MM.yyyy", null)); }
             catch { addParameter<DBNull>("@startDate", SqlDbType.DateTime2, DBNull.Value); }
             addParameter("@projectID", SqlDbType.Int, project.Project_ID);
+            addParameter("@userID", SqlDbType.Int, userID);
             bool result = (myCommand.ExecuteNonQuery() == 1);
             myCommand.Parameters.Clear();
             return result;
@@ -152,13 +154,13 @@ namespace Lanban.AccessLayer
         }
 
         // Get Project Data
-        public Dictionary<string,object> getProjectData(int projectID)
+        public Model.ProjectModel getProjectData(int projectID)
         {
             myCommand.CommandText = "SELECT * FROM Project WHERE Project_ID=@projectID";
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
             myReader = myCommand.ExecuteReader();
             myReader.Read();
-            var projectData = SerializeRow(myReader);
+            var projectData = SerializeTo<ProjectModel>(myReader);
             myReader.Close();
             return projectData;
         }
