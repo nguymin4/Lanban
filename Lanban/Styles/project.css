@@ -387,3 +387,48 @@ textarea.input-project {
     padding: 10px;
     border-radius: 8px;
 }
+
+
+/* Account management */
+#accountManagement {
+    width: 400px;
+    margin: auto auto 20px auto;
+    position: relative;
+}
+
+#accountManagement table {
+    color: white;
+}
+
+#accManaPanel {
+    text-align: center;
+}
+
+#accManaPanel .button {
+    margin: auto;
+    transform: scale(0.8);
+}
+
+#accountManagement .input-project {
+    margin: 5px auto;
+}
+
+#fileUploadContainer {
+    width: 370px;
+    position: relative;
+    left: 0px;
+}
+
+#fileUploadContainer input {
+    width: 100%;
+}
+
+#inputFileName {
+    width: calc(100% - 40px);
+}
+
+#tempProfileImg {
+    position: absolute;
+    display: none;
+    height: 225px;
+}

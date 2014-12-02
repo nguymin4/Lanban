@@ -157,5 +157,14 @@ namespace Lanban.AccessLayer
             if (Convert.ToInt32(myCommand.ExecuteScalar()) == 0) return "";
             return "Existed";
         }
+
+        // Update avatar when user upload new avatar
+        public void updateAvatar(int userID, string avatar)
+        {
+            myCommand.CommandText = "UPDATE Users SET Avatar=@avatar WHERE User_ID=@userID";
+            addParameter<string>("@avatar", SqlDbType.NVarChar, avatar);
+            addParameter<int>("@userID", SqlDbType.Int, userID);
+            myCommand.ExecuteNonQuery();
+        }
     }
 }

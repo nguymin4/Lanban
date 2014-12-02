@@ -43,6 +43,8 @@ $(document).ready(function () {
 
     // Initialize project hub event listener
     init_ProjectHub_Listener();
+    
+    $("#txtAccFullname").val(_name);
 });
 
 $(window).load(function () {
@@ -687,4 +689,108 @@ function isInProject(personID) {
         if ($(members[i]).attr("data-id") == personID) return true;
     }
     return false;
+}
+
+
+/* Account Management */
+var img;
+var ratio;
+var canvas;
+
+// Load image from computer to browser
+function uploadTempProfile(obj) {
+    var temp = $("#tempProfileImg");
+    var reader = new FileReader();
+    
+    reader.onload = function (event) {
+        img = new Image();
+        img.onload = function () {
+            if (img.height <= temp.height) {
+                temp.css("width", img.width);
+                temp.css("height", img.height);
+            }
+            else {
+                ratio = img.height / getSize(temp, "height");
+                temp.css("width", img.width/ratio);
+            }
+            
+            // Ready to crop
+            var left = (600 - getSize(temp, "width")) / 2;
+            temp.css("display", "block").attr("src", img.src);
+            temp.Jcrop({
+                onSelect: updateCrop,
+                aspectRatio: 1
+            });
+
+            $(".jcrop-holder").css("left", left);
+        }
+        img.src = event.target.result;
+    }
+    reader.readAsDataURL(obj.files[0]);
+    $("#inputFileName").html(obj.files[0].name);
+}
+
+// Upload crop image profile to server
+function uploadProfileImage() {
+    if (canvas == null || canvas == "undefined") {
+        canvas = document.createElement("canvas");
+        var context = canvas.getContext("2d");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        context.drawImage(img, 0, 0);
+    }
+    var avatar = canvas.toDataURL("image/jpeg", 0.92);
+    avatar = avatar.replace("data:image/jpeg;base64,", "");
+    var deferred = $.ajax({
+        type: "POST",
+        url: "Handler/ProjectHandler.ashx",
+        data: {
+            action: "uploadAvatar",
+            name: $("#inputFileName").html(),
+            avatar: avatar
+        }
+    });
+    _avatar = $("#inputFileName").html();
+    return deferred;
+}
+
+// Update dynamic canvas ready to save image
+function updateCrop(c) {
+    if (parseInt(c.w) > 0) {
+        // Show image preview
+        canvas = document.createElement("canvas");
+        var context = canvas.getContext("2d");
+        var x = c.x * ratio;
+        var y = c.y * ratio;
+        var w = c.w * ratio;
+        var h = c.h * ratio;
+        canvas.width = w;
+        canvas.height = h;
+        context.drawImage(img, x, y, w, h, 0, 0, w, h);
+    }
+};
+
+// Save changes of account
+function saveAccountChange() {
+    showProcessingDiaglog();
+    var task1 = uploadProfileImage();
+    $.when(task1).done(function () {
+        showSuccessDiaglog(1);
+        _avatar = "/Uploads/User/" + _avatar;
+        $("#profile").attr("src", _avatar);
+    })
+}
+
+// Cancel changes go back to Project browser
+function cancelAccountChange() {
+    $("#accountMangement .input-project").val("");
+    $("#txtAccFullname").val(_name);
+    $("#inputUploadFile").val("");
+    $("canvas").context.clear();
+    showView(0);
+}
+
+// Get size from css
+function getSize(obj, attr) {
+    return parseInt(obj.css(attr));
 }

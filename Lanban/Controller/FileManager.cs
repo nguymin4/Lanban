@@ -15,7 +15,7 @@ namespace Lanban
             string name = getFileName(uploadFile.FileName);
             string path = "/Uploads/Project_" + projectID.ToString() + "/" + name;
             var filePath = _context.Server.MapPath(path);
-            
+
             try { uploadFile.SaveAs(filePath); }
             catch (Exception) { }
 
@@ -82,11 +82,7 @@ namespace Lanban
             string path = "/Uploads/Project_" + projectID.ToString() + "/screenshot.jpg";
             var filePath = _context.Server.MapPath(path);
 
-            // Delete old one
-            System.IO.File.Delete(filePath);
-
             // Create new one
-
             using (FileStream fs = new FileStream(filePath, FileMode.Create))
             {
                 try
@@ -122,6 +118,39 @@ namespace Lanban
         {
             string path = _context.Server.MapPath("~/Uploads/Project_" + projectID.ToString());
             Directory.Delete(path, true);
+        }
+
+        // Upload avatar
+        public void uploadAvatar(HttpContext _context, int userID)
+        {
+            // Upload avatar
+            var param = _context.Request.Params;
+            string avatar = param["avatar"].ToString();
+            string name = param["name"].ToString();
+            avatar.Trim('\0');
+            string path = "/Uploads/User/"+name;
+            var filePath = _context.Server.MapPath(path);
+
+            // Save to folder
+            using (FileStream fs = new FileStream(filePath, FileMode.Create))
+            {
+                using (BinaryWriter bw = new BinaryWriter(fs))
+                {
+                    byte[] data = Convert.FromBase64String(avatar);
+                    bw.Write(data);
+                    bw.Close();
+                }
+            }
+
+            // Update in session also
+            var user = (Model.UserModel)_context.Session["user"];
+            user.Avatar = path;
+            _context.Session["user"] = user;
+
+            // Update in database
+            AccessLayer.UserAccess temp = new AccessLayer.UserAccess();
+            temp.updateAvatar(userID, path);
+            temp.Dipose();
         }
     }
 }

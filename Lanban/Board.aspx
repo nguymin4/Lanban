@@ -245,7 +245,8 @@
                         <img src="images/sidebar/attach.png" />
                         <img title="Upload" src="images/sidebar/upload.png" onclick="startUploadFile()" />
                         <div id="inputFileName"></div>
-                        <input id="inputUploadFile" type="file" multiple="multiple" onchange="getChosenFileName(this)" /></div>
+                        <input id="inputUploadFile" type="file" multiple="multiple" onchange="getChosenFileName(this)" />
+                    </div>
                     <hr />
                     <div id="uploadProgressContainer">
                         <div id ="uploadProgress"></div>

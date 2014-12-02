@@ -77,6 +77,11 @@ namespace Lanban
                         myAccess.kickUser(projectID, Convert.ToInt32(param["uid"]));
                     else RedirectPage(errorPage);
                     break;
+                
+                // Upload profile
+                case "uploadAvatar":
+                    new FileManager().uploadAvatar(_context, userID);
+                    break;
             }
             myAccess.Dipose();
             FinishWork();

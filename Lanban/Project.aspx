@@ -1,6 +1,8 @@
 ﻿<%@ Page Title="Lanban - Projects" Language="C#" MasterPageFile="~/Lanban.Master" AutoEventWireup="true" CodeBehind="Project.aspx.cs" Inherits="Lanban.Project" Async="true" EnableEventValidation="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="contentHead" runat="server">
+    <script src="Scripts/jquery.Jcrop.min.js"></script>
+    <link href="Styles/jquery.Jcrop.min.css" rel="stylesheet" />
     <script src="Scripts/project.js"></script>
     <link href="Styles/project.css" rel="stylesheet" />
 </asp:Content>
@@ -125,8 +127,38 @@
 
     <!-- Start - The window for Setting -->
     <div class="window view">
-        <div class="title-bar">Setting</div>
+        <div class="title-bar">Account management</div>
         <div class="window-content">
+            <div id="accountManagement">
+                <table>
+                    <tr>
+                        <td>Full name:</td>
+                        <td><input id="txtAccFullname" type="text" class="input-project" disabled /></td>
+                    </tr>
+                    <tr>
+                        <td>Current password:</td>
+                        <td><input id="txtCurrentPassword" type="password" class="input-project" /></td>
+                    </tr>
+                    <tr>
+                        <td>New password:</td>
+                        <td><input id="txtNewPassword" type="password" class="input-project" /></td>
+                    </tr>
+                    <tr>
+                        <td>Repeat new password:</td>
+                        <td><input id="txtRepeatPassword" type="password" class="input-project" /></td>
+                    </tr>
+                </table>
+                <div id="fileUploadContainer">
+                    <img src="images/sidebar/attach.png" />
+                    <div id="inputFileName"></div>
+                    <input id="inputUploadFile" type="file" onchange="uploadTempProfile(this)" />
+                </div>
+            </div>
+            <img src="/" id="tempProfileImg"/>
+            <div id="accManaPanel">
+                <input type="button" class="button medium btnSave" value="Save" onclick="saveAccountChange()" />
+                <input type="button" class="button medium btnCancel" value="Cancel" onclick="cancelAccountChange()" />
+            </div>
         </div>
     </div>
     <!-- End - The window for Setting  -->

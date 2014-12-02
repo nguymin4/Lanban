@@ -355,7 +355,7 @@ body {
     }
 
 
-/*Notification*/
+/* Notification */
 #notiIndicator {
     position: absolute;
     display: none;
@@ -422,4 +422,56 @@ body {
 .noti-msg .subject, .noti-msg .target {
     font-weight: 600;
     color: black;
+}
+
+
+/* File upload */
+#fileUploadContainer {
+    width: 100%;
+    height: 30px;
+    position: relative;
+    line-height: 30px;
+    background-color: rgba(25, 15, 15, 0.5);
+    border-radius: 5px;
+    border: solid 1px rgba(128, 128, 128, 0.4);
+}
+
+    #fileUploadContainer img {
+        height: 28px;
+        width: 28px;
+        transition: transform 0.25s ease;
+        cursor: pointer;
+        margin: auto;
+    }
+
+        #fileUploadContainer img:hover {
+            height: 30px;
+            width: 30px;
+        }
+
+img[title='Upload'] {
+    float: right;
+}
+
+#inputFileName {
+    float: right;
+    background: transparent;
+    width: calc(100% - 65px);
+    height: 30px;
+    line-height: 30px;
+    margin-right: 5px;
+    overflow: hidden;
+    white-space: nowrap;
+    word-wrap: break-word;
+    text-overflow: ellipsis;
+}
+
+#fileUploadContainer input {
+    width: 305px;
+    height: 30px;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    opacity: 0;
+    cursor: pointer;
 }
