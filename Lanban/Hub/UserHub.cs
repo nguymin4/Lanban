@@ -76,9 +76,11 @@ namespace Lanban.Hubs
 
             // Get project data
             Task<Model.ProjectModel> task2 = Task.Run(() => myPA.getProjectData(projectID));
+            // Get owner data if the sender is not owner
+           
+           
             var project = await task2;
             string personContainer = await task1;
-            DiposeConnection();
 
             // Message for notification center
             Task task3 = Task.Run(() 
@@ -90,11 +92,19 @@ namespace Lanban.Hubs
             // Project object for the added person
             Clients.User(addedMember.ToString()).addProject(project);
 
+            // Owner object for the added person
+            Model.UserModel owner;
+            if (sender.User_ID != project.Owner)
+                owner = myUA.getUserData(project.Owner);
+            else owner = sender;
+            Clients.User(addedMember.ToString()).addOwner(owner);
+            
+            DiposeConnection();
             await Task.WhenAll(task3, task4);
         }
 
         // The owner kick a member
-        public async Task RemoveUser(int projectID, int personID)
+        public async Task RemoveUser(int projectID, string name, int personID)
         {
             await FetchUserData(projectID);
             
@@ -102,8 +112,13 @@ namespace Lanban.Hubs
             if (myPA.IsOwner(projectID, sender.User_ID))
             {
                 DiposeConnection();
+                
                 // Delete person in other view
                 Clients.Users(ids).removeUser(projectID, personID);
+                
+                // Delete project in the kicked person view
+                Clients.User(personID.ToString()).deleteProject(projectID);
+                Clients.User(personID.ToString()).msgOwnerKick(sender, projectID, name);
             }
         }
 

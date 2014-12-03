@@ -61,13 +61,13 @@
             <div id="projectfilter" class="right-window-content show">
                 <div class="txtSearch">
                     <div class="searchIcon"></div>
-                    <input class="txtSearchBox" name="txtSearchProject" type="text" placeholder="Search..." />
+                    <input class="txtSearchBox" name="txtSearchProject" type="text"
+                        placeholder="Search..." onkeyup="browseProject(this)" />
                 </div>
                 <div>
                     <h4>Search by: </h4>
-                    <div class="criteria">Name</div>
-                    <div class="criteria">Owner</div>
-                    <div class="criteria">Supervisor</div>
+                    <div class="criteria" data-criteria="1">Name</div>
+                    <div class="criteria" data-criteria="2">Owner</div>
                 </div>
                 <div>
                     <h4>Sort by: </h4>
@@ -125,7 +125,7 @@
     </div>
     <!-- End - The window for Share  -->
 
-    <!-- Start - The window for Setting -->
+    <!-- Start - The window for Account management -->
     <div class="window view">
         <div class="title-bar">Account management</div>
         <div class="window-content">
@@ -153,15 +153,16 @@
                     <div id="inputFileName"></div>
                     <input id="inputUploadFile" type="file" onchange="uploadTempProfile(this)" />
                 </div>
+                <div class="loading-spinner" style="display: none"></div>
             </div>
-            <img src="/" id="tempProfileImg"/>
+            <img src="#" id="tempProfileImg"/>
             <div id="accManaPanel">
                 <input type="button" class="button medium btnSave" value="Save" onclick="saveAccountChange()" />
                 <input type="button" class="button medium btnCancel" value="Cancel" onclick="cancelAccountChange()" />
             </div>
         </div>
     </div>
-    <!-- End - The window for Setting  -->
+    <!-- End - The window for Account management  -->
 
     <!-- Other elements  -->
     <div id="searchContainer"></div>

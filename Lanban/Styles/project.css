@@ -74,6 +74,17 @@ input[name="txtSearchProject"]:focus {
     padding: 3px 15px;
     margin: 10px;
     cursor: pointer;
+    transition: 0.25s ease;
+}
+
+#projectfilter .criteria.chosen {
+    background: #e6e6e6;
+    color: rgba(25, 15, 15, 0.9);
+}
+
+#projectfilter .criteria:hover {
+    background: #e6e6e6;
+    color: rgba(25, 15, 15, 0.9);
 }
 
 /*Add project panel*/
@@ -239,7 +250,6 @@ input[name="txtSearchProject"]:focus {
     height: 56px;
     overflow: hidden;
 }
-
 
 #projectdetail-description {
     position: relative;
@@ -428,7 +438,9 @@ textarea.input-project {
 }
 
 #tempProfileImg {
-    position: absolute;
-    display: none;
+    position: relative;
+    display: block;
     height: 225px;
+    width: 225px;
+    left: calc(50% - 112px);
 }

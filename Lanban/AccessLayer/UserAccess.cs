@@ -24,14 +24,16 @@ namespace Lanban.AccessLayer
         {
             dynamic uid = id;
             string type = uid.GetType().ToString();
+
+            string command = "SELECT * FROM Users WHERE ";
             if (type.Contains("String"))
             {
-                myCommand.CommandText = "SELECT * FROM Users WHERE Username = @username";
+                myCommand.CommandText = command + "Username = @username";
                 addParameter<string>("@username", SqlDbType.NVarChar, uid);
             }
             else
             {
-                myCommand.CommandText = "SELECT * FROM Users WHERE User_ID = @uid";
+                myCommand.CommandText = command + "User_ID = @uid";
                 addParameter<int>("@uid", SqlDbType.Int, uid);
             }
             

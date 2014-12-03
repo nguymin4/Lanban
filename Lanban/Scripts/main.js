@@ -186,7 +186,7 @@ function init_UserHub() {
             msgAddUser(sender, "you", projectName);
     });
 
-    proxyUser.on("msgProject", function (sender, context, projectID, projectName) {
+    proxyUser.on("msgProject", function (sender, context, pid, projectName) {
         if (sender.User_ID != userID)
             msgProject(sender, context, projectName);
         else
@@ -195,7 +195,17 @@ function init_UserHub() {
             msgProject(sender, context, projectName);
         }
 
-        redirectAfterDeleting(sender.Name);
+        // If the user in board page then redirect back to project page
+        if ((context == "Deleted") && (document.getElementById("kanbanBoard") != null))
+            redirectAfterDeleting(pid, sender.Name, "deleted");
+    });
+
+    proxyUser.on("msgOwnerKick", function (sender, pid, projectName) {
+        msgOwnerKick(sender, projectName);
+
+        // If the user in board page then redirect back to project page
+        if (document.getElementById("kanbanBoard") !=  null)
+            redirectAfterDeleting(pid, sender.Name, "kicked you out of");
     });
 
     connUser.start().done(function () {
@@ -221,27 +231,14 @@ function msgProject(sender, context, project) {
     updateNotiIndicator();
 }
 
-// When a user in board page and 
-// the owner of the project delete the project then show this message
-function redirectAfterDeleting(name) {
-    if (document.getElementById("kanbanWindow") != null) {
-        $(".diaglog.error").fadeIn(200).addClass("show");
-        $(".diaglog.error .btnOK").hide();
-        var context = "<strong>" + name + "</strong> has deleted this project.</br></br>" +
-            "Redirect to Project page in <span id='timeout'>10</span> seconds.";
-        $(".diaglog.error .content-holder").html(context);
-
-        setInterval(function () {
-            var count = $("#timeout").html() - 1;
-            $("#timeout").html(count);
-        }, 999);
-
-        setTimeout(function () {
-            window.location.href = "Project.aspx";
-        }, 10000);
-    }
+// User is kicked
+function msgOwnerKick(sender, project) {
+    content = "<div class='noti-msg'><img src='" + sender.Avatar + "' class='noti-msg-avatar' />" +
+       "<div class='noti-msg-content'><span class='subject'>" + sender.Name + "</span> kicked <strong> you </strong>" +
+       " out of <i>" + project + "</i></div>";
+    $("#notiCenter").prepend(content);
+    updateNotiIndicator();
 }
-
 
 // Update notification
 function updateNotiIndicator() {

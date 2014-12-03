@@ -104,7 +104,6 @@ namespace Lanban
 
                 tasks.Add(Task.Run(() => createHeader(row, tempi)));
                 tasks.Add(Task.Run(() => createCell(row, tempi)));
-                //System.Diagnostics.Debug.WriteLine("Column" + tempi);
             }
 
             await Task.WhenAll(tasks.ToArray());
@@ -114,7 +113,6 @@ namespace Lanban
         //1.1 Add header cell to kanban board
         protected void createHeader(DataRow row, int i)
         {
-            //System.Diagnostics.Debug.WriteLine("Header" + i);
             var th = header[i];
             int type = Convert.ToInt32(row["Type"]);
             int swimlane_id = Convert.ToInt32(row["Swimlane_ID"]);
@@ -136,7 +134,6 @@ namespace Lanban
         //1.2 Add table cell to kanban board with sticky note
         protected async Task createCell(DataRow row, int position)
         {
-            //System.Diagnostics.Debug.WriteLine("Cell" + position);
             int swimlane_id = Convert.ToInt32(row["Swimlane_ID"]);
             string type = row["Type"].ToString();
             //Initialize

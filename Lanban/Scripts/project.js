@@ -44,7 +44,18 @@ $(document).ready(function () {
     // Initialize project hub event listener
     init_ProjectHub_Listener();
     
+    // Account management window
     $("#txtAccFullname").val(_name);
+    var temp = $("#tempProfileImg");
+    temp.width = 225;
+    temp.height = 225;
+    temp.attr("src", _avatar);
+
+    // Criteria for searching project
+    $("#projectfilter .criteria").on("click", function () {
+        $("#projectfilter .criteria.chosen").removeClass("chosen");
+        $(this).addClass("chosen");
+    });
 });
 
 $(window).load(function () {
@@ -90,6 +101,7 @@ function findUser(id) {
             return userList[i];
         }
     }
+    return null;
 }
 
 /*2.1 View project detail */
@@ -106,11 +118,12 @@ function viewProjectDetail(obj, id) {
     // Open project detail box and load info
     fetchSupervisor(id);
     setTimeout(function () {
-        if ($("#projectdetail").hasClass("show"))
+        if ($("#projectdetail").hasClass("show")) {
             $("#projectdetail").fadeOut("fast", function () {
                 loadProjectDetailInfo(project, id);
                 $("#projectdetail").fadeIn("fast");
             });
+        }
         else {
             $("#projectdetail").addClass("show");
             loadProjectDetailInfo(project, id);
@@ -121,6 +134,7 @@ function viewProjectDetail(obj, id) {
 
 /* 2.1.2 Load project info */
 function loadProjectDetailInfo(project, id) {
+    clearProjectDetail();
     $("#screenshot").attr("src", "Uploads/Project_" + project.Project_ID + "/screenshot.jpg");
 
     $("#btnOpenProject").attr("onclick", "loadPageSpinner();" +
@@ -143,7 +157,17 @@ function loadProjectDetailInfo(project, id) {
     $("#projectdetail-description").html(project.Description);
     $("#projectStartDate").html(parseJSONDate(project.Start_Date));
 
-    $("#project-owner .project-data").html(getPersonDisplay(findUser(project.Owner)));
+    var owner = findUser(project.Owner);
+    if (owner != null) 
+        $("#project-owner .project-data").html(getPersonDisplay(owner));
+}
+
+// Helper 2.1.2
+function clearProjectDetail() {
+    $("#projectdetail-name").html("");
+    $("#projectdetail-description").html("");
+    $("#projectStartDate").html("");
+    $("#project-owner .project-data").html("");
 }
 
 /* 2.1.3 Get display of a person */
@@ -179,7 +203,6 @@ function hideProjectDetail() {
 }
 
 /* Create new project */
-
 var supervisorChange = false;
 
 /*3.1 Create new project */
@@ -267,7 +290,7 @@ function searchUser(searchBox, role) {
                     $("#searchContainer .searchRecord").attr("onclick", func);
                 }
             });
-        }, 200);
+        }, 100);
     }
     else clearResult();
 }
@@ -555,9 +578,13 @@ function init_ProjectHub_Listener() {
         var currentProject = $("#sharingWindow").attr("data-project-id");
         if (currentProject == projectID && isInProject(personID)) {
             $(".person[data-id='" + personID + "']", $("#sharingWindow")).remove();
-            console.log("Removed Person");
         }
     });
+
+    proxyUser.on("addOwner", function (owner) {
+        delete owner.Role;
+        if (findUser(owner.User_ID) == null) userList.push(owner);
+    })
 
     /* Project */
     proxyUser.on("addProject", function (project) {
@@ -672,8 +699,9 @@ function removeMember(obj, projectID) {
             },
             global: false,
             type: "get",
-            success: function() {
-                proxyUser.invoke("removeUser", projectID, uid);
+            success: function () {
+                var name = findProject(projectID).Name;
+                proxyUser.invoke("removeUser", projectID, name, uid);
             }
         });
     }
@@ -693,14 +721,15 @@ function isInProject(personID) {
 
 
 /* Account Management */
-var img;
-var ratio;
-var canvas;
+var img, ratio, canvas, jcrop;
 
 // Load image from computer to browser
 function uploadTempProfile(obj) {
     var temp = $("#tempProfileImg");
     var reader = new FileReader();
+    temp.hide();
+    $(".jcrop-holder").hide();
+    $("#accountManagement .loading-spinner").fadeIn("fast");
     
     reader.onload = function (event) {
         img = new Image();
@@ -711,18 +740,10 @@ function uploadTempProfile(obj) {
             }
             else {
                 ratio = img.height / getSize(temp, "height");
-                temp.css("width", img.width/ratio);
+                temp.css("width", img.width / ratio);
             }
-            
             // Ready to crop
-            var left = (600 - getSize(temp, "width")) / 2;
-            temp.css("display", "block").attr("src", img.src);
-            temp.Jcrop({
-                onSelect: updateCrop,
-                aspectRatio: 1
-            });
-
-            $(".jcrop-holder").css("left", left);
+            init_Jcrop(temp);
         }
         img.src = event.target.result;
     }
@@ -754,20 +775,47 @@ function uploadProfileImage() {
     return deferred;
 }
 
+// Init jcrop or reload jcrop
+function init_Jcrop(temp) {
+    var left = (600 - getSize(temp, "width")) / 2;
+    var dim = (img.width > img.height) ? getSize(temp, "height") : getSize(temp, "width");
+    temp.css("display", "block").attr("src", img.src);
+
+    if (jcrop != null) jcrop.destroy();
+    temp.Jcrop({
+        onSelect: updateCrop,
+        setSelect: [0, 0, dim, dim],
+        aspectRatio: 1
+    }, function () {
+        jcrop = this;
+    });
+
+    $("#accountManagement .loading-spinner").fadeOut("fast");
+    $(".jcrop-holder").css("left", left).show();
+}
+
 // Update dynamic canvas ready to save image
+var timeoutUpdateCrop;
 function updateCrop(c) {
-    if (parseInt(c.w) > 0) {
-        // Show image preview
-        canvas = document.createElement("canvas");
-        var context = canvas.getContext("2d");
-        var x = c.x * ratio;
-        var y = c.y * ratio;
-        var w = c.w * ratio;
-        var h = c.h * ratio;
-        canvas.width = w;
-        canvas.height = h;
-        context.drawImage(img, x, y, w, h, 0, 0, w, h);
-    }
+    clearTimeout(timeoutUpdateCrop);
+    timeoutUpdateCrop = setTimeout(function () {
+        if (parseInt(c.w) > 0) {
+            // Show image preview
+            canvas = document.createElement("canvas");
+            var context = canvas.getContext("2d");
+            var x = c.x * ratio;
+            var y = c.y * ratio;
+            var w = c.w * ratio;
+            var h = c.h * ratio;
+            canvas.width = w;
+            canvas.height = h;
+            if (img == null) {
+                img = new Image();
+                img.src = $("#tempProfileImg").src;
+            }
+            context.drawImage(img, x, y, w, h, 0, 0, w, h);
+        }
+    }, 200);
 };
 
 // Save changes of account
@@ -786,11 +834,67 @@ function cancelAccountChange() {
     $("#accountMangement .input-project").val("");
     $("#txtAccFullname").val(_name);
     $("#inputUploadFile").val("");
-    $("canvas").context.clear();
+    $("#inputFileName").html("");
+    $("#tempProfileImg").attr("src", _avatar);
+    if (jcrop != null) jcrop.destroy();
     showView(0);
 }
 
 // Get size from css
 function getSize(obj, attr) {
     return parseInt(obj.css(attr));
+}
+
+
+// Search functionalities in project browser
+var browseProTimeout;
+function browseProject(searchBox) {
+    clearTimeout(browseProTimeout);
+    browseProTimeout = setTimeout(function () {
+        var value = searchBox.value.toLowerCase();
+        var option = $("#projectfilter .criteria.chosen").attr("data-criteria");
+        var containers = $(".project-container");
+        if (value == "") containers.fadeIn("fast");
+        else {
+            containers.show();
+            if ((option == 1)||(option == undefined)) {
+                for (var i = 0; i < containers.length; i++) {
+                    var name = $(".project-header", containers[i]).html().toLowerCase();
+                    if (name.indexOf(value) == -1)
+                        $(containers[i]).fadeOut("fast");
+                }
+            }
+            else {
+                var owner = [];
+                for (var i = 0; i < userList.length; i++) {
+                    var name = userList[i].Name.toLowerCase();
+                    if (name.indexOf(value) != -1)
+                        owner.push(userList[i].User_ID);
+                }
+
+                var wrong = [];
+                for (var i = 0; i < projectList.length; i++) {
+                    var correct = false;
+                    for (var j = 0; j < owner.length; j++) {
+                        if (projectList[i].Owner == owner[j]) {
+                            correct = true;
+                            break;
+                        }
+                    }
+                    if (correct == false) wrong.push(projectList[i].Project_ID);
+                }
+
+                for (var i = 0; i < containers.length; i++) {
+                    var id = $(containers[i]).attr("id").replace("project", "");
+                    for (var j = 0; j < wrong.length; j++) {
+                        if (id == wrong[j]) {
+                            $(containers[i]).fadeOut("fast");
+                            wrong.splice(j, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }, 250);
 }

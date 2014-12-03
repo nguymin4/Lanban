@@ -1185,6 +1185,27 @@ function init_NoteHub() {
     });
 }
 
+// When the owner of the project delete the project
+// or kick the user then do this
+function redirectAfterDeleting(pid, name, reason) {
+    if (pid == projectID) {
+        $(".diaglog.error").fadeIn(200).addClass("show");
+        $(".diaglog.error .btnOK").hide();
+        var content = "<strong>" + name + "</strong> has " + reason + " this project.</br></br>" +
+            "Redirect to Project page in <span id='timeout'>10</span> seconds.";
+        $(".diaglog.error .content-holder").html(content);
+
+        setInterval(function () {
+            var count = $("#timeout").html() - 1;
+            $("#timeout").html(count);
+        }, 999);
+
+        setTimeout(function () {
+            window.location.href = "Project.aspx";
+        }, 10000);
+    }
+}
+
 /*D. Others */
 function takeScreenshot() {
     html2canvas($("#container"), {

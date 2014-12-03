@@ -155,7 +155,6 @@
     <Content Include="Uploads\Project_1\screenshot.jpg" />
     <Content Include="Uploads\Project_2\screenshot.jpg" />
     <Content Include="Uploads\User\281115_30759306.jpg" />
-    <Content Include="Uploads\User\slide_383406_4569780_free.jpg" />
     <Content Include="Uploads\User\_79G2227.jpg" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>

@@ -19,7 +19,10 @@ namespace Lanban
 
         protected void btnLogin_Click(object sender, EventArgs e)
         {
-            Model.UserModel user = new Query().login(txtUsername.Text, txtPassword.Text);
+            var query = new Query();
+            var user = query.login(txtUsername.Text, txtPassword.Text);
+            query.Dipose();
+
             if (user != null)
             {
                 if ((user.Avatar == null) || (user.Avatar.Equals("")))
@@ -30,7 +33,7 @@ namespace Lanban
                 // Create authentication ticket
                 var auth = new Controller.LanbanAuthentication();
                 auth.Authenticate(Response, user);
-                FormsAuthentication.RedirectFromLoginPage(user.Username, false);
+                FormsAuthentication.RedirectFromLoginPage(txtUsername.Text, false);
             }
             else
             {
