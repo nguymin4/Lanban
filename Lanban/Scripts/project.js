@@ -850,51 +850,80 @@ function getSize(obj, attr) {
 var browseProTimeout;
 function browseProject(searchBox) {
     clearTimeout(browseProTimeout);
+    
     browseProTimeout = setTimeout(function () {
         var value = searchBox.value.toLowerCase();
         var option = $("#projectfilter .criteria.chosen").attr("data-criteria");
-        var containers = $(".project-container");
-        if (value == "") containers.fadeIn("fast");
+        if (value == "") $(".project-container").show();
         else {
-            containers.show();
-            if ((option == 1)||(option == undefined)) {
-                for (var i = 0; i < containers.length; i++) {
-                    var name = $(".project-header", containers[i]).html().toLowerCase();
-                    if (name.indexOf(value) == -1)
-                        $(containers[i]).fadeOut("fast");
-                }
-            }
-            else {
-                var owner = [];
-                for (var i = 0; i < userList.length; i++) {
-                    var name = userList[i].Name.toLowerCase();
-                    if (name.indexOf(value) != -1)
-                        owner.push(userList[i].User_ID);
-                }
+            if (option == 1)
+                searchProjectByName(value);
+            else
+                searchProjectByOwner(value);
+        }
+    }, 100);
+}
 
-                var wrong = [];
-                for (var i = 0; i < projectList.length; i++) {
-                    var correct = false;
-                    for (var j = 0; j < owner.length; j++) {
-                        if (projectList[i].Owner == owner[j]) {
-                            correct = true;
-                            break;
-                        }
-                    }
-                    if (correct == false) wrong.push(projectList[i].Project_ID);
-                }
+// Search project by name
+function searchProjectByName(value) {
+    var containers = $(".project-container");
+    for (var i = 0; i < containers.length; i++) {
+        var name = $(".project-header", containers[i]).html().toLowerCase();
+        if (name.indexOf(value) == -1) {
+            if ($(containers[i]).css("display", "block"))
+                $(containers[i]).hide();
+        }
+        else {
+            if ($(containers[i]).css("display", "none"))
+                $(containers[i]).show();
+        }
+    }
+}
 
-                for (var i = 0; i < containers.length; i++) {
-                    var id = $(containers[i]).attr("id").replace("project", "");
-                    for (var j = 0; j < wrong.length; j++) {
-                        if (id == wrong[j]) {
-                            $(containers[i]).fadeOut("fast");
-                            wrong.splice(j, 1);
-                            break;
-                        }
-                    }
-                }
+// Search project by owner
+function searchProjectByOwner(value) {
+    var containers = $(".project-container");
+
+    // Find all owner id has the name like the keyword
+    var owner = [];
+    for (var i = 0; i < userList.length; i++) {
+        var name = userList[i].Name.toLowerCase();
+        if (name.indexOf(value) != -1)
+            owner.push(userList[i].User_ID);
+    }
+
+    // Find all the projects that have the owner id not in the array above
+    var wrong = [];
+    for (var i = 0; i < projectList.length; i++) {
+        var correct = false;
+        for (var j = 0; j < owner.length; j++) {
+            // Determine the correct project
+            if (projectList[i].Owner == owner[j]) {
+                correct = true;
+                break;
             }
         }
-    }, 250);
+        // If the current project is wrong project then push in the wrong[]
+        if (correct == false) wrong.push(projectList[i].Project_ID);
+    }
+
+    // Hide all that unmatched projects
+    for (var i = 0; i < containers.length; i++) {
+        var id = $(containers[i]).attr("id").replace("project", "");
+        var correct = true;
+        for (var j = 0; j < wrong.length; j++) {
+            // If the current project is a wrong project then fade out if possible
+            // Remove the element from wrong[] to speed up for the next iteration
+            if (id == wrong[j]) {
+                if ($(containers[i]).css("display", "block"))
+                    $(containers[i]).hide();
+                wrong.splice(j, 1);
+                correct = false;
+                break;
+            }
+        }
+        // If the current project is a right project then fade in if possible
+        if ($(containers[i]).css("display", "none") && correct == true)
+            $(containers[i]).show();
+    }
 }

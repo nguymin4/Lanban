@@ -40,6 +40,24 @@ namespace Lanban {
         protected global::System.Web.UI.WebControls.Panel panelKanbanBody;
         
         /// <summary>
+        /// txtLGFrom control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtLGFrom;
+        
+        /// <summary>
+        /// txtLGTo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtLGTo;
+        
+        /// <summary>
         /// txtBacklogTitle control.
         /// </summary>
         /// <remarks>

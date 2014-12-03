@@ -55,6 +55,9 @@
             </div>
 
             <div class="chart-box">
+                From: <asp:TextBox runat="server" ID="txtLGFrom" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
+                To: <asp:TextBox runat="server" ID="txtLGTo" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
+                <input type="button" id="btnLGFilter" class="medium button" value="Filter" />
                 <h3>Cumulated working hour
                     <br />
                     of the whole team </h3>
@@ -106,12 +109,14 @@
                         <tr>
                             <td>Start date:</td>
                             <td>
-                                <asp:TextBox runat="server" ID="txtBacklogStart" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
+                                <asp:TextBox runat="server" ID="txtBacklogStart" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
+                            </td>
                         </tr>
                         <tr>
                             <td>Completion date:</td>
                             <td>
-                                <asp:TextBox runat="server" ID="txtBacklogComplete" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
+                                <asp:TextBox runat="server" ID="txtBacklogComplete" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
+                            </td>
                         </tr>
                         <tr>
                             <td></td>
@@ -197,15 +202,16 @@
                                 <asp:DropDownList runat="server" ID="ddlTaskColor"></asp:DropDownList></td>
                         </tr>
                         <tr>
-                            <td>Due date:<br />
-                            </td>
+                            <td>Due date:</td>
                             <td>
-                                <asp:TextBox runat="server" ID="txtTaskDueDate" CssClass="inputBox" placeholder="dd.mm.yyyy"></asp:TextBox></td>
+                                <asp:TextBox runat="server" ID="txtTaskDueDate" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
+                            </td>
                         </tr>
                         <tr>
                             <td>Completion date:</td>
                             <td>
-                                <asp:TextBox runat="server" ID="txtTaskCompletionDate" CssClass="inputBox" Enabled="false"></asp:TextBox></td>
+                                <asp:TextBox runat="server" ID="txtTaskCompletionDate" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
+                            </td>
                         </tr>
                         <tr>
                             <td></td>

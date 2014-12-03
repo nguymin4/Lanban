@@ -475,3 +475,8 @@ img[title='Upload'] {
     opacity: 0;
     cursor: pointer;
 }
+
+/* Date picker */
+div.ui-datepicker {
+    font-size: 14px;
+}

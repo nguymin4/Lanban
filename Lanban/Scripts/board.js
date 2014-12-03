@@ -85,6 +85,17 @@ $(document).ready(function () {
         minScrollbarLength: 10
     });
 
+    // Date picker
+    $(".inputBox.date").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: "yy-mm-dd",
+        onSelect: function (selected) {
+            if (selected == "") $(this).val("");
+            else $(this).val(parseJSONDate(selected));
+        }
+    });
+
     $("#commentBox").perfectScrollbar({
         wheelSpeed: 3,
         wheelPropagation: false,

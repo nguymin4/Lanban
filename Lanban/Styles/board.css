@@ -324,6 +324,22 @@ div.assignee-name-active {
         display: none;
     }
 
+    .chart-box .date {
+        width: 110px;
+        min-width: initial;
+        margin-right: 10px;
+    }
+
+.chart-box .button.medium {
+    line-height: 28px;
+    height: 30px;
+}
+
+.chart-box .button.medium:hover {
+    background: #E78F08;
+    color: white;
+}
+
 /* Comment box*/
 #commentBox {
     position: relative;

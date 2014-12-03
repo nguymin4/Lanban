@@ -59,12 +59,7 @@ namespace Lanban.AccessLayer
             var labels = myBar.labels;
 
             // Random color - not necessary can be removed.
-            int colorIndex = 0;
-            for (int i = 0; i < 5; i++)
-            {
-                colorIndex = new Random().Next(0, 6);
-                Thread.Sleep(1);
-            }
+            int colorIndex = new Random().Next(0, 6);
             BarChartDataset barDataset = new BarChartDataset(colorHex[1, colorIndex], colorHex[0, colorIndex]);
             barDataset.label = "";
 

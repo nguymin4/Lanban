@@ -66,7 +66,7 @@
                 </div>
                 <div>
                     <h4>Search by: </h4>
-                    <div class="criteria" data-criteria="1">Name</div>
+                    <div class="criteria chosen" data-criteria="1">Name</div>
                     <div class="criteria" data-criteria="2">Owner</div>
                 </div>
                 <div>
@@ -83,7 +83,7 @@
                 Description:
                 <textarea class="input-project" id="txtProjectDescription" spellcheck="false"></textarea>
                 Start date:
-                <input type="text" class="input-project" id="txtProjectStartDate" placeholder="dd.mm.yyyy" /><br />
+                <input type="text" class="input-project date" id="txtProjectStartDate" placeholder="dd.mm.yyyy" /><br />
                 Supervisor:
                 <input type="text" class="input-project" id="txtSupervisor"
                     onkeyup="searchUser(this, 2)" onblur="clearResult(this)" />
