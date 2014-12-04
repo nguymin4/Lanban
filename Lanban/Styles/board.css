@@ -316,7 +316,7 @@ div.assignee-name-active {
 
     .chart-box h3 {
         margin: 0px auto 10px auto;
-        font-size: 16px;
+        font-size: 20px;
         text-align: center;
     }
 
@@ -333,11 +333,13 @@ div.assignee-name-active {
 .chart-box .button.medium {
     line-height: 28px;
     height: 30px;
+    background: #E78F08;
+    color: white;
 }
 
 .chart-box .button.medium:hover {
-    background: #E78F08;
-    color: white;
+    color: #E78F08;
+    background: white;
 }
 
 /* Comment box*/

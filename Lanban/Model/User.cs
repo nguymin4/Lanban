@@ -30,4 +30,14 @@ namespace Lanban.Model
         public int User_ID { get; set; }
         public string Content { get; set; }
     }
+
+    public class FileModel
+    {
+        public int File_ID { get; set; }
+        public int Task_ID { get; set; }
+        public int User_ID { get; set; }
+        public string Name { get; set; }
+        public string Type { get; set; }
+        public string Path { get; set; }
+    }
 }

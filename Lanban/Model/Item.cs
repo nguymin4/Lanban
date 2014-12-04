@@ -12,6 +12,8 @@ namespace Lanban.Model
         public string Description { get; set; }
         public int Complexity { get; set; }
         public string Color { get; set; }
+        public string Start_date { get; set; }
+        public string Completion_date { get; set; }
     }
 
     public class Task
@@ -26,6 +28,8 @@ namespace Lanban.Model
         public Nullable<int> Work_estimation { get; set; }
         public string Color { get; set; }
         public string Due_date { get; set; }
+        public string Completion_date { get; set; }
+        public Nullable<int> Actual_work { get; set; }
     }
 
     public class ProjectModel
@@ -37,15 +41,5 @@ namespace Lanban.Model
         public int Owner { get; set; }
         public string Start_Date { get; set; }
         public string Modified_date { get; set; }
-    }
-
-    public class FileModel
-    {
-        public int File_ID { get; set; }
-        public int Task_ID { get; set; }
-        public int User_ID { get; set; }
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public string Path { get; set; }
     }
 }

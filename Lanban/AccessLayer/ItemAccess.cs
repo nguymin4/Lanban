@@ -26,14 +26,22 @@ namespace Lanban.AccessLayer
         public string insertNewBacklog(Backlog backlog)
         {
             StringBuilder command = new StringBuilder();
-            command.Append("INSERT INTO Backlog (Project_ID, Swimlane_ID, Title, Description, Complexity, Color) ");
-            command.Append("VALUES (@Project_ID, @Swimlane_ID, @Title, @Description, @Complexity, @Color);");
+            command.Append("INSERT INTO Backlog (Project_ID, Swimlane_ID, Title, Description, Complexity, Color, Start_date, Completion_date) ");
+            command.Append("VALUES (@Project_ID, @Swimlane_ID, @Title, @Description, @Complexity, @Color, @Start_date, @Completion_date);");
             addParameter<int>("@Project_ID", SqlDbType.Int, backlog.Project_ID);
             addParameter<int>("@Swimlane_ID", SqlDbType.Int, backlog.Swimlane_ID);
             addParameter<string>("@Title", SqlDbType.Text, backlog.Title);
             addParameter<string>("@Description", SqlDbType.Text, backlog.Description);
             addParameter<int>("@Complexity", SqlDbType.Int, backlog.Complexity);
             addParameter<string>("@Color", SqlDbType.VarChar, backlog.Color);
+            
+            // Start date is nullable field - the user can skip input data of that field
+            try { addParameter<DateTime>("@Start_date", SqlDbType.DateTime2, DateTime.ParseExact(backlog.Start_date, "dd.MM.yyyy", null)); }
+            catch { addParameter<DBNull>("@Start_date", SqlDbType.DateTime2, DBNull.Value); }
+
+            // Completion date is nullable field - the user can skip input data of that field
+            try { addParameter<DateTime>("@Completion_date", SqlDbType.DateTime2, DateTime.ParseExact(backlog.Completion_date, "dd.MM.yyyy", null)); }
+            catch { addParameter<DBNull>("@Completion_date", SqlDbType.DateTime2, DBNull.Value); }
 
             // Get the ID just inserted
             command.Append("SELECT SCOPE_IDENTITY();");
@@ -53,8 +61,8 @@ namespace Lanban.AccessLayer
             myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
 
-            // Upate the date fields based on item status
-            updateDate(id, "Backlog", status);
+            // Upate the date fields based on item status - if the field is empty
+            //if (backlog.Start_date.Equals("")) updateDate(id, "Backlog", status);
             return id + "." + relativeID.ToString();
         }
 
@@ -63,9 +71,9 @@ namespace Lanban.AccessLayer
         {
             StringBuilder command = new StringBuilder();
             command.Append("INSERT INTO Task (Project_ID, Swimlane_ID, Backlog_ID, Title, ");
-            command.Append("Description, Color, Work_estimation, Due_date) ");
+            command.Append("Description, Color, Work_estimation, Due_date, Completion_date, Actual_work) ");
             command.Append("VALUES (@Project_ID, @Swimlane_ID, @Backlog_ID, @Title, ");
-            command.Append("@Description, @Color, @Work_estimation, @Due_date);");
+            command.Append("@Description, @Color, @Work_estimation, @Due_date, @Completion_date, @Actual_work);");
 
             addParameter<int>("@Project_ID", SqlDbType.Int, task.Project_ID);
             addParameter<int>("@Swimlane_ID", SqlDbType.Int, task.Swimlane_ID);
@@ -81,6 +89,14 @@ namespace Lanban.AccessLayer
             // Due date is nullable field - the user can skip input data of that field
             try { addParameter<DateTime>("@Due_date", SqlDbType.DateTime2, DateTime.ParseExact(task.Due_date, "dd.MM.yyyy", null)); }
             catch { addParameter<DBNull>("@Due_date", SqlDbType.DateTime2, DBNull.Value); }
+
+            // Completion date is nullable field - the user can skip input data of that field
+            try { addParameter<DateTime>("@Completion_date", SqlDbType.DateTime2, DateTime.ParseExact(task.Completion_date, "dd.MM.yyyy", null)); }
+            catch { addParameter<DBNull>("@Completion_date", SqlDbType.DateTime2, DBNull.Value); }
+
+            // Actual work can be null
+            if (task.Actual_work == null) addParameter<DBNull>("@Actual_work", SqlDbType.Int, DBNull.Value);
+            else addParameter("@Actual_work", SqlDbType.Int, task.Actual_work);
 
             // Get the ID just inserted
             command.Append("SELECT SCOPE_IDENTITY();");
@@ -101,7 +117,7 @@ namespace Lanban.AccessLayer
             myCommand.Parameters.Clear();
 
             // Upate the date fields based on item status
-            updateDate(id, "Task", status);
+            //updateDate(id, "Task", status);
             return id + "." + relativeID.ToString();
         }
 
@@ -109,12 +125,22 @@ namespace Lanban.AccessLayer
         public int updateBacklog(Backlog backlog, int projectID)
         {
             string command = "UPDATE Backlog SET Title=@Title, Description=@Description, " +
-                "Complexity=@Complexity, Color=@Color WHERE Backlog_ID=@Backlog_ID AND Project_ID = @projectID";
+                "Complexity=@Complexity, Color=@Color, Start_date=@Start_date, Completion_date=@Completion_date "+
+                "WHERE Backlog_ID=@Backlog_ID AND Project_ID=@projectID";
 
             addParameter<string>("@Title", SqlDbType.Text, backlog.Title);
             addParameter<string>("@Description", SqlDbType.Text, backlog.Description);
             addParameter<int>("@Complexity", SqlDbType.Int, backlog.Complexity);
             addParameter<string>("@Color", SqlDbType.VarChar, backlog.Color);
+
+            // Start date is nullable field - the user can skip input data of that field
+            try { addParameter<DateTime>("@Start_date", SqlDbType.DateTime2, DateTime.ParseExact(backlog.Start_date, "dd.MM.yyyy", null)); }
+            catch { addParameter<DBNull>("@Start_date", SqlDbType.DateTime2, DBNull.Value); }
+
+            // Completion date is nullable field - the user can skip input data of that field
+            try { addParameter<DateTime>("@Completion_date", SqlDbType.DateTime2, DateTime.ParseExact(backlog.Completion_date, "dd.MM.yyyy", null)); }
+            catch { addParameter<DBNull>("@Completion_date", SqlDbType.DateTime2, DBNull.Value); }
+
             addParameter("@Backlog_ID", SqlDbType.Int, backlog.Backlog_ID);
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
 
@@ -128,7 +154,8 @@ namespace Lanban.AccessLayer
         public int updateTask(Task task, int projectID)
         {
             string command = "UPDATE Task SET Backlog_ID=@Backlog_ID, Title=@Title, Description=@Description, " +
-                "Work_estimation=@Work_estimation, Color=@Color, Due_date=@Due_date WHERE Task_ID=@Task_ID";
+                "Work_estimation=@Work_estimation, Color=@Color, Due_date=@Due_date, Completion_date=@Completion_date, "+
+                "Actual_work=@Actual_work WHERE Task_ID=@Task_ID AND Project_ID=@projectID";
 
             addParameter<int>("@Backlog_ID", SqlDbType.Int, task.Backlog_ID);
             addParameter<string>("@Title", SqlDbType.Text, task.Title);
@@ -143,6 +170,14 @@ namespace Lanban.AccessLayer
             // Due date is nullable field - the user can skip input data of that field
             try { addParameter<DateTime>("@Due_date", SqlDbType.DateTime2, DateTime.ParseExact(task.Due_date, "dd.MM.yyyy", null)); }
             catch { addParameter<DBNull>("@Due_date", SqlDbType.DateTime2, DBNull.Value); }
+
+            // Completion date is nullable field - the user can skip input data of that field
+            try { addParameter<DateTime>("@Completion_date", SqlDbType.DateTime2, DateTime.ParseExact(task.Completion_date, "dd.MM.yyyy", null)); }
+            catch { addParameter<DBNull>("@Completion_date", SqlDbType.DateTime2, DBNull.Value); }
+
+            // Actual work can be null
+            if (task.Actual_work == null) addParameter<DBNull>("@Actual_work", SqlDbType.Int, DBNull.Value);
+            else addParameter("@Actual_work", SqlDbType.Int, task.Actual_work);
 
             addParameter("@Task_ID", SqlDbType.Int, task.Task_ID);
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
@@ -185,7 +220,7 @@ namespace Lanban.AccessLayer
             addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
             myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
-            updateDate(id, table, status);
+            // updateDate(id, table, status);
         }
 
         //2.5.3 Update date fields in Task and Backlog table based on the status of the item

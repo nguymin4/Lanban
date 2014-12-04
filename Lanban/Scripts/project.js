@@ -38,6 +38,17 @@ $(document).ready(function () {
         this.getElementsByClassName("txtSearchBox")[0].focus();
     });
 
+    // Date picker
+    $(".input-project.date").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        dateFormat: "yy-mm-dd",
+        onSelect: function (selected) {
+            if (selected == "") $(this).val("");
+            else $(this).val(parseJSONDate(selected));
+        }
+    });
+
     // Initialize drag and drop user box
     init_UserDragDrop();
 
@@ -188,7 +199,6 @@ function fetchSupervisor(projectID) {
             action: "fetchSupervisor",
             projectID: projectID
         },
-        global: false,
         type: "get",
         success: function (result) {
             supervisorBox.html(result);
@@ -215,7 +225,6 @@ function addProject() {
             action: "createProject",
             project: JSON.stringify(project)
         },
-        global: false,
         type: "post",
         success: function (id) {
             // Save list of supervisor to database
@@ -255,7 +264,6 @@ function saveSupervisor(id, clear) {
                 projectID: id,
                 supervisorID: $(supervisor[i]).attr("data-id")
             },
-            global: false,
             type: "get"
         }));
     }
@@ -279,7 +287,6 @@ function searchUser(searchBox, role) {
                     role: role,
                     name: $(searchBox).val()
                 },
-                global: false,
                 type: "get",
                 success: function (result) {
                     var searchContainer = $("#searchContainer");
@@ -385,7 +392,6 @@ function updateProject(id) {
             projectID: id,
             project: JSON.stringify(project)
         },
-        global: false,
         type: "post",
         success: function () {
             projectList[getProjectIndex(id)] = project;
@@ -422,7 +428,6 @@ function updateSupervisor(id) {
             action: "deleteSupervisor",
             projectID: id
         },
-        global: false,
         type: "get",
         success: function () {
             return saveSupervisor(id, false);
@@ -439,7 +444,6 @@ function deleteProject(id) {
             action: "deleteProject",
             projectID: id
         },
-        global: false,
         type: "get",
         success: function () {
             // Delete project in other clients
@@ -457,7 +461,6 @@ function quitProject(projectID) {
             action: "quitProject",
             projectID: projectID
         },
-        global: false,
         type: "get",
         success: function () {
             //  In other clients
@@ -493,7 +496,6 @@ function shareProject(id, name) {
             action: "fetchUser",
             projectID: id
         },
-        global: false,
         type: "get",
         success: function (result) {
             $(".diaglog.success").fadeOut(100);
@@ -675,7 +677,6 @@ function addMember(arg, projectID) {
                 assigneeID: arg,
                 type: "Project"
             },
-            global: false,
             type: "get",
             success: function () {
                 proxyUser.invoke("addUser", projectID, arg);
@@ -697,7 +698,6 @@ function removeMember(obj, projectID) {
                 projectID: projectID,
                 uid: uid
             },
-            global: false,
             type: "get",
             success: function () {
                 var name = findProject(projectID).Name;

@@ -204,6 +204,8 @@ function Backlog() {
     this.Description = $("#txtBacklogDescription").val();
     this.Complexity = $("#ddlBacklogComplexity").val();
     this.Color = $("#ddlBacklogColor").val();
+    this.Start_date = formatDate($("#txtBacklogStart").val());
+    this.Completion_date = formatDate($("#txtBacklogComplete").val());
 }
 
 /* Class: Task */
@@ -217,6 +219,8 @@ function Task() {
     this.Work_estimation = $("#txtTaskWorkEstimation").val();
     this.Color = $("#ddlTaskColor").val();
     this.Due_date = formatDate($("#txtTaskDueDate").val());
+    this.Completion_date = formatDate($("#txtTaskCompletionDate").val());
+    this.Actual_work = $("#txtTaskActualWork").val();
 }
 
 
@@ -234,7 +238,6 @@ function insertItem(type) {
             type: type,
             item: JSON.stringify(item)
         },
-        global: false,
         type: "post",
         success: function (result) {
             // Link assignee to the created item
@@ -319,7 +322,6 @@ function updatePosition(itemID, pos, type) {
             itemID: itemID,
             pos: pos
         },
-        global: false,
         type: "get"
     });
 }
@@ -340,7 +342,6 @@ function changeLane(itemID, type, swimlane_id, pos) {
             swimlane: swimlane_id,
             pos: pos
         },
-        global: false,
         type: "get"
     });
 }
@@ -359,7 +360,6 @@ function viewAssignee(itemID, type) {
             itemID: itemID,
             type: type
         },
-        global: false,
         type: "get",
         success: function (result) {
             $("#" + type + "Assign").prepend(result);
@@ -377,7 +377,6 @@ function updateAssignee(itemID, type) {
             type: type,
             itemID: itemID
         },
-        global: false,
         type: "get",
         success: function () {
             //Save new records
@@ -399,7 +398,6 @@ function saveAssignee(itemID, type, clear) {
                 itemID: itemID,
                 assigneeID: assignee[i].getAttribute("data-id")
             },
-            global: false,
             type: "get"
         }));
     }
@@ -423,7 +421,6 @@ function searchAssignee(searchBox, type) {
                     type: type,
                     keyword: $(searchBox).val()
                 },
-                global: false,
                 type: "get",
                 success: function (result) {
                     var searchContainer = $("#assigneeSearchResult");
@@ -485,7 +482,6 @@ function viewDetailNote(itemID, type) {
             itemID: itemID,
             type: type
         },
-        global: false,
         type: "get",
         success: function (result) {
             result = result[0];
@@ -542,6 +538,7 @@ function displayTaskDetail(data) {
     $("#ddlTaskColor").val(data.Color);
     $("#txtTaskDueDate").val(parseJSONDate(data.Due_date));
     $("#txtTaskCompletionDate").val(parseJSONDate(data.Completion_date));
+    $("#txtTaskActualWork").val(data.Actual_work);
 }
 
 /*4.2.2 Clear task Window */
@@ -565,7 +562,6 @@ function viewTaskComment(taskID) {
             projectID: projectID,
             taskID: taskID
         },
-        global: false,
         type: "get",
         success: function (result) {
             $("#commentBox .comment-box").remove();
@@ -584,7 +580,6 @@ function deleteTaskComment(commentID) {
             userID: userID,
             commentID: commentID
         },
-        global: false,
         type: "get",
         success: function (message) {
             if (message == "Success") proxyTC.invoke("deleteComment", commentID);
@@ -619,7 +614,6 @@ function updateTaskComment(commentID) {
             commentID: commentID,
             content: $("#txtTaskComment").val()
         },
-        global: false,
         type: "post",
         success: function (message) {
             if (message == "Success") {
@@ -655,7 +649,6 @@ function submitTaskComment() {
             projectID: projectID,
             comment: JSON.stringify(comment)
         },
-        global: false,
         type: "post",
         success: function (id) {
             var content = $("#txtTaskComment").val().replace(new RegExp('\r?\n', 'g'), '<br />');
@@ -698,7 +691,6 @@ function saveItem(itemID, type) {
             type: type,
             item: JSON.stringify(item)
         },
-        global: false,
         type: "post",
         success: function (result) {
             updateVisualNote(type + "." + itemID, item.Title, item.Color);
@@ -744,7 +736,6 @@ function deleteItem(itemID, type) {
             itemID: itemID,
             type: type
         },
-        global: false,
         type: "get",
         success: function () {
             // Delete in other clients
@@ -913,7 +904,7 @@ var myPie, myBarChart, myLineGraph;
 function showChartWindow() {
     fetchPieChartData();
     fetchBarChartData();
-    fetchLineGraphData();
+    fetchBurnUpData();
 }
 
 //Load pie chart data
@@ -960,10 +951,10 @@ function fetchBarChartData() {
 }
 
 //Load bar chart data
-function fetchLineGraphData() {
-    var graphLine = document.getElementById("graphLine");
-    loadChartSpinner(graphLine);
-    var ctx = graphLine.getContext("2d");
+function fetchBurnUpData() {
+    var burnupChart = document.getElementById("burnupChart");
+    loadChartSpinner(burnupChart);
+    var ctx = burnupChart.getContext("2d");
     $.ajax({
         url: "Handler/ChartHandler.ashx",
         data: {
@@ -972,7 +963,7 @@ function fetchLineGraphData() {
         },
         type: "get",
         success: function (lineGraphData) {
-            unloadChartSpinner(graphLine);
+            unloadChartSpinner(burnupChart);
             if (myLineGraph != null) myLineGraph.destroy();
             myLineGraph = new Chart(ctx).Line(lineGraphData, {
                 bezierCurve: false,

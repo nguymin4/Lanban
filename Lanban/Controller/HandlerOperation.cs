@@ -18,8 +18,13 @@ namespace Lanban
         bool IAsyncResult.CompletedSynchronously { get { return false; } }
 
         protected string action;
-        protected string errorPage = "/404/404.html";
         protected string result = "";
+
+        protected int Code
+        {
+            set { _context.Response.StatusCode = value; }
+        }
+        
 
         public HandlerOperation(AsyncCallback callback, HttpContext context, Object state)
         {
@@ -39,9 +44,5 @@ namespace Lanban
             _callback(this);
         }
 
-        protected void RedirectPage(string url)
-        {
-            _context.Response.Redirect(url);
-        }
     }
 }

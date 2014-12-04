@@ -27,49 +27,56 @@ namespace Lanban
             int projectID = Convert.ToInt32(param["projectID"]);
             int taskID;
             var user = (UserModel)_context.Session["user"];
-            if (!myAccess.IsProjectMember(projectID, user.User_ID, user.Role))
+            try
             {
-                RedirectPage(errorPage);
-            }
-            else
-            {
-                switch (action)
+                if (myAccess.IsProjectMember(projectID, user.User_ID, user.Role))
                 {
-                    /***********************************************/
-                    // Upload files
-                    case "uploadFile":
-                        taskID = Convert.ToInt32(param["taskID"]);
-                        if (myAccess.IsInProject(projectID, taskID, "Task"))
-                            result = new FileManager().uploadFile(_context, myAccess, projectID);
-                        else RedirectPage(errorPage);
-                        break;
+                    bool error = false;
+                    switch (action)
+                    {
+                        /***********************************************/
+                        // Upload files
+                        case "uploadFile":
+                            taskID = Convert.ToInt32(param["taskID"]);
+                            if (myAccess.IsInProject(projectID, taskID, "Task"))
+                                result = new FileManager().uploadFile(_context, myAccess, projectID);
+                            else error = true;
+                            break;
 
-                    // Get list of all files belong to a task
-                    case "viewTaskFile":
-                        taskID = Convert.ToInt32(param["taskID"]);
-                        if (myAccess.IsInProject(projectID, taskID, "Task"))
-                            result = myAccess.viewTaskFile(taskID);
-                        else RedirectPage(errorPage);
-                        break;
+                        // Get list of all files belong to a task
+                        case "viewTaskFile":
+                            taskID = Convert.ToInt32(param["taskID"]);
+                            if (myAccess.IsInProject(projectID, taskID, "Task"))
+                                result = myAccess.viewTaskFile(taskID);
+                            else error = true;
+                            break;
 
-                    // Delete a file belongs to a task
-                    case "deleteTaskFile":
-                        taskID = Convert.ToInt32(param["taskID"]);
-                        if (myAccess.IsInProject(projectID, taskID, "Task") && myAccess.IsInTask(param["fileID"], taskID))
-                            new FileManager().deleteFile(_context, myAccess);
-                        else RedirectPage(errorPage);
-                        break;
+                        // Delete a file belongs to a task
+                        case "deleteTaskFile":
+                            taskID = Convert.ToInt32(param["taskID"]);
+                            if (myAccess.IsInProject(projectID, taskID, "Task") && myAccess.IsInTask(param["fileID"], taskID))
+                                new FileManager().deleteFile(_context, myAccess);
+                            else error = true;
+                            break;
 
-                    // Upload screenshot of a project
-                    case "uploadScreenshot":
-                        new FileManager().uploadScreenshot(_context, projectID);
-                        break;
+                        // Upload screenshot of a project
+                        case "uploadScreenshot":
+                            new FileManager().uploadScreenshot(_context, projectID);
+                            break;
+                    }
+                    if (error) Code = 500;
                 }
+                else Code = 401;
             }
-
-            myAccess.Dipose();
-            FinishWork();
-            
+            catch
+            {
+                Code = 403;
+            }
+            finally
+            {
+                myAccess.Dipose();
+                FinishWork();
+            }
         }
     }
 }

@@ -40,22 +40,40 @@ namespace Lanban {
         protected global::System.Web.UI.WebControls.Panel panelKanbanBody;
         
         /// <summary>
-        /// txtLGFrom control.
+        /// txtBUFrom control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtLGFrom;
+        protected global::System.Web.UI.WebControls.TextBox txtBUFrom;
         
         /// <summary>
-        /// txtLGTo control.
+        /// txtBUTo control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtLGTo;
+        protected global::System.Web.UI.WebControls.TextBox txtBUTo;
+        
+        /// <summary>
+        /// txtBDFrom control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtBDFrom;
+        
+        /// <summary>
+        /// txtBDTo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtBDTo;
         
         /// <summary>
         /// txtBacklogTitle control.
@@ -139,15 +157,6 @@ namespace Lanban {
         protected global::System.Web.UI.WebControls.DropDownList ddlTaskBacklog;
         
         /// <summary>
-        /// txtTaskWorkEstimation control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtTaskWorkEstimation;
-        
-        /// <summary>
         /// ddlTaskColor control.
         /// </summary>
         /// <remarks>
@@ -155,6 +164,15 @@ namespace Lanban {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.DropDownList ddlTaskColor;
+        
+        /// <summary>
+        /// txtTaskWorkEstimation control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtTaskWorkEstimation;
         
         /// <summary>
         /// txtTaskDueDate control.
@@ -173,6 +191,15 @@ namespace Lanban {
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtTaskCompletionDate;
+        
+        /// <summary>
+        /// txtTaskActualWork control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtTaskActualWork;
         
         /// <summary>
         /// txtTaskComment control.

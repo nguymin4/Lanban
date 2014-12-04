@@ -29,52 +29,60 @@ namespace Lanban
             int projectID = Convert.ToInt32(param["projectID"]);
             int taskID, userID;
             var user = (UserModel)_context.Session["user"];
-            if (!myAccess.IsProjectMember(projectID, user.User_ID, user.Role))
+            try
             {
-                RedirectPage(errorPage);
-            }
-            else
-            {
-                switch (action)
+                if (myAccess.IsProjectMember(projectID, user.User_ID, user.Role))
                 {
-                    /***********************************************/
-                    // Submit a new comment of a task
-                    case "insertTaskComment":
-                        CommentModel comment = JsonConvert.DeserializeObject<CommentModel>(param["comment"]);
-                        userID = comment.User_ID;
-                        projectID = comment.Project_ID;
-                        taskID = comment.Task_ID;
-                        if ((userID == user.User_ID) && (myAccess.IsInProject(projectID, taskID, "Task")))
-                            result = myAccess.insertTaskComment(comment);
-                        else RedirectPage(errorPage);
-                        break;
+                    bool error = false;
+                    switch (action)
+                    {
+                        /***********************************************/
+                        // Submit a new comment of a task
+                        case "insertTaskComment":
+                            CommentModel comment = JsonConvert.DeserializeObject<CommentModel>(param["comment"]);
+                            userID = comment.User_ID;
+                            projectID = comment.Project_ID;
+                            taskID = comment.Task_ID;
+                            if ((userID == user.User_ID) && (myAccess.IsInProject(projectID, taskID, "Task")))
+                                result = myAccess.insertTaskComment(comment);
+                            else error = true;
+                            break;
 
-                    // View all comments of a task
-                    case "viewTaskComment":
-                        taskID = Convert.ToInt32(param["taskID"]);
-                        if (myAccess.IsInProject(projectID, taskID, "Task"))
-                            result = myAccess.viewTaskComment(param["taskID"], user.User_ID);
-                        else RedirectPage(errorPage);
-                        break;
+                        // View all comments of a task
+                        case "viewTaskComment":
+                            taskID = Convert.ToInt32(param["taskID"]);
+                            if (myAccess.IsInProject(projectID, taskID, "Task"))
+                                result = myAccess.viewTaskComment(param["taskID"], user.User_ID);
+                            else error = true;
+                            break;
 
-                    // Delete a comment of a task
-                    case "deleteTaskComment":
-                        if (user.User_ID == Convert.ToInt32(param["userID"]))
-                            result = myAccess.deleteTaskComment(param["commentID"], user.User_ID);
-                        else RedirectPage(errorPage);
-                        break;
+                        // Delete a comment of a task
+                        case "deleteTaskComment":
+                            if (user.User_ID == Convert.ToInt32(param["userID"]))
+                                result = myAccess.deleteTaskComment(param["commentID"], user.User_ID);
+                            else error = true;
+                            break;
 
-                    // Edit a comment of a task
-                    case "updateTaskComment":
-                        if (user.User_ID == Convert.ToInt32(param["userID"]))
-                            result = myAccess.updateTaskComment(param["commentID"], param["content"], user.User_ID);
-                        else RedirectPage(errorPage);
-                        break;
+                        // Edit a comment of a task
+                        case "updateTaskComment":
+                            if (user.User_ID == Convert.ToInt32(param["userID"]))
+                                result = myAccess.updateTaskComment(param["commentID"], param["content"], user.User_ID);
+                            else error = true;
+                            break;
+                    }
+                    if (error) Code = 500;
                 }
+                else Code = 401;
             }
-            
-            myAccess.Dipose();
-            FinishWork();
+            catch
+            {
+                Code = 403;
+            }
+            finally
+            {
+                myAccess.Dipose();
+                FinishWork();
+            }
         }
     }
 }

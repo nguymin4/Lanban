@@ -29,71 +29,78 @@ namespace Lanban
             int userID = Convert.ToInt32(_context.Session["userID"]);
 
             var user = (UserModel)_context.Session["user"];
-            if (!myAccess.IsProjectMember(projectID, user.User_ID, user.Role))
+            try
             {
-                RedirectPage(errorPage);
-            }
-            else
-            {
-                switch (action)
+                if (myAccess.IsProjectMember(projectID, user.User_ID, user.Role))
                 {
-                    // Insert new data
-                    case "insertItem":
-                        if (param["type"].Equals("backlog"))
-                        {
-                            Backlog backlog = JsonConvert.DeserializeObject<Backlog>(param["item"]);
-                            if (backlog.Project_ID == projectID) result = myAccess.insertNewBacklog(backlog);
-                            else RedirectPage(errorPage);
-                        }
-                        else
-                        {
-                            Task task = JsonConvert.DeserializeObject<Task>(param["item"]);
-                            if (task.Project_ID == projectID) result = myAccess.insertNewTask(task);
-                            else RedirectPage(errorPage);
-                        }
-                        break;
+                    bool error = false;
+                    switch (action)
+                    {
+                        // Insert new data
+                        case "insertItem":
+                            if (param["type"].Equals("backlog"))
+                            {
+                                Backlog backlog = JsonConvert.DeserializeObject<Backlog>(param["item"]);
+                                if (backlog.Project_ID == projectID) result = myAccess.insertNewBacklog(backlog);
+                                else error = true;
+                            }
+                            else
+                            {
+                                Task task = JsonConvert.DeserializeObject<Task>(param["item"]);
+                                if (task.Project_ID == projectID) result = myAccess.insertNewTask(task);
+                                else error = true;
+                            }
+                            break;
 
-                    // Update an item
-                    case "updateItem":
-                        if (param["type"].Equals("backlog"))
-                        {
-                            Backlog backlog = JsonConvert.DeserializeObject<Backlog>(param["item"]);
-                            if (myAccess.updateBacklog(backlog, projectID) != 1) RedirectPage(errorPage);
-                        }
-                        else
-                        {
-                            Task task = JsonConvert.DeserializeObject<Task>(param["item"]);
-                            if (myAccess.updateTask(task, projectID) != 1) RedirectPage(errorPage);
-                        }
-                        break;
+                        // Update an item
+                        case "updateItem":
+                            if (param["type"].Equals("backlog"))
+                            {
+                                Backlog backlog = JsonConvert.DeserializeObject<Backlog>(param["item"]);
+                                if (myAccess.updateBacklog(backlog, projectID) != 1) error = true;
+                            }
+                            else
+                            {
+                                Task task = JsonConvert.DeserializeObject<Task>(param["item"]);
+                                if (myAccess.updateTask(task, projectID) != 1) error = true;
+                            }
+                            break;
 
-                    // Get all data of an item
-                    case "viewItem":
-                        result = myAccess.viewItem(param["itemID"], param["type"], projectID);
-                        if (result.Equals("")) RedirectPage(errorPage);
-                        else _context.Response.ContentType = "application/json";
-                        break;
+                        // Get all data of an item
+                        case "viewItem":
+                            result = myAccess.viewItem(param["itemID"], param["type"], projectID);
+                            if (result.Equals("")) error = true;
+                            else _context.Response.ContentType = "application/json";
+                            break;
 
-                    // Delete an item
-                    case "deleteItem":
-                        if (myAccess.deleteItem(param["itemID"], param["type"], projectID) != 1)
-                            RedirectPage(errorPage);
-                        break;
+                        // Delete an item
+                        case "deleteItem":
+                            if (myAccess.deleteItem(param["itemID"], param["type"], projectID) != 1)
+                                error = true;
+                            break;
 
-                    // Update position of an item in a swimlane
-                    case "updatePosition":
-                        myAccess.updatePosition(param["itemID"], param["pos"], param["type"]);
-                        break;
+                        // Update position of an item in a swimlane
+                        case "updatePosition":
+                            myAccess.updatePosition(param["itemID"], param["pos"], param["type"]);
+                            break;
 
-                    // Change swimlane of an item
-                    case "changeSwimlane":
-                        myAccess.changeSwimlane(param["itemID"], param["pos"], param["type"], param["swimlane"]);
-                        break;
+                        // Change swimlane of an item
+                        case "changeSwimlane":
+                            myAccess.changeSwimlane(param["itemID"], param["pos"], param["type"], param["swimlane"]);
+                            break;
+                    }
+                    if (error) Code = 500;
                 }
+                else Code = 401;
             }
-
-            myAccess.Dipose();
-            FinishWork();
+            catch
+            {
+                Code = 403;
+            }
+            finally {
+                myAccess.Dipose();
+                FinishWork();
+            }
         }
     }
 }

@@ -29,6 +29,8 @@ function showView(index) {
 
 
 var _avatar, _name;
+var errorPage = "/Error/error.html";
+
 $(document).ready(function () {
     var profile = $("#profile");
     _avatar = profile.attr("src");
@@ -65,6 +67,11 @@ $(document).ready(function () {
     init_UserHub();
 });
 
+
+// If error happens with ajax then redirect to error page
+$(document).ajaxError(function () {
+    window.location.href = errorPage;
+});
 
 /*****************************************************************************/
 // Unload page loading spinner
@@ -125,8 +132,8 @@ function parseJSONDate(jsonDate) {
 function formatDate(date) {
     if (date != "") {
         var data = date.split(".");
-        d = (data[0] < 10) ? "0" + data[0] : data[0];
-        m = (data[1] < 10) ? "0" + data[1] : data[1];
+        d = (data[0] < 10) && (data[0].length == 1) ? "0" + data[0] : data[0];
+        m = (data[1] < 10) && (data[1].length == 1) ? "0" + data[1] : data[1];
         return d + "." + m + "." + data[2];
     }
     return date;

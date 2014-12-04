@@ -55,14 +55,27 @@
             </div>
 
             <div class="chart-box">
-                From: <asp:TextBox runat="server" ID="txtLGFrom" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
-                To: <asp:TextBox runat="server" ID="txtLGTo" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
-                <input type="button" id="btnLGFilter" class="medium button" value="Filter" />
-                <h3>Cumulated working hour
-                    <br />
-                    of the whole team </h3>
+                <h3>Burn-up Chart </h3>
+                <div>
+                    From: <asp:TextBox runat="server" ID="txtBUFrom" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
+                    To: <asp:TextBox runat="server" ID="txtBUTo" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
+                    <input type="button" id="btnBUFilter" class="medium button" value="Filter" />
+                </div>
+                
                 <div class="loading-spinner"></div>
-                <canvas class="chart" id="graphLine" width="500" height="300"></canvas>
+                <canvas class="chart" id="burnupChart" width="500" height="300"></canvas>
+            </div>
+
+            <div class="chart-box">
+                <h3>Burn-down Chart</h3>
+                <div>
+                    From: <asp:TextBox runat="server" ID="txtBDFrom" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
+                    To: <asp:TextBox runat="server" ID="txtBDTo" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
+                    <input type="button" id="btnBDFilter" class="medium button" value="Filter" />
+                </div>
+                
+                <div class="loading-spinner"></div>
+                <canvas class="chart" id="burndownChart" width="500" height="300"></canvas>
             </div>
         </div>
     </div>
@@ -188,18 +201,17 @@
                     <table class="tblAddData">
                         <tr>
                             <td>Backlog:</td>
-                            <td>
-                                <asp:DropDownList runat="server" ID="ddlTaskBacklog" Width="200"></asp:DropDownList></td>
+                            <td><asp:DropDownList runat="server" ID="ddlTaskBacklog" Width="200"></asp:DropDownList></td>
+                        </tr>
+                        <tr>
+                            <td>Color:</td>
+                            <td><asp:DropDownList runat="server" ID="ddlTaskColor"></asp:DropDownList></td>
                         </tr>
                         <tr>
                             <td>Work estimation:</td>
                             <td>
-                                <asp:TextBox CssClass="inputBox" runat="server" ID="txtTaskWorkEstimation"></asp:TextBox></td>
-                        </tr>
-                        <tr>
-                            <td>Color:</td>
-                            <td>
-                                <asp:DropDownList runat="server" ID="ddlTaskColor"></asp:DropDownList></td>
+                                <asp:TextBox CssClass="inputBox" runat="server" ID="txtTaskWorkEstimation"></asp:TextBox>
+                            </td>
                         </tr>
                         <tr>
                             <td>Due date:</td>
@@ -211,6 +223,12 @@
                             <td>Completion date:</td>
                             <td>
                                 <asp:TextBox runat="server" ID="txtTaskCompletionDate" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Actual hour:</td>
+                            <td>
+                                <asp:TextBox CssClass="inputBox" runat="server" ID="txtTaskActualWork"></asp:TextBox>
                             </td>
                         </tr>
                         <tr>

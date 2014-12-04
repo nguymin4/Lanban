@@ -65,7 +65,6 @@ namespace Lanban
             authen.SetAuthenCookie(Response, ticket);
             string script = "const userID = " + userID + "; const projectID = " + projectID + ";";
             ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "boardScript", script, true);
-
             // Wait all task to complete
             await Task.WhenAll(task1, task2);
             timer.Stop();

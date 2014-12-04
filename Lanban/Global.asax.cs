@@ -29,9 +29,10 @@ namespace Lanban
 
         }
 
-        protected void Application_Error(object sender, EventArgs e)
+        void Application_Error(object sender, EventArgs e)
         {
-
+            // Clear the error from the server
+            Server.ClearError();
         }
 
         protected void Session_End(object sender, EventArgs e)
@@ -43,5 +44,6 @@ namespace Lanban
         {
 
         }
+
     }
 }

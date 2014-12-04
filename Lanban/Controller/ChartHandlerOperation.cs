@@ -28,39 +28,44 @@ namespace Lanban
             var param = _context.Request.Params;
             int projectID = Convert.ToInt32(param["projectID"]);
             var user = (UserModel)_context.Session["user"];
-
-            if (!myAccess.IsProjectMember(projectID, user.User_ID, user.Role))
+            try
             {
-                RedirectPage(errorPage);
-            }
-            else
-            {
-                switch (action)
+                if (myAccess.IsProjectMember(projectID, user.User_ID, user.Role))
                 {
-                    /***********************************************/
-                    // Working with chart in Board.aspx
-                    // Get Pie Chart data
-                    case "getPieChart":
-                        result = myAccess.getPieChart(projectID);
-                        _context.Response.ContentType = "application/json";
-                        break;
+                    switch (action)
+                    {
+                        /***********************************************/
+                        // Working with chart in Board.aspx
+                        // Get Pie Chart data
+                        case "getPieChart":
+                            result = myAccess.getPieChart(projectID);
+                            _context.Response.ContentType = "application/json";
+                            break;
 
-                    // Get Bar Chart data
-                    case "getBarChart":
-                        result = myAccess.getBarChart(projectID);
-                        _context.Response.ContentType = "application/json";
-                        break;
+                        // Get Bar Chart data
+                        case "getBarChart":
+                            result = myAccess.getBarChart(projectID);
+                            _context.Response.ContentType = "application/json";
+                            break;
 
-                    // Get Line Graph data
-                    case "getLineGraph":
-                        result = myAccess.getLineGraph(projectID);
-                        _context.Response.ContentType = "application/json";
-                        break;
+                        // Get Line Graph data
+                        case "getLineGraph":
+                            result = myAccess.getLineGraph(projectID);
+                            _context.Response.ContentType = "application/json";
+                            break;
+                    }
                 }
+                else Code = 401;
             }
-
-            myAccess.Dipose();
-            FinishWork();
+            catch
+            {
+                Code = 403;
+            }
+            finally
+            {
+                myAccess.Dipose();
+                FinishWork();
+            }
         }
     }
 }
