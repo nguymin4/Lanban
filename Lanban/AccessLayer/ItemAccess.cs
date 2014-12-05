@@ -220,7 +220,7 @@ namespace Lanban.AccessLayer
             addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(id));
             myCommand.ExecuteNonQuery();
             myCommand.Parameters.Clear();
-            // updateDate(id, table, status);
+            updateDate(id, table, status);
         }
 
         //2.5.3 Update date fields in Task and Backlog table based on the status of the item

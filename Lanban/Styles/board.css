@@ -342,6 +342,30 @@ div.assignee-name-active {
     background: white;
 }
 
+#gaugeEstimationFactor {
+    width:400px;
+    height: 250px;
+    margin: auto;
+}
+
+#gaugeTable {
+    width: 240px;
+    margin: 10px auto;
+    border-collapse: collapse;
+    border: solid 1px white;
+    clear: both;
+}
+
+#gaugeTable td {
+    color: white;
+    text-align: center;
+    line-height: 32px;
+    font-size: 18px;
+    width: 120px;
+    border: solid 1px white;
+    min-height: 32px;
+}
+
 /* Comment box*/
 #commentBox {
     position: relative;

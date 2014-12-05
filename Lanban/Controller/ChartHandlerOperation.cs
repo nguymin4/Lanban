@@ -32,6 +32,7 @@ namespace Lanban
             {
                 if (myAccess.IsProjectMember(projectID, user.User_ID, user.Role))
                 {
+                    _context.Response.ContentType = "application/json";
                     switch (action)
                     {
                         /***********************************************/
@@ -39,19 +40,25 @@ namespace Lanban
                         // Get Pie Chart data
                         case "getPieChart":
                             result = myAccess.getPieChart(projectID);
-                            _context.Response.ContentType = "application/json";
                             break;
 
                         // Get Bar Chart data
                         case "getBarChart":
                             result = myAccess.getBarChart(projectID);
-                            _context.Response.ContentType = "application/json";
                             break;
 
                         // Get Line Graph data
-                        case "getLineGraph":
-                            result = myAccess.getLineGraph(projectID);
-                            _context.Response.ContentType = "application/json";
+                        case "getBurnUpChart":
+                            result = myAccess.getBurnUpChart(projectID);
+                            break;
+                        // Get Line Graph data
+                        case "getBurnDownChart":
+                            result = myAccess.getBurnDownChart(projectID);
+                            break;
+                        // Get Estimation factor data
+                        case "getEstimationFactor":
+                            result = myAccess.getEstimationFactor(projectID);
+                            _context.Response.ContentType = "text/plain";
                             break;
                     }
                 }

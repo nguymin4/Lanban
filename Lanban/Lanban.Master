@@ -4,11 +4,11 @@
 <head runat="server">
     <title></title>
     <script src="Scripts/jquery-2.1.1.min.js" type="text/javascript"></script>
-    <script src="Scripts/jquery-ui.min.js" type="text/javascript"></script>
+    <script async="async" src="Scripts/jquery-ui.min.js" type="text/javascript"></script>
     <link href="Styles/jquery-ui.min.css" rel="stylesheet" />
-    <script src="Scripts/perfect-scrollbar.min.js" type="text/javascript"></script>
+    <script async="async" src="Scripts/perfect-scrollbar.min.js" type="text/javascript"></script>
     <link href="Styles/perfect-scrollbar.min.css" rel="stylesheet" />
-    <script src="Scripts/jquery.signalR-2.1.2.min.js"></script>
+    <script async="async" src="Scripts/jquery.signalR-2.1.2.min.js"></script>
     <script src="Scripts/main.js" type="text/javascript"></script>
     <link href="Styles/main.css" rel="stylesheet" />
 

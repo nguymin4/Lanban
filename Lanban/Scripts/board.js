@@ -75,8 +75,26 @@ function changePageWindow(windowName, index) {
 
 /*A. When document is ready*/
 $(document).ready(function () {
+    /*Recalibrate based on browser size*/
+    recalibrate();
+    window.addEventListener('resize', function () {
+        recalibrate();
+    });
+
     /* Take the screenshot*/
     takeScreenshot();
+});
+
+$(window).load(function () {
+    /* Real-time communication */
+    init_TaskCommentHub();
+    init_NoteHub();
+
+    /*Board drag and drop functionality*/
+    init_BoardDragDrop();
+
+    // Team estimation factor
+    setupGaugeEstimation();
 
     /*Add customized scroll bar*/
     $(".window-content").perfectScrollbar({
@@ -103,9 +121,6 @@ $(document).ready(function () {
         includePadding: true
     });
 
-    $("#myCommentProfile").attr("src", _avatar);
-    $("#myCommentProfile").attr("title", _name);
-
     $("#fileList").perfectScrollbar({
         wheelSpeed: 3,
         wheelPropagation: false,
@@ -115,13 +130,8 @@ $(document).ready(function () {
 
     $("#fileUploadContainer input").val("");
 
-    /*Board drag and drop functionality*/
-    init_BoardDragDrop();
-
-    /* Real-time communication */
-    init_TaskCommentHub();
-    init_NoteHub();
-
+    $("#myCommentProfile").attr("src", _avatar);
+    $("#myCommentProfile").attr("title", _name);
 });
 
 /*Board drag and drop functionality*/
@@ -137,6 +147,7 @@ function init_BoardDragDrop() {
 
                 //Update sticky note new swimlane id and position
                 changeLane(ui.item.id, ui.item.type, laneID, ui.item.index());
+                $(ui.item).attr("data-status", $(this).attr("data-status"));
 
                 //Update positon of all old sticky notes in destination lane based on new insertation position
                 var index = ui.item.index();
@@ -820,7 +831,6 @@ function uploadFile(i, taskID) {
         if (progress < tempProgress) {
             progress = tempProgress;
             document.getElementById("uploadProgress").style.width = progress + "%";
-            console.log(progress);
         }
     });
 
@@ -898,13 +908,18 @@ function deleteFile(fileID) {
 
 /***************************************************/
 /*B.Working with chart*/
-var myPie, myBarChart, myLineGraph;
+var myPie, myBarChart, myBurnUp, myBurnDown, myTeamEstimation;
+var burnupData, burndownData;
 
 // Open Chart Window
 function showChartWindow() {
     fetchPieChartData();
     fetchBarChartData();
     fetchBurnUpData();
+    fetchBurnDownData();
+    fetchTeamEstimationFactor();
+
+    $("#chartWindow .date").val("");
 }
 
 //Load pie chart data
@@ -950,7 +965,7 @@ function fetchBarChartData() {
     });
 }
 
-//Load bar chart data
+// Load burn up chart data
 function fetchBurnUpData() {
     var burnupChart = document.getElementById("burnupChart");
     loadChartSpinner(burnupChart);
@@ -958,21 +973,167 @@ function fetchBurnUpData() {
     $.ajax({
         url: "Handler/ChartHandler.ashx",
         data: {
-            action: "getLineGraph",
+            action: "getBurnUpChart",
             projectID: projectID
         },
         type: "get",
         success: function (lineGraphData) {
             unloadChartSpinner(burnupChart);
-            if (myLineGraph != null) myLineGraph.destroy();
-            myLineGraph = new Chart(ctx).Line(lineGraphData, {
-                bezierCurve: false,
-                datasetFill: true,
-                scaleFontColor: "#FFFFFF",
-                scaleGridLineColor: "rgba(128, 128, 128, 0.2)"
-            });
+            burnupData = lineGraphData;
+            if (myBurnUp != null) myBurnUp.destroy();
+            myBurnUp = drawLineGraph(ctx, lineGraphData);
         }
     });
+}
+
+// Load burn down chart data
+function fetchBurnDownData() {
+    var burndownChart = document.getElementById("burndownChart");
+    loadChartSpinner(burndownChart);
+    var ctx = burndownChart.getContext("2d");
+    $.ajax({
+        url: "Handler/ChartHandler.ashx",
+        data: {
+            action: "getBurnDownChart",
+            projectID: projectID
+        },
+        type: "get",
+        success: function (lineGraphData) {
+            unloadChartSpinner(burndownChart);
+            burndownData = lineGraphData;
+            if (myBurnDown != null) myBurnDown.destroy();
+            myBurnDown = drawLineGraph(ctx, lineGraphData);
+        }
+    });
+}
+
+// Team estimation factor
+function fetchTeamEstimationFactor() {
+    $.ajax({
+        url: "Handler/ChartHandler.ashx",
+        data: {
+            action: "getEstimationFactor",
+            projectID: projectID
+        },
+        type: "get",
+        success: function (result) {
+            var data = result.split("$");
+            var factor = (data[0] >= data[1]) ? 1 - (data[0] / data[1]) : (data[1] / data[0]) - 1;
+            gauge.refresh(factor);
+            $("#txtGaugeEst").text(data[0]);
+            $("#txtGaugeAct").text(data[1]);
+        }
+    });
+}
+
+// Draw line graph
+function drawLineGraph(ctx, data) {
+    return new Chart(ctx).Line(data, {
+        animation: false,
+        scaleStartValue: 0,
+        bezierCurve: false,
+        datasetFill: true,
+        scaleFontColor: "#FFFFFF",
+        scaleGridLineColor: "rgba(128, 128, 128, 0.2)",
+        pointDotRadius: 1
+    });
+}
+
+// Display filtered burn up chart
+function filterBurnUp() {
+    var from = $("#txtBUFrom").val();
+    var to = $("#txtBUTo").val();
+
+    // Filter data
+    var newData = filterLineGraph(from, to, burnupData);
+
+    // Display new chart
+    var ctx = document.getElementById("burnupChart").getContext("2d");
+    myBurnUp.destroy();
+    myBurnUp = drawLineGraph(ctx, newData);
+}
+
+// Display filtered burn down chart
+function filterBurnDown() {
+    var from = $("#txtBDFrom").val();
+    var to = $("#txtBDTo").val();
+
+    // Filter data
+    var newData = filterLineGraph(from, to, burndownData);
+
+    // Display new chart
+    var ctx = document.getElementById("burndownChart").getContext("2d");
+    myBurnDown.destroy();
+    myBurnDown = drawLineGraph(ctx, newData);
+}
+
+// Filter dataset for line graph
+function filterLineGraph(from, to, data) {
+    var temp = JSON.parse(JSON.stringify(data));
+    var labels = temp.labels;
+    var dataset = temp.datasets[0].data;
+
+    // Search starting point
+    if (from != "") {
+        from = toDate(from);
+        while (toDate(labels[0]) < from) {
+            labels.splice(0, 1);
+            dataset.splice(0, 1);
+            if (labels.length < 1) break;
+        }
+    }
+
+    // Search ending point;
+    if (to != "") {
+        to = toDate(to);
+        var i = labels.length - 1;
+        while (toDate(labels[i]) > to) {
+            labels.splice(i, 1);
+            dataset.splice(i, 1);
+            i = labels.length - 1;
+            if (i < 0) break;
+        }
+    }
+
+    //For burndown
+    if (temp.datasets[1] != undefined && labels.length == 0)
+        temp.datasets[1].data = [];
+
+    return temp;
+}
+
+// Setup team estimation factor
+function setupGaugeEstimation() {
+    var gaugeColor = [];
+    var i = -100;
+    while (i <= 100) {
+        if ((i < -25) || (i > 25)) gaugeColor.push("#ff4b4b");
+        else
+            if ((i < -10) || (i > 10)) gaugeColor.push("#ffa500");
+            else gaugeColor.push("#4bff4b");
+        i = i + 5;
+    }
+
+    window.gauge = new JustGage({
+        id: "gaugeEstimationFactor",
+        value: 0,
+        min: -100,
+        max: 100,
+        title: "Team estimation factor",
+        label: "%",
+        valueFontColor: "#FFF",
+        titleFontColor: "#FFF",
+        labelFontColor: "#FFF",
+        levelColors: gaugeColor
+    });
+}
+
+/* Chart support function */
+
+// Parse date string to object
+function toDate(input) {
+    var part = input.split(".");
+    return new Date(part[2], (part[1] - 1), part[0]);
 }
 
 // Load spinner while waiting for fetching chart

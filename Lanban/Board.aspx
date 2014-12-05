@@ -1,7 +1,9 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Lanban.Master" AutoEventWireup="true" CodeBehind="Board.aspx.cs" Inherits="Lanban.Board" Async="true" EnableEventValidation="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="contentHead" runat="server">
-    <script src="Scripts/Chart.min.js"></script>
+    <script async="async" src="Scripts/Chart.min.js"></script>
+    <script async="async" src="Scripts/raphael.2.1.0.min.js"></script>
+    <script async="async" src="Scripts/justgage.1.0.1.min.js"></script>
     <script src="Scripts/html2canvas.min.js"></script>
     <script src="Scripts/board.js"></script>
     <link href="Styles/board.css" rel="stylesheet" />
@@ -38,6 +40,19 @@
     <div id="chartWindow" class="window view">
         <div class="title-bar">Chart</div>
         <div class="window-content">
+
+            <div id="gaugeEstimationFactor"></div>
+            <table id="gaugeTable" border="1">
+                <tr>
+                    <td>Estimation (h)</td>
+                    <td>Actual (h)</td>
+                </tr>
+                <tr>
+                    <td id="txtGaugeEst"></td>
+                    <td id="txtGaugeAct"></td>
+                </tr>
+            </table>
+
             <div class="chart-box">
                 <h3>Number of Tasks assigned
                     <br />
@@ -59,7 +74,7 @@
                 <div>
                     From: <asp:TextBox runat="server" ID="txtBUFrom" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
                     To: <asp:TextBox runat="server" ID="txtBUTo" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
-                    <input type="button" id="btnBUFilter" class="medium button" value="Filter" />
+                    <input type="button" id="btnBUFilter" class="medium button" value="Filter" onclick="filterBurnUp()" />
                 </div>
                 
                 <div class="loading-spinner"></div>
@@ -71,7 +86,7 @@
                 <div>
                     From: <asp:TextBox runat="server" ID="txtBDFrom" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
                     To: <asp:TextBox runat="server" ID="txtBDTo" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
-                    <input type="button" id="btnBDFilter" class="medium button" value="Filter" />
+                    <input type="button" id="btnBDFilter" class="medium button" value="Filter" onclick="filterBurnDown()" />
                 </div>
                 
                 <div class="loading-spinner"></div>

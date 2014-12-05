@@ -31,16 +31,10 @@ function showView(index) {
 var _avatar, _name;
 var errorPage = "/Error/error.html";
 
-$(document).ready(function () {
+$(window).ready(function () {
     var profile = $("#profile");
     _avatar = profile.attr("src");
     _name = profile.attr("title");
-
-    /*Recalibrate based on browser size*/
-    recalibrate();
-    window.addEventListener('resize', function () {
-        recalibrate();
-    });
 
     /*Make working window draggable*/
     $(".window").draggable({
@@ -76,9 +70,9 @@ $(document).ajaxError(function () {
 /*****************************************************************************/
 // Unload page loading spinner
 function unloadPageSpinner() {
-    $("#overlay").fadeOut(1000, "swing");
-    $("#container").fadeOut(1000, "swing", function () {
-        $("#container").fadeIn(1000);
+    $("#overlay").fadeOut(500, "swing");
+    $("#container").fadeOut(500, "swing", function () {
+        $("#container").fadeIn(500);
         if ($("#notiIndicator").html() != "") $("#notiIndicator").fadeIn(0);
     });
 }

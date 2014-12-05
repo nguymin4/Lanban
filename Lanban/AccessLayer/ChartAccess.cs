@@ -8,7 +8,7 @@ using System.Threading;
 namespace Lanban.AccessLayer
 {
     /* Working with task comments */
-    public class ChartAccess: Query
+    public class ChartAccess : Query
     {
         string[,] colorHex = {
                                 {"#ff9898", "#ffc864", "#ffff95", "#98ff98", "#caffff", "#adadff", "#d598ff" },
@@ -31,8 +31,8 @@ namespace Lanban.AccessLayer
             {
                 PiePart temp = new PiePart();
                 temp.value = Convert.ToInt32(myReader.GetValue(0));
-                temp.color = colorHex[1, index];
-                temp.highlight = colorHex[0, index];
+                temp.color = colorHex[1, index % 7];
+                temp.highlight = colorHex[0, index % 7];
                 temp.label = myReader.GetValue(1).ToString();
                 myPie.part.Add(temp);
                 index++;
@@ -73,10 +73,11 @@ namespace Lanban.AccessLayer
             return JsonConvert.SerializeObject(myBar);
         }
 
-        public string getLineGraph(int projectID)
+        public string getBurnUpChart(int projectID)
         {
             myCommand.CommandText = "SELECT [Completion_date], SUM(Work_estimation) FROM Task_User INNER JOIN " +
-                "(SELECT Task_ID, Work_estimation, Completion_date FROM Task WHERE Project_ID=@projectID AND Task.Status='Done') AS A ON Task_User.Task_ID = A.Task_ID " +
+                "(SELECT Task_ID, Work_estimation, Completion_date FROM Task WHERE Project_ID=@projectID AND Task.Status='Done' " +
+                "AND Completion_date IS NOT NULL) AS A ON Task_User.Task_ID = A.Task_ID " +
                 "GROUP BY [Completion_date] ORDER BY [Completion_date]";
 
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
@@ -108,8 +109,8 @@ namespace Lanban.AccessLayer
             LineGraphDataset dataset = new LineGraphDataset(colorHex[1, colorIndex], colorHex[0, colorIndex]);
             dataset.label = "";
 
+            // Manipulate data - Calculate workload
             int cumulated = 0;
-            // Name of the person and Work estimation
             foreach (DataRow temp in table.Rows)
             {
                 DateTime date = (DateTime)temp[0];
@@ -119,6 +120,83 @@ namespace Lanban.AccessLayer
             }
             datasets.Add(dataset);
             return JsonConvert.SerializeObject(myLine);
+        }
+
+        public string getBurnDownChart(int projectID)
+        {
+            
+            myCommand.CommandText = "SELECT [Completion_date], SUM(Work_estimation) FROM Task_User INNER JOIN " +
+                "(SELECT Task_ID, Work_estimation, Completion_date FROM Task WHERE Project_ID=@projectID AND Task.Status='Done' " +
+                "AND Completion_date IS NOT NULL) AS A ON Task_User.Task_ID = A.Task_ID " +
+                "GROUP BY [Completion_date] ORDER BY [Completion_date]";
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
+            myAdapter.Fill(myDataSet, "temp");
+            var table = myDataSet.Tables["temp"];
+
+            myCommand.CommandText = "SELECT SUM(Work_estimation) FROM Task WHERE Project_ID=@projectID";
+            int sum = Convert.ToInt32(myCommand.ExecuteScalar());
+            myCommand.Parameters.Clear();
+            
+            // Manipulate data - add missing date
+            int i = 0;
+            while (i < table.Rows.Count - 1)
+            {
+                DateTime date1 = (DateTime)table.Rows[i][0];
+                DateTime date2 = (DateTime)table.Rows[i + 1][0];
+                if (date1.AddDays(1) != date2)
+                {
+                    DataRow row = table.NewRow();
+                    row[0] = date1.Date.AddDays(1);
+                    row[1] = 0;
+                    table.Rows.InsertAt(row, i + 1);
+                }
+                i++;
+            }
+
+
+            // Create graph
+            LineGraph myLine = new LineGraph();
+            var labels = myLine.labels;
+            var datasets = myLine.datasets;
+
+            // Burn up line
+            int colorIndex = new Random().Next(0, 6);
+            LineGraphDataset dataset = new LineGraphDataset(colorHex[1, colorIndex], colorHex[0, colorIndex]);
+            dataset.label = "";
+
+
+            // Ceiling line
+            colorIndex = (colorIndex + 1)%7;
+            LineGraphDataset ceiling = new LineGraphDataset(colorHex[1, colorIndex], colorHex[0, colorIndex]);
+            ceiling.label = "";
+
+            // Manipulate data - calculate workload
+            int rcumulated = sum;
+            foreach (DataRow row in table.Rows)
+            {
+                DateTime date = (DateTime)row[0];
+                labels.Add(date.ToString("dd.MM.yyyy"));
+                rcumulated -= Convert.ToInt32(row[1]);
+                dataset.data.Add(rcumulated);
+                ceiling.data.Add(sum);
+            }
+            datasets.Add(dataset);
+            datasets.Add(ceiling);
+
+            return JsonConvert.SerializeObject(myLine);
+        }
+
+        public string getEstimationFactor(int projectID)
+        {
+            myCommand.CommandText = "SELECT SUM(Work_Estimation) AS Estimation, SUM(Actual_Work) AS Actual FROM Task " +
+                "WHERE Project_ID=@projectID AND Actual_Work IS NOT NULL AND Work_Estimation IS NOT NULL";
+            addParameter<int>("@projectID", SqlDbType.Int, projectID);
+            myReader = myCommand.ExecuteReader();
+            myReader.Read();
+            string result = myReader[0].ToString() + "$" + myReader[1].ToString();
+            myReader.Close();
+            myCommand.Parameters.Clear();
+            return result;
         }
 
         protected int[] getOptimumLine(int startPoint, int endPoint, int range)

@@ -1,9 +1,4 @@
-﻿function recalibrate() {
-    var windowHeight = window.innerHeight || document.documentElement.clientHeight;
-    var windowWidth = window.innerWidth || document.documentElement.clientWidth;
-}
-
-function openAddProjectWindow(index) {
+﻿function openAddProjectWindow(index) {
     resetAddProjectWindow();
     $("#projectSupervisor").html("");
     showView(0);
