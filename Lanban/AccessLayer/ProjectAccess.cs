@@ -18,7 +18,7 @@ namespace Lanban.AccessLayer
             string table = (role == 1) ? "Project_User" : "Project_Supervisor";
             myCommand.CommandText = "SELECT Project.* FROM Project INNER JOIN " +
                                     "(SELECT Project_ID FROM " + table + " WHERE User_ID=@userID) AS A " +
-                                    "ON A.Project_ID = Project.Project_ID;";
+                                    "ON A.Project_ID = Project.Project_ID ORDER BY Project.Start_Date DESC;";
             addParameter<int>("@userID", SqlDbType.Int, userID);
             myAdapter.Fill(myDataSet, "Project");
             myCommand.Parameters.Clear();

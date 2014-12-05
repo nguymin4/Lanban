@@ -1,10 +1,8 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Lanban.Master" AutoEventWireup="true" CodeBehind="Board.aspx.cs" Inherits="Lanban.Board" Async="true" EnableEventValidation="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="contentHead" runat="server">
-    <script async="async" src="Scripts/Chart.min.js"></script>
-    <script async="async" src="Scripts/raphael.2.1.0.min.js"></script>
-    <script async="async" src="Scripts/justgage.1.0.1.min.js"></script>
     <script src="Scripts/html2canvas.min.js"></script>
+    <script async="async" src="Scripts/Chart.min.js"></script>
     <script src="Scripts/board.js"></script>
     <link href="Styles/board.css" rel="stylesheet" />
 </asp:Content>
@@ -97,9 +95,48 @@
     <!-- End - Chart  -->
 
     <!-- Start - The window for Board layout-->
-    <div class="window view">
-        <div class="title-bar">Board layout</div>
+    <div id="boardLayout" class="window view">
+        <div class="title-bar">Swimlane management</div>
         <div class="window-content">
+            <table id="addSwimlane">
+                <tr>
+                    <td>Name</td>
+                    <td>Data type</td>
+                    <td>Data status</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><input class="input-sw txtName" type="text" /></td>
+                    <td>
+                        <select class="input-sw ddlType">
+                            <option value="1">Backlog</option>
+                            <option value="2">Task</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="input-sw ddlDataStatus">
+                            <option value="Standby">Standby</option>
+                            <option value="Ongoing">Ongoing</option>
+                        </select>
+                    </td>
+                    <td><input type="button" class="button medium btnSave" value="Add" onclick="" /></td>
+                </tr>
+            </table>
+            <hr />
+            <ul id="currentSwimlane">
+                <li class="swimlane">
+                    <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+                    <span class="swName">Item 1</span>
+                    <input type="button" class="ui-icon-close" />
+                    <input type="button" class="ui-icon-pencil" />
+                </li>
+                <li class="swimlane">
+                    <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+                    <span class="swName">Item 1</span>
+                    <input type="button" class="ui-icon-close" />
+                    <input type="button" class="ui-icon-pencil" />
+                </li>
+            </ul>
         </div>
     </div>
     <!-- End - The window for Board layout  -->

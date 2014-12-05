@@ -134,7 +134,8 @@ namespace Lanban.AccessLayer
             var table = myDataSet.Tables["temp"];
 
             myCommand.CommandText = "SELECT SUM(Work_estimation) FROM Task WHERE Project_ID=@projectID";
-            int sum = Convert.ToInt32(myCommand.ExecuteScalar());
+            int sum = (myCommand.ExecuteScalar() != DBNull.Value) ? Convert.ToInt32(myCommand.ExecuteScalar()) : 0;
+            
             myCommand.Parameters.Clear();
             
             // Manipulate data - add missing date

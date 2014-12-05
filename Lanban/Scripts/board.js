@@ -132,6 +132,11 @@ $(window).load(function () {
 
     $("#myCommentProfile").attr("src", _avatar);
     $("#myCommentProfile").attr("title", _name);
+
+    // Drag swimlane
+    $("#currentSwimlane").sortable({
+        placeholder: "ui-state-highlight"
+    }).disableSelection();
 });
 
 /*Board drag and drop functionality*/
@@ -205,6 +210,7 @@ function init_BoardDragDrop() {
         }
     }).disableSelection();
 }
+
 
 /* Class: Backlog */
 function Backlog() {
@@ -1019,7 +1025,11 @@ function fetchTeamEstimationFactor() {
         success: function (result) {
             var data = result.split("$");
             var factor = (data[0] >= data[1]) ? 1 - (data[0] / data[1]) : (data[1] / data[0]) - 1;
-            gauge.refresh(factor);
+            if (!isNaN(factor)) {
+                factor = Math.round(factor * 100);
+                gauge.refresh(factor);
+            }
+            else gauge.refresh(0);
             $("#txtGaugeEst").text(data[0]);
             $("#txtGaugeAct").text(data[1]);
         }

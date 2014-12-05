@@ -584,3 +584,79 @@ div.assignee-name-active {
     #diaglogBacklogStat.show {
         opacity: 1;
     }
+
+/* Board layout window */
+#boardLayout hr {
+    width: 500px;
+    margin: 10px auto;
+}
+
+#addSwimlane {
+    width: 500px;
+    margin: auto;
+    color: white;
+    text-align: center;
+    vertical-align: central;
+    border-collapse: collapse;
+}
+
+#addSwimlane .button {
+    position: relative;
+    top: -10px;
+    display: inline-block;
+    transform: scale(0.9);
+}
+
+.input-sw {
+    display: inline-block;
+    background: rgba(25, 15, 15, 0.5);
+    height: 32px;
+    padding: 2px 5px;
+    margin: 10px 0px;
+    border-radius: 6px;
+    border: solid 1px rgb(128, 128, 128);
+    color: #e6e6e6;
+    font-size: 15px;
+    line-height: 28px;
+}
+
+select.input-sw {
+    width: 100px;
+}
+
+
+#currentSwimlane {
+    width: 400px;
+    margin: 30px auto;
+    list-style: none;
+    padding: 0px;
+}
+
+.swimlane {
+    height: 28px;
+    line-height: 28px;
+    width: 400px;
+    margin: 5px auto;
+    background: url('../images/background/top-bg.png') repeat-x;
+    border-radius: 5px;
+    cursor: move;
+    color: rgba(25, 15, 15, 0.79);
+    border: solid 1px rgba(128, 128, 128, 0.5);
+}
+
+.swimlane .ui-icon {
+    display: inline-block;
+}
+
+.swimlane input[type='button'] {
+    background-image: url('/images/jquery-ui/ui-icons_222222_256x240.png');
+    border: none;
+    cursor: pointer;
+    float: right;
+    margin: 5px 3px auto auto;
+}
+
+#currentSwimlane .ui-state-highlight {
+    border-radius: 6px;
+    height: 28px; 
+}
