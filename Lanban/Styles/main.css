@@ -191,6 +191,9 @@ body {
     text-align: center;
 }
 
+.diaglog .button {
+    transform: scale(0.9);
+}
 
 /*Other button*/
 .button.medium {

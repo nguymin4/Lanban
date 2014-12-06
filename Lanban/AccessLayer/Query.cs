@@ -125,7 +125,8 @@ namespace Lanban
         // Check whether the item with itemID belongs to the project
         public bool IsInProject(int projectID, int itemID, string type)
         {
-            myCommand.CommandText = "SELECT COUNT(*) FROM " + type + " WHERE Project_ID=@projectID AND " + type + "_ID=@itemID";
+            myCommand.CommandText = "IF EXISTS (SELECT 1 FROM " + type + " WHERE Project_ID=@projectID " +
+                "AND " + type + "_ID=@itemID) SELECT 1 ELSE SELECT 0";
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
             addParameter<int>("@itemID", SqlDbType.Int, itemID);
             bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == 1);
@@ -138,7 +139,8 @@ namespace Lanban
         public bool IsProjectMember(int projectID, int userID, int role)
         {
             string table = (role == 1) ? "Project_User" : "Project_Supervisor";
-            myCommand.CommandText = "SELECT COUNT(*) FROM " + table + " WHERE Project_ID=@projectID AND User_ID=@userID";
+            myCommand.CommandText = "IF EXISTS (SELECT 1 FROM " + table + " WHERE Project_ID=@projectID AND "+
+                "User_ID=@userID) SELECT 1 ELSE SELECT 0";
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
             addParameter<int>("@userID", SqlDbType.Int, userID);
             bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == 1);
@@ -159,7 +161,7 @@ namespace Lanban
         /*4. Login page */
         public UserModel login(string username, string password)
         {
-            myCommand.CommandText = "SELECT * FROM Users WHERE Username = @username";
+            myCommand.CommandText = "SELECT TOP 1 * FROM Users WHERE Username = @username";
             addParameter<string>("@username", SqlDbType.VarChar, username);
             myReader = myCommand.ExecuteReader();
             UserModel user = null;

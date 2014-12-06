@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
-using System.Web.Security;
 using System.Web.UI;
 using System.Web.UI.HtmlControls;
 using System.Web.UI.WebControls;
@@ -112,10 +111,23 @@ namespace Lanban
         //1.1 Add header cell to kanban board
         protected void createHeader(DataRow row, int i)
         {
-            var th = header[i];
+            string swimlane_id = row["Swimlane_ID"].ToString();
             int type = Convert.ToInt32(row["Type"]);
-            int swimlane_id = Convert.ToInt32(row["Swimlane_ID"]);
             string name = row["Name"].ToString();
+            
+            // Attributes for the header
+            var th = header[i];
+            th.Attributes["data-id"] = swimlane_id;
+            th.Attributes["data-type"] = type.ToString();
+            th.Attributes["data-status"] = row["Data_status"].ToString();
+
+            // Swimlane name
+            HtmlGenericControl div = new HtmlGenericControl("div");
+            div.Attributes["class"] = "swName";
+            div.Attributes["title"] = name;
+            div.InnerText = name;
+            th.Controls.Add(div);
+            
             if (type != 3)
             {
                 Image img = new Image();
@@ -125,9 +137,7 @@ namespace Lanban
                 function += "," + i + "," + swimlane_id + ")";
                 img.Attributes.Add("onclick", function);
                 th.Controls.Add(img);
-                th.Controls.Add(new LiteralControl(name));
             }
-            else th.Text = name;
         }
 
         //1.2 Add table cell to kanban board with sticky note

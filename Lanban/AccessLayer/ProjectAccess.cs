@@ -75,7 +75,7 @@ namespace Lanban.AccessLayer
         // Check whether a user is owner of a project
         public bool IsOwner(int projectID, int userID)
         {
-            myCommand.CommandText = "SELECT Count(*) FROM Project WHERE Project_ID=@projectID AND Owner=@userID";
+            myCommand.CommandText = "IF EXISTS (SELECT Project_ID FROM Project WHERE Project_ID=@projectID AND Owner=@userID) SELECT 1 ELSE SELECT 0";
             addParameter<int>("@projectID", SqlDbType.Int, projectID);
             addParameter<int>("@userID", SqlDbType.Int, userID);
             bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == 1);

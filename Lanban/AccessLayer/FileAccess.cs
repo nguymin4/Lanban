@@ -12,7 +12,8 @@ namespace Lanban.AccessLayer
         // Check whether a file belongs to a task
         public bool IsInTask(string fileID, int taskID)
         {
-            myCommand.CommandText = "SELECT COUNT(*) FROM Task_File WHERE File_ID = @fileID AND Task_ID = @taskID";
+            myCommand.CommandText = "IF EXISTS (SELECT 1 FROM Task_File " +
+                "WHERE File_ID = @fileID AND Task_ID = @taskID) SELECT 1 ELSE SELECT 0";
             addParameter<int>("@fileID", SqlDbType.Int, Convert.ToInt32(fileID));
             addParameter<int>("@taskID", SqlDbType.Int, taskID);
             bool result = (Convert.ToInt32(myCommand.ExecuteScalar()) == 1);

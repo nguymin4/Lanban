@@ -42,4 +42,14 @@ namespace Lanban.Model
         public string Start_Date { get; set; }
         public string Modified_date { get; set; }
     }
+
+    public class Swimlane
+    {
+        // Swimlane_ID nullable means that the swimlane is not existed and will be created
+        public Nullable<int> Swimlane_ID { get; set; }
+        public int Project_ID { get; set; }
+        public string Name { get; set; }
+        public int Type { get; set; }
+        public string Data_status { get; set; }
+    }
 }

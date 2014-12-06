@@ -63,8 +63,10 @@ $(window).ready(function () {
 
 
 // If error happens with ajax then redirect to error page
-$(document).ajaxError(function () {
-    window.location.href = errorPage;
+$(document).ajaxError(function (event, req, setting) {
+    console.log(req.status);
+    if (req.status == 401) window.location.href = "Login.aspx";
+    else window.location.href = errorPage;
 });
 
 /*****************************************************************************/
@@ -145,7 +147,7 @@ function showErrorDialog(i) {
 }
 
 // Show success diaglog - content taken from an array based on parameter
-var successMsg = ["New item created", "Data updated", "File uploaded"];
+var successMsg = ["New item created", "Data updated", "File uploaded", "Deleted"];
 
 function showSuccessDiaglog(i) {
     if (!($(".diaglog.success").hasClass("show")))
@@ -168,6 +170,17 @@ function showProcessingDiaglog() {
     $(".diaglog.success").addClass("show").fadeIn(200);
 }
 
+// Show confirmation
+function showConfirmation(func) {
+    var diaglog = $(".diaglog.confirmation");
+    $(".btnCancel", diaglog).on("click", function () {
+        $(diaglog).fadeOut(100);
+    });
+
+    $(".btnSave", diaglog).attr("onclick", func);
+
+    $(diaglog).fadeIn("fast");
+}
 
 /***************************/
 /* Real-time communication */

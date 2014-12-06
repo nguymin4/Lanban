@@ -63,6 +63,16 @@
                 </div>
             </div>
 
+            <!-- Successful diaglog -->
+            <div class="window diaglog confirmation">
+                <div class="title-bar">Are you sure?</div>
+                <div class="diaglog-content">
+                    <div class="content-holder">
+                        <input type="button" class="button medium btnSave" value="Confirm" />
+                        <input type="button" class="button medium btnCancel" value="Cancel" />
+                    </div>
+                </div>
+            </div>
         </div>
         <%-- End Part 3: --%>
     </form>

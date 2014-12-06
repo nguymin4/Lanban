@@ -8,13 +8,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace LanbanTesting
 {
     [TestClass]
-    public class UnitTest1
+    public class QueryTest
     {
         [TestMethod]
-        public void TestMethod1()
+        public void Test()
         {
-            var temp = new ProjectAccess().getProjectData(1);
-            Debug.Write(temp);
+            var temp = new ProjectAccess();
+            var actual = temp.IsOwner(1, 1);
+            Assert.AreEqual(true, actual);
         }
     }
 }

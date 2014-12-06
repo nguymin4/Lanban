@@ -61,7 +61,7 @@ namespace Lanban.AccessLayer
         public string updateTaskComment(string commentID, string content, int userID)
         {
             myCommand.CommandText = "UPDATE Task_Comment SET Content=@content WHERE Comment_ID=@id AND User_ID = @userID";
-            addParameter<string>("@content", SqlDbType.Text, content);
+            addParameter<string>("@content", SqlDbType.NVarChar, content);
             addParameter<int>("@id", SqlDbType.Int, Convert.ToInt32(commentID));
             addParameter<int>("@userID", SqlDbType.Int, userID);
             int result = myCommand.ExecuteNonQuery();
@@ -77,7 +77,7 @@ namespace Lanban.AccessLayer
                 "VALUES(@taskID, @projectID, @content, @userID); SELECT SCOPE_IDENTITY();";
             addParameter<int>("@taskID", SqlDbType.Int, comment.Task_ID);
             addParameter<int>("@projectID", SqlDbType.Int, comment.Project_ID);
-            addParameter<string>("@content", SqlDbType.Text, comment.Content);
+            addParameter<string>("@content", SqlDbType.NVarChar, comment.Content);
             addParameter<int>("@userID", SqlDbType.Int, comment.User_ID);
             string id = myCommand.ExecuteScalar().ToString();
             myCommand.Parameters.Clear();

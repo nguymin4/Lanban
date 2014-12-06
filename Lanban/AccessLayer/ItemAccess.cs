@@ -30,8 +30,8 @@ namespace Lanban.AccessLayer
             command.Append("VALUES (@Project_ID, @Swimlane_ID, @Title, @Description, @Complexity, @Color, @Start_date, @Completion_date);");
             addParameter<int>("@Project_ID", SqlDbType.Int, backlog.Project_ID);
             addParameter<int>("@Swimlane_ID", SqlDbType.Int, backlog.Swimlane_ID);
-            addParameter<string>("@Title", SqlDbType.Text, backlog.Title);
-            addParameter<string>("@Description", SqlDbType.Text, backlog.Description);
+            addParameter<string>("@Title", SqlDbType.NVarChar, backlog.Title);
+            addParameter<string>("@Description", SqlDbType.NVarChar, backlog.Description);
             addParameter<int>("@Complexity", SqlDbType.Int, backlog.Complexity);
             addParameter<string>("@Color", SqlDbType.VarChar, backlog.Color);
             
@@ -78,8 +78,8 @@ namespace Lanban.AccessLayer
             addParameter<int>("@Project_ID", SqlDbType.Int, task.Project_ID);
             addParameter<int>("@Swimlane_ID", SqlDbType.Int, task.Swimlane_ID);
             addParameter<int>("@Backlog_ID", SqlDbType.Int, task.Backlog_ID);
-            addParameter<string>("@Title", SqlDbType.Text, task.Title);
-            addParameter<string>("@Description", SqlDbType.Text, task.Description);
+            addParameter<string>("@Title", SqlDbType.NVarChar, task.Title);
+            addParameter<string>("@Description", SqlDbType.NVarChar, task.Description);
             addParameter<string>("@Color", SqlDbType.VarChar, task.Color);
 
             // Work estimation can be null
@@ -128,8 +128,8 @@ namespace Lanban.AccessLayer
                 "Complexity=@Complexity, Color=@Color, Start_date=@Start_date, Completion_date=@Completion_date "+
                 "WHERE Backlog_ID=@Backlog_ID AND Project_ID=@projectID";
 
-            addParameter<string>("@Title", SqlDbType.Text, backlog.Title);
-            addParameter<string>("@Description", SqlDbType.Text, backlog.Description);
+            addParameter<string>("@Title", SqlDbType.NVarChar, backlog.Title);
+            addParameter<string>("@Description", SqlDbType.NVarChar, backlog.Description);
             addParameter<int>("@Complexity", SqlDbType.Int, backlog.Complexity);
             addParameter<string>("@Color", SqlDbType.VarChar, backlog.Color);
 
@@ -158,8 +158,8 @@ namespace Lanban.AccessLayer
                 "Actual_work=@Actual_work WHERE Task_ID=@Task_ID AND Project_ID=@projectID";
 
             addParameter<int>("@Backlog_ID", SqlDbType.Int, task.Backlog_ID);
-            addParameter<string>("@Title", SqlDbType.Text, task.Title);
-            addParameter<string>("@Description", SqlDbType.Text, task.Description);
+            addParameter<string>("@Title", SqlDbType.NVarChar, task.Title);
+            addParameter<string>("@Description", SqlDbType.NVarChar, task.Description);
 
             // Work estimation can be null
             if (task.Work_estimation == null) addParameter<DBNull>("@Work_estimation", SqlDbType.Int, DBNull.Value);

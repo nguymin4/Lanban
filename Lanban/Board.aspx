@@ -11,7 +11,7 @@
     <li style="background-image: url('/images/logo.png')" runat="server" onclick="loadPageSpinner(); __doPostBack('RedirectProject','');"></li>
     <li class="viewIndicator show" style="background-image: url('/images/sidebar/dashboard.png')" data-view-indicator="0"></li>
     <li class="viewIndicator" style="background-image: url('/images/sidebar/chart.png')" data-view-indicator="1" onclick="showChartWindow()"></li>
-    <li class="viewIndicator" style="background-image: url('/images/sidebar/column.png')" data-view-indicator="2"></li>
+    <li class="viewIndicator" style="background-image: url('/images/sidebar/column.png')" data-view-indicator="2" onclick="showSwimlaneWindow()"></li>
 </asp:Content>
 
 <asp:Content ID="Content3" ContentPlaceHolderID="contentMain" runat="server">
@@ -103,7 +103,6 @@
                     <td>Name</td>
                     <td>Data type</td>
                     <td>Data status</td>
-                    <td></td>
                 </tr>
                 <tr>
                     <td><input class="input-sw txtName" type="text" /></td>
@@ -119,24 +118,12 @@
                             <option value="Ongoing">Ongoing</option>
                         </select>
                     </td>
-                    <td><input type="button" class="button medium btnSave" value="Add" onclick="" /></td>
                 </tr>
             </table>
+            <input id="btnAddSw" type="button" class="button medium btnSave" value="Add" onclick="addSwimlane()"/>
+            <input id="btnCancelSw" type="button" class="button medium btnCancel" value="Clear" onclick="resetSwForm()" />
             <hr />
-            <ul id="currentSwimlane">
-                <li class="swimlane">
-                    <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
-                    <span class="swName">Item 1</span>
-                    <input type="button" class="ui-icon-close" />
-                    <input type="button" class="ui-icon-pencil" />
-                </li>
-                <li class="swimlane">
-                    <span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
-                    <span class="swName">Item 1</span>
-                    <input type="button" class="ui-icon-close" />
-                    <input type="button" class="ui-icon-pencil" />
-                </li>
-            </ul>
+            <ul id="currentSwimlane"></ul>
         </div>
     </div>
     <!-- End - The window for Board layout  -->

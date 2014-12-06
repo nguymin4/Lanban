@@ -8,7 +8,9 @@
     for (var i = 0; i < columncount; i++) {
         colgroup.innerHTML += "<col />";
     }
-    colgroup.style.width = parseInt((windowWidth - 86) / columncount) - 2;
+    var colW = parseInt((windowWidth - 66) / columncount) - 2;
+    colgroup.style.width = colW;
+    $(".swName").css("width", (colW - 100));
 
     $(".connected").css("height", 0.88 * windowHeight - 35);
 
@@ -93,6 +95,9 @@ $(window).load(function () {
     /*Board drag and drop functionality*/
     init_BoardDragDrop();
 
+    // Drag swimlane
+    init_SwDragDrop();
+
     // Team estimation factor
     setupGaugeEstimation();
 
@@ -102,6 +107,16 @@ $(window).load(function () {
         wheelPropagation: false,
         minScrollbarLength: 10
     });
+
+    // Scrollable commentBox and fileList
+    $("#commentBox, #fileList").perfectScrollbar({
+        wheelSpeed: 3,
+        wheelPropagation: false,
+        suppressScrollX: true,
+        includePadding: true
+    });
+
+    $("#fileUploadContainer input").val("");
 
     // Date picker
     $(".inputBox.date").datepicker({
@@ -114,29 +129,9 @@ $(window).load(function () {
         }
     });
 
-    $("#commentBox").perfectScrollbar({
-        wheelSpeed: 3,
-        wheelPropagation: false,
-        suppressScrollX: true,
-        includePadding: true
-    });
-
-    $("#fileList").perfectScrollbar({
-        wheelSpeed: 3,
-        wheelPropagation: false,
-        suppressScrollX: true,
-        includePadding: true
-    });
-
-    $("#fileUploadContainer input").val("");
-
+    // Comment Profile
     $("#myCommentProfile").attr("src", _avatar);
     $("#myCommentProfile").attr("title", _name);
-
-    // Drag swimlane
-    $("#currentSwimlane").sortable({
-        placeholder: "ui-state-highlight"
-    }).disableSelection();
 });
 
 /*Board drag and drop functionality*/
@@ -211,6 +206,61 @@ function init_BoardDragDrop() {
     }).disableSelection();
 }
 
+/* Swimlane drag and drop functionalities */
+function init_SwDragDrop() {
+    $("#currentSwimlane").sortable({
+        placeholder: "ui-state-highlight",
+        start: function (event, ui) {
+            ui.item.startPos = ui.item.index();
+        },
+        stop: function (event, ui) {
+            var index = ui.item.index();
+            var startPos = ui.item.startPos;
+
+            // Update to database
+            var sw = this.getElementsByClassName("swimlane");
+            if (index < startPos) {
+                // If the swimlane move up
+                for (var i = index; i < startPos + 1; i++) {
+                    saveSwimlanePosition($(sw[i]).attr("data-id"), i);
+                }
+
+                // Update in the board
+                $("#kanban th:eq(" + startPos + ")").insertBefore(
+                    $("#kanban th:eq(" + index + ")"));
+
+                $("#kanban td:eq(" + startPos + ")").insertBefore(
+                  $("#kanban td:eq(" + index + ")"));
+
+            }
+            else {
+                // If the swimlane move down
+                for (var i = startPos; i < index + 1; i++) {
+                    saveSwimlanePosition($(sw[i]).attr("data-id"), i);
+                }
+
+                // Update in the board
+                $("#kanban th:eq(" + startPos + ")").insertAfter(
+                    $("#kanban th:eq(" + index + ")"));
+
+                $("#kanban td:eq(" + startPos + ")").insertAfter(
+                  $("#kanban td:eq(" + index + ")"));
+            }
+
+            // Update Add item function
+            var th = $("#kanban th");
+            for (var i = 0; i < th.length; i++) {
+                var btnAdd = $(".btnAddItem", th[i]);
+                console.log(btnAdd);
+                if (btnAdd.attr("onclick") != undefined) {
+                    var f = btnAdd.attr("onclick").split(",");
+                    f[1] = i;
+                    btnAdd.attr("onclick", "" + f[0] + "," + f[1] + "," + f[2] + "");
+                }
+            }
+        }
+    }).disableSelection();
+}
 
 /* Class: Backlog */
 function Backlog() {
@@ -325,9 +375,7 @@ function showInsertWindow(windowName, i, swimlaneID) {
 
 
 /***************************************************/
-/*2. Change position of a sticky note*/
-/*2.1 In a swimlane, when two items swap positon to each other then
-- call AJAX function to save new position into the database */
+/*2.1 Change position of a sticky note*/
 function updatePosition(itemID, pos, type) {
     var table = (type == 1) ? "Backlog" : "Task";
     $.ajax({
@@ -343,10 +391,7 @@ function updatePosition(itemID, pos, type) {
     });
 }
 
-/*2.2 When an item is moved to another swim lane then 
-    call AJAX function to save new position of all items:
-    - in the source lane with index <= old index of the moved item
-    - in the target lane with index <= new index of the moved item */
+/*2.2 Move a sticky note to another swimlane */
 function changeLane(itemID, type, swimlane_id, pos) {
     var table = (type == 1) ? "Backlog" : "Task";
     $.ajax({
@@ -1243,6 +1288,177 @@ function hideBacklogStat() {
     }, 150)
 }
 
+/***************************************************/
+/* Swimlane management */
+function Swimlane() {
+    this.Swimlane_ID = null;
+    this.Project_ID = projectID;
+    this.Name = $(".input-sw.txtName").val();
+    this.Type = $(".input-sw.ddlType").val();
+    this.Data_status = $(".input-sw.ddlDataStatus").val();
+}
+
+// Show swimlane window with all information of current swimlanes
+function showSwimlaneWindow() {
+    $("#currentSwimlane").html("");
+    var sw = $("#kanban th");
+    for (var i = 0; i < sw.length; i++) {
+
+        // Attributes
+        var name = $(".swName", sw[i]).html();
+        var id = $(sw[i]).attr("data-id");
+        var type = $(sw[i]).attr("data-type");
+
+        var objtext = getSwimlaneDisplay(name, id, type);
+
+        // Append to container
+        $("#currentSwimlane").append(objtext);
+    }
+}
+
+// Get representative box of swimlane
+function getSwimlaneDisplay(name, id, type) {
+    // Visual
+    var objtext = "<li class='swimlane' data-id='" + id + "'><span class='ui-icon ui-icon-arrowthick-2-n-s'></span>" +
+                "<span class='swName'>" + name + "</span>";
+
+    // Don't allow edit done swimlane
+    if (parseInt(type) != 3) {
+        objtext += "<input type='button' class='ui-icon-close' onclick='deleteSwimlane(" + id + ", false)' />" +
+                "<input type='button' class='ui-icon-pencil' onclick='editSwimlane(" + id + ")' />";
+    }
+    objtext += "</li>";
+
+    return objtext;
+}
+
+// Load info of a swimlane to textbox to edit and update
+function editSwimlane(id) {
+    var sw = $("#kanban th[data-id='" + id + "']");
+    $(".input-sw.txtName").val($(".swName", sw).html());
+    $(".input-sw.ddlType").val($(sw).attr("data-type")).attr("disabled", "disabled");
+    $(".input-sw.ddlDataStatus").val($(sw).attr("data-status"));
+    $("#btnAddSw").val("Save").attr("onclick", "updateSwimlane(" + id + ")");
+}
+
+// Reset swimlane form
+function resetSwForm() {
+    $(".input-sw.txtName").val("");
+    $(".input-sw.ddlType").val("1").removeAttr("disabled");
+    $(".input-sw.ddlDataStatus").val("Standby");
+    $("#btnAddSw").val("Add").attr("onclick", "addSwimlane()");
+}
+
+// Add new swimlane
+function addSwimlane() {
+    showProcessingDiaglog();
+    var sw = new Swimlane();
+    $.ajax({
+        url: "Handler/SwimlaneHandler.ashx",
+        data: {
+            action: "addSwimlane",
+            projectID: projectID,
+            swimlane: JSON.stringify(sw)
+        },
+        type: "post",
+        success: function (result) {
+            showSuccessDiaglog(0);
+            var objtext = getSwimlaneDisplay(sw.Name, result, sw.Type);
+            $("#currentSwimlane").append(objtext);
+            resetSwForm();
+
+            // Add new swimlane to the board
+            var table = (sw.Type == 1) ? "backlog" : "task";
+            var pos = $(".swimlane").length - 1;
+
+            var th = "<th data-id='" + result + "' data-type='" + sw.Type + "' data-status='" + sw.Data_status + "'>" +
+                "<div class='swName' title='" + sw.Name + "'>" + sw.Name + "</div>" +
+                "<img class='btnAddItem' onclick='showInsertWindow('" + table + "Window', " + pos + "," + result + ")' " +
+                "src='images/sidebar/add_item.png'></th>";
+            $("#kanban tr:eq(0)").append(th);
+
+            var td = "<td class='connected ui-sortable' data-id='" + result + "' " +
+                "data-lane-type='" + sw.Type + "' data-status='" + sw.Data_status + "'></td>"
+            $("#kanban tr:eq(1)").append(td);
+            recalibrate();
+            $(".window-content").perfectScrollbar("update");
+        }
+    });
+}
+
+// Update swimlane info
+function updateSwimlane(id) {
+    showProcessingDiaglog();
+    var sw = new Swimlane();
+    sw.Swimlane_ID = id;
+    $.ajax({
+        url: "Handler/SwimlaneHandler.ashx",
+        data: {
+            action: "updateSwimlane",
+            projectID: projectID,
+            swimlane: JSON.stringify(sw)
+        },
+        type: "post",
+        success: function () {
+            showSuccessDiaglog(1);
+            resetSwForm();
+
+            $(".swimlane[data-id='" + id + "'] .swName").html(sw.Name);
+
+            // Update in the board
+            var th = $("#kanban th[data-id='" + id + "']");
+            th.attr("data-status", sw.Data_status);
+            $(".swName", th).html(sw.Name);
+
+            // Send to other clients
+        }
+    });
+}
+
+// Delete swimlane
+function deleteSwimlane(id, confirm) {
+    if (confirm == true) {
+        $(".diaglog.confirmation").hide();
+        showProcessingDiaglog();
+
+        $.ajax({
+            url: "Handler/SwimlaneHandler.ashx",
+            data: {
+                action: "deleteSwimlane",
+                projectID: projectID,
+                swimlaneID: id
+            },
+            type: "post",
+            success: function (result) {
+                showSuccessDiaglog(3);
+                $(".swimlane[data-id='" + id + "']").remove();
+                $("#kanban th[data-id='" + id + "']").remove();
+                $("#kanban td[data-id='" + id + "']").remove();
+
+                recalibrate();
+                $(".window-content").perfectScrollbar("update");
+
+                // Send to other clients
+
+            }
+        });
+    }
+    else showConfirmation("deleteSwimlane(" + id + ", true)");
+}
+
+// Save swimlane position
+function saveSwimlanePosition(id, position) {
+    $.ajax({
+        url: "Handler/SwimlaneHandler.ashx",
+        data: {
+            action: "updatePosition",
+            projectID: projectID,
+            swimlaneID: id,
+            pos: position
+        },
+        type: "get"
+    });
+}
 
 /***************************************************/
 /*C. SignalR Communication */

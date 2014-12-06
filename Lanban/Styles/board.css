@@ -3,7 +3,11 @@
     background-image: url("/images/background/top-bg.png"), url("/images/background/img0.jpg");
     height: 98%;
     margin: 5px 0.5% 5px 0.5%;
-    width: calc(100% - 90px);
+    width: calc(100% - 10px);
+}
+
+#kanbanWindow .window-content {
+    width: 100%;
 }
 
 #kanban {
@@ -28,6 +32,14 @@
         position: relative;
         text-align: center;
         vertical-align: top;
+    }
+
+    .swName {
+        display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        word-wrap: break-word;
     }
 
 .connected {
@@ -586,25 +598,29 @@ div.assignee-name-active {
     }
 
 /* Board layout window */
+#boardLayout {
+    text-align: center;
+}
+
 #boardLayout hr {
     width: 500px;
     margin: 10px auto;
 }
 
+#boardLayout .button.medium {
+    position: relative;
+    display: inline-block;
+    transform: scale(0.9);
+    margin: 20px auto;
+}
+
 #addSwimlane {
-    width: 500px;
+    width: 400px;
     margin: auto;
     color: white;
     text-align: center;
     vertical-align: central;
     border-collapse: collapse;
-}
-
-#addSwimlane .button {
-    position: relative;
-    top: -10px;
-    display: inline-block;
-    transform: scale(0.9);
 }
 
 .input-sw {
@@ -630,6 +646,7 @@ select.input-sw {
     margin: 30px auto;
     list-style: none;
     padding: 0px;
+    text-align: left;
 }
 
 .swimlane {
@@ -644,8 +661,14 @@ select.input-sw {
     border: solid 1px rgba(128, 128, 128, 0.5);
 }
 
+.swimlane .swName {
+    width: 320px;
+}
+
 .swimlane .ui-icon {
     display: inline-block;
+    position: relative;
+    top: -6px;
 }
 
 .swimlane input[type='button'] {

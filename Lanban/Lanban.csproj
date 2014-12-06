@@ -192,6 +192,7 @@
       <DependentUpon>Board.aspx</DependentUpon>
     </Compile>
     <Compile Include="AccessLayer\CommentAccess.cs" />
+    <Compile Include="Controller\SwimlaneHandlerOperation.cs" />
     <Compile Include="Controller\LanbanAuthentication.cs" />
     <Compile Include="Controller\UserHandlerOperation.cs" />
     <Compile Include="Controller\ProjectHandlerOperation.cs" />
@@ -199,6 +200,9 @@
     <Compile Include="Controller\FileHandlerOperation.cs" />
     <Compile Include="Controller\ChartHandlerOperation.cs" />
     <Compile Include="Controller\CommentHandlerOperation.cs" />
+    <Compile Include="Handler\SwimlaneHandler.ashx.cs">
+      <DependentUpon>SwimlaneHandler.ashx</DependentUpon>
+    </Compile>
     <Compile Include="Handler\UserHandler.ashx.cs">
       <DependentUpon>UserHandler.ashx</DependentUpon>
     </Compile>
@@ -261,6 +265,7 @@
     <Content Include="Handler\ItemHandler.ashx" />
     <Content Include="Handler\ProjectHandler.ashx" />
     <Content Include="Handler\UserHandler.ashx" />
+    <Content Include="Handler\SwimlaneHandler.ashx" />
     <None Include="Properties\PublishProfiles\nguymin4 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\nguymin4 - Web Deploy.pubxml" />
     <None Include="Web.Debug.config">

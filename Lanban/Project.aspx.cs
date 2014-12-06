@@ -13,6 +13,8 @@ namespace Lanban
     public partial class Project : System.Web.UI.Page
     {
         StringBuilder lists;
+        Model.UserModel user;
+
         protected async void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -30,11 +32,10 @@ namespace Lanban
         protected async Task InitProject()
         {
             // Login - temporary for fast testing
-            Model.UserModel user;
             if (Session["user"] == null)
             {
                 Query query = new Query();
-                user = query.login("nguymin4", "Lanban2014");
+                user = query.login("luosimin", "iloveyou");
                 Session["user"] = user;
                 Session["userID"] = user.User_ID;
                 query.Dipose();
@@ -125,16 +126,6 @@ namespace Lanban
             return div;
         }
 
-        // 1.2 Event handler of clicking on a project box
-        public void gotoProject(string data)
-        {
-
-            string[] info = data.Split('$');
-            Session["projectID"] = info[0];
-            Session["projectName"] = info[1];
-            Response.Redirect("Board.aspx");
-        }
-
         // 2. Load users who share the same projects
         private void loadUser(int userID)
         {
@@ -149,6 +140,23 @@ namespace Lanban
             userList.Append(";");
             lists.Append(userList);
             myAccess.Dipose();
+        }
+
+        // 3. Event handler of clicking on a project box
+        public void gotoProject(string data)
+        {
+            string[] info = data.Split('$');
+            Session["projectID"] = info[0];
+            Session["projectName"] = info[1];
+
+            user = (Model.UserModel)Session["user"];
+            var myQuery = new Query();
+            if (!myQuery.IsProjectMember(int.Parse(info[0]), user.User_ID, user.Role))
+            {
+                myQuery.Dipose();
+                Response.Redirect("/Error/error.html", true);
+            }
+            else Response.Redirect("Board.aspx");
         }
     }
 }
