@@ -7,6 +7,9 @@ namespace Lanban.Hubs
     // This Hub is for all client who are in the same kanban board
     public class NoteHub : Hub
     {
+        
+        /********************************************/
+        /* Sticky note */
         // Send new submitted note to other clients.
         public void SendInsertedNote(string swimlanePosition, string objtext)
         {
@@ -42,6 +45,39 @@ namespace Lanban.Hubs
             Clients.OthersInGroup(channelID).changeLane(noteID, swimlanePosition, position);
         }
 
+        /********************************************/
+        /* Swimlane */
+        // Insert a swimlane
+        public void InsertSwimlane(dynamic swimlane)
+        {
+            string channelID = GetChannelID();
+            Clients.OthersInGroup(channelID).insertSwimlane(swimlane);
+        }
+
+        // Update a swimlane
+        public void UpdateSwimlane(int swimlaneID, string name)
+        {
+            string channelID = GetChannelID();
+            Clients.OthersInGroup(channelID).updateSwimlane(swimlaneID, name);
+        }
+
+        // Delete a swimlane
+        public void DeleteSwimlane(int swimlaneID)
+        {
+            string channelID = GetChannelID();
+            Clients.OthersInGroup(channelID).deleteSwimlane(swimlaneID);
+        }
+
+        // Change position of a swimlane
+        public void ChangeSWPosition(int org, int target)
+        {
+            string channelID = GetChannelID();
+            Clients.OthersInGroup(channelID).changeSWPosition(org, target);
+        }
+
+        // Change position of a swimlane
+
+        /********************************************/
         // Join a channel
         public Task JoinChannel()
         {

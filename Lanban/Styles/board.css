@@ -640,7 +640,6 @@ select.input-sw {
     width: 100px;
 }
 
-
 #currentSwimlane {
     width: 400px;
     margin: 30px auto;
@@ -668,11 +667,13 @@ select.input-sw {
 .swimlane .ui-icon {
     display: inline-block;
     position: relative;
-    top: -6px;
+    top: -7px;
 }
 
 .swimlane input[type='button'] {
     background-image: url('/images/jquery-ui/ui-icons_222222_256x240.png');
+    width: 16px;
+    height: 16px;
     border: none;
     cursor: pointer;
     float: right;

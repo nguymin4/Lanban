@@ -10,7 +10,7 @@
     }
     var colW = parseInt((windowWidth - 66) / columncount) - 2;
     colgroup.style.width = colW;
-    $(".swName").css("width", (colW - 100));
+    $("th .swName").css("width", (colW - 100));
 
     $(".connected").css("height", 0.88 * windowHeight - 35);
 
@@ -224,40 +224,19 @@ function init_SwDragDrop() {
                 for (var i = index; i < startPos + 1; i++) {
                     saveSwimlanePosition($(sw[i]).attr("data-id"), i);
                 }
-
-                // Update in the board
-                $("#kanban th:eq(" + startPos + ")").insertBefore(
-                    $("#kanban th:eq(" + index + ")"));
-
-                $("#kanban td:eq(" + startPos + ")").insertBefore(
-                  $("#kanban td:eq(" + index + ")"));
-
             }
             else {
                 // If the swimlane move down
                 for (var i = startPos; i < index + 1; i++) {
                     saveSwimlanePosition($(sw[i]).attr("data-id"), i);
                 }
-
-                // Update in the board
-                $("#kanban th:eq(" + startPos + ")").insertAfter(
-                    $("#kanban th:eq(" + index + ")"));
-
-                $("#kanban td:eq(" + startPos + ")").insertAfter(
-                  $("#kanban td:eq(" + index + ")"));
             }
 
-            // Update Add item function
-            var th = $("#kanban th");
-            for (var i = 0; i < th.length; i++) {
-                var btnAdd = $(".btnAddItem", th[i]);
-                console.log(btnAdd);
-                if (btnAdd.attr("onclick") != undefined) {
-                    var f = btnAdd.attr("onclick").split(",");
-                    f[1] = i;
-                    btnAdd.attr("onclick", "" + f[0] + "," + f[1] + "," + f[2] + "");
-                }
-            }
+            // Update in the board
+            changeSwPosition(startPos, index);
+
+            // Send update to other client
+            proxyNote.invoke("changeSWPosition", startPos, index);
         }
     }).disableSelection();
 }
@@ -806,7 +785,6 @@ function deleteItem(itemID, type) {
     });
 }
 
-
 /***************************************************/
 /*7.1 Creat a drop down list contains all current backlog items*/
 function createCurrentBacklogList() {
@@ -820,7 +798,6 @@ function createCurrentBacklogList() {
         backloglist.innerHTML += "<option value='" + id + "'>" + content + "</option>";
     }
 }
-
 
 /***************************************************/
 /*8.1.a Parse multiple file name to box */
@@ -962,7 +939,7 @@ function deleteFile(fileID) {
 var myPie, myBarChart, myBurnUp, myBurnDown, myTeamEstimation;
 var burnupData, burndownData;
 
-// Open Chart Window
+//9.1 Open Chart Window
 function showChartWindow() {
     fetchPieChartData();
     fetchBarChartData();
@@ -973,7 +950,7 @@ function showChartWindow() {
     $("#chartWindow .date").val("");
 }
 
-//Load pie chart data
+//9.2 Load pie chart data
 function fetchPieChartData() {
     var chartPie = document.getElementById("chartPie");
     var spinner = loadChartSpinner(chartPie);
@@ -993,7 +970,7 @@ function fetchPieChartData() {
     });
 }
 
-//Load bar chart data
+//9.3 Load bar chart data
 function fetchBarChartData() {
     var chartBar = document.getElementById("chartBar");
     var spinner = loadChartSpinner(chartBar);
@@ -1016,7 +993,7 @@ function fetchBarChartData() {
     });
 }
 
-// Load burn up chart data
+//9.4 Load burn up chart data
 function fetchBurnUpData() {
     var burnupChart = document.getElementById("burnupChart");
     loadChartSpinner(burnupChart);
@@ -1037,7 +1014,7 @@ function fetchBurnUpData() {
     });
 }
 
-// Load burn down chart data
+//9.5 Load burn down chart data
 function fetchBurnDownData() {
     var burndownChart = document.getElementById("burndownChart");
     loadChartSpinner(burndownChart);
@@ -1058,7 +1035,7 @@ function fetchBurnDownData() {
     });
 }
 
-// Team estimation factor
+//9.6 Team estimation factor
 function fetchTeamEstimationFactor() {
     $.ajax({
         url: "Handler/ChartHandler.ashx",
@@ -1081,7 +1058,7 @@ function fetchTeamEstimationFactor() {
     });
 }
 
-// Draw line graph
+//9.a Draw line graph
 function drawLineGraph(ctx, data) {
     return new Chart(ctx).Line(data, {
         animation: false,
@@ -1094,7 +1071,7 @@ function drawLineGraph(ctx, data) {
     });
 }
 
-// Display filtered burn up chart
+//9.b Display filtered burn up chart
 function filterBurnUp() {
     var from = $("#txtBUFrom").val();
     var to = $("#txtBUTo").val();
@@ -1108,7 +1085,7 @@ function filterBurnUp() {
     myBurnUp = drawLineGraph(ctx, newData);
 }
 
-// Display filtered burn down chart
+//9.c Display filtered burn down chart
 function filterBurnDown() {
     var from = $("#txtBDFrom").val();
     var to = $("#txtBDTo").val();
@@ -1122,7 +1099,7 @@ function filterBurnDown() {
     myBurnDown = drawLineGraph(ctx, newData);
 }
 
-// Filter dataset for line graph
+//9.d Filter dataset for line graph
 function filterLineGraph(from, to, data) {
     var temp = JSON.parse(JSON.stringify(data));
     var labels = temp.labels;
@@ -1157,7 +1134,7 @@ function filterLineGraph(from, to, data) {
     return temp;
 }
 
-// Setup team estimation factor
+//9.e Setup team estimation factor
 function setupGaugeEstimation() {
     var gaugeColor = [];
     var i = -100;
@@ -1223,10 +1200,10 @@ function loadTaskBacklogTable(backlog_id) {
     }
 }
 
-// Backlog's tasks statistics
+//10.1 Backlog's tasks statistics
 var backlogStat;
 
-// Load and draw chat
+//10.2 Load and draw chat
 function loadBacklogStat(backlog_id) {
     // Create stats
     var task = $(".note[data-type='2'][data-backlog-id='" + backlog_id + "']");
@@ -1267,7 +1244,7 @@ function loadBacklogStat(backlog_id) {
     });
 }
 
-// Show dialogBacklogStat window
+//10.3 Show dialogBacklogStat window
 function viewBacklogStat(obj, backlog_id) {
     loadBacklogStat(backlog_id);
     var windowHeight = window.innerHeight || document.documentElement.clientHeight;
@@ -1279,7 +1256,7 @@ function viewBacklogStat(obj, backlog_id) {
     $("#diaglogBacklogStat").css("display", "block").addClass("show");
 }
 
-// Hide dialogBacklogStat window
+//10.4 Hide dialogBacklogStat window
 function hideBacklogStat() {
     backlogStat.destroy();
     $("#diaglogBacklogStat").removeClass("show");
@@ -1298,7 +1275,7 @@ function Swimlane() {
     this.Data_status = $(".input-sw.ddlDataStatus").val();
 }
 
-// Show swimlane window with all information of current swimlanes
+//11.1.1 Show swimlane window with all information of current swimlanes
 function showSwimlaneWindow() {
     $("#currentSwimlane").html("");
     var sw = $("#kanban th");
@@ -1316,7 +1293,7 @@ function showSwimlaneWindow() {
     }
 }
 
-// Get representative box of swimlane
+//11.1.2 Get representative box of swimlane
 function getSwimlaneDisplay(name, id, type) {
     // Visual
     var objtext = "<li class='swimlane' data-id='" + id + "'><span class='ui-icon ui-icon-arrowthick-2-n-s'></span>" +
@@ -1332,24 +1309,24 @@ function getSwimlaneDisplay(name, id, type) {
     return objtext;
 }
 
-// Load info of a swimlane to textbox to edit and update
+//11.2.1 Load info of a swimlane to textbox to edit and update
 function editSwimlane(id) {
     var sw = $("#kanban th[data-id='" + id + "']");
     $(".input-sw.txtName").val($(".swName", sw).html());
     $(".input-sw.ddlType").val($(sw).attr("data-type")).attr("disabled", "disabled");
-    $(".input-sw.ddlDataStatus").val($(sw).attr("data-status"));
+    $(".input-sw.ddlDataStatus").val($(sw).attr("data-status")).attr("disabled", "disabled");
     $("#btnAddSw").val("Save").attr("onclick", "updateSwimlane(" + id + ")");
 }
 
-// Reset swimlane form
+//11.2.2 Reset swimlane form
 function resetSwForm() {
     $(".input-sw.txtName").val("");
     $(".input-sw.ddlType").val("1").removeAttr("disabled");
-    $(".input-sw.ddlDataStatus").val("Standby");
+    $(".input-sw.ddlDataStatus").val("Standby").removeAttr("disabled");
     $("#btnAddSw").val("Add").attr("onclick", "addSwimlane()");
 }
 
-// Add new swimlane
+//11.3.1 Add new swimlane
 function addSwimlane() {
     showProcessingDiaglog();
     var sw = new Swimlane();
@@ -1363,30 +1340,43 @@ function addSwimlane() {
         type: "post",
         success: function (result) {
             showSuccessDiaglog(0);
-            var objtext = getSwimlaneDisplay(sw.Name, result, sw.Type);
-            $("#currentSwimlane").append(objtext);
             resetSwForm();
+            sw.Swimlane_ID = result;
+            
+            // Add new swimlane to the board and swimlane management window
+            addSWtoBoard(sw);
 
-            // Add new swimlane to the board
-            var table = (sw.Type == 1) ? "backlog" : "task";
-            var pos = $(".swimlane").length - 1;
-
-            var th = "<th data-id='" + result + "' data-type='" + sw.Type + "' data-status='" + sw.Data_status + "'>" +
-                "<div class='swName' title='" + sw.Name + "'>" + sw.Name + "</div>" +
-                "<img class='btnAddItem' onclick='showInsertWindow('" + table + "Window', " + pos + "," + result + ")' " +
-                "src='images/sidebar/add_item.png'></th>";
-            $("#kanban tr:eq(0)").append(th);
-
-            var td = "<td class='connected ui-sortable' data-id='" + result + "' " +
-                "data-lane-type='" + sw.Type + "' data-status='" + sw.Data_status + "'></td>"
-            $("#kanban tr:eq(1)").append(td);
-            recalibrate();
-            $(".window-content").perfectScrollbar("update");
+            // Send to other clients
+            proxyNote.invoke("insertSwimlane", sw);
         }
     });
 }
 
-// Update swimlane info
+//11.3.2 Add visual swimlane
+function addSWtoBoard(sw) {
+    // Add swimlane in swimlane management window
+    var objtext = getSwimlaneDisplay(sw.Name, sw.Swimlane_ID, sw.Type);
+    $("#currentSwimlane").append(objtext);
+    
+    // Add swimlane in kanban board
+    var table = (sw.Type == 1) ? "backlog" : "task";
+    var id = sw.Swimlane_ID;
+    var pos = $(".swimlane").length - 1;
+
+    var th = "<th data-id='" + id + "' data-type='" + sw.Type + "' data-status='" + sw.Data_status + "'>" +
+        "<div class='swName' title='" + sw.Name + "'>" + sw.Name + "</div>" +
+        "<img class='btnAddItem' onclick='showInsertWindow('" + table + "Window', " + pos + "," + id + ")' " +
+        "src='images/sidebar/add_item.png'></th>";
+    $("#kanban tr:eq(0)").append(th);
+
+    var td = "<td class='connected ui-sortable' data-id='" + id + "' " +
+        "data-lane-type='" + sw.Type + "' data-status='" + sw.Data_status + "'></td>"
+    $("#kanban tr:eq(1)").append(td);
+    recalibrate();
+    $(".window-content").perfectScrollbar("update");
+}
+
+//11.4.1 Update swimlane info
 function updateSwimlane(id) {
     showProcessingDiaglog();
     var sw = new Swimlane();
@@ -1402,20 +1392,25 @@ function updateSwimlane(id) {
         success: function () {
             showSuccessDiaglog(1);
             resetSwForm();
-
-            $(".swimlane[data-id='" + id + "'] .swName").html(sw.Name);
-
-            // Update in the board
-            var th = $("#kanban th[data-id='" + id + "']");
-            th.attr("data-status", sw.Data_status);
-            $(".swName", th).html(sw.Name);
+            updateSWinBoard(id, sw.Name);
 
             // Send to other clients
+            proxyNote.invoke("updateSwimlane", id, sw.Name);
         }
     });
 }
 
-// Delete swimlane
+//11.4.2 Update visual data swimlane
+function updateSWinBoard(id, name) {
+    // In swimlane management window
+    $(".swimlane[data-id='" + id + "'] .swName").html(name);
+
+    // Update in the board
+    var th = $("#kanban th[data-id='" + id + "']");
+    $(".swName", th).html(name);
+}
+
+//11.5.1 Delete swimlane
 function deleteSwimlane(id, confirm) {
     if (confirm == true) {
         $(".diaglog.confirmation").hide();
@@ -1431,22 +1426,28 @@ function deleteSwimlane(id, confirm) {
             type: "post",
             success: function (result) {
                 showSuccessDiaglog(3);
-                $(".swimlane[data-id='" + id + "']").remove();
-                $("#kanban th[data-id='" + id + "']").remove();
-                $("#kanban td[data-id='" + id + "']").remove();
-
-                recalibrate();
-                $(".window-content").perfectScrollbar("update");
-
+                
+                // Delete visual swimlane
+                deleteSWinBoard(id);
+               
                 // Send to other clients
-
+                proxyNote.invoke("deleteSwimlane", id);
             }
         });
     }
     else showConfirmation("deleteSwimlane(" + id + ", true)");
 }
 
-// Save swimlane position
+//11.5.2 Delete visual swimlane
+function deleteSWinBoard(id) {
+    $(".swimlane[data-id='" + id + "']").remove();
+    $("#kanban th[data-id='" + id + "']").remove();
+    $("#kanban td[data-id='" + id + "']").remove();
+    recalibrate();
+    $(".window-content").perfectScrollbar("update");
+}
+
+//11.6.1 Save swimlane position
 function saveSwimlanePosition(id, position) {
     $.ajax({
         url: "Handler/SwimlaneHandler.ashx",
@@ -1458,6 +1459,36 @@ function saveSwimlanePosition(id, position) {
         },
         type: "get"
     });
+}
+
+//11.6.2 Update visual position of swimlane in kanban
+function changeSwPosition(org, target) {
+    // Update position in kanban board
+    if (target < org) {
+        $("#kanban th:eq(" + org + ")").insertBefore(
+                           $("#kanban th:eq(" + target + ")"));
+
+        $("#kanban td:eq(" + org + ")").insertBefore(
+          $("#kanban td:eq(" + target + ")"));
+    }
+    else {
+        $("#kanban th:eq(" + org + ")").insertAfter(
+                          $("#kanban th:eq(" + target + ")"));
+
+        $("#kanban td:eq(" + org + ")").insertAfter(
+          $("#kanban td:eq(" + target + ")"));
+    }
+
+    // Update Add item function
+    var th = $("#kanban th");
+    for (var i = 0; i < th.length; i++) {
+        var btnAdd = $(".btnAddItem", th[i]);
+        if (btnAdd.attr("onclick") != undefined) {
+            var f = btnAdd.attr("onclick").split(",");
+            f[1] = i;
+            btnAdd.attr("onclick", f[0] + "," + f[1] + "," + f[2]);
+        }
+    }
 }
 
 /***************************************************/
@@ -1531,7 +1562,8 @@ function init_NoteHub() {
     connNote = $.hubConnection();
     proxyNote = connNote.createHubProxy("noteHub");
 
-    // When other client send data, we listen by these
+    /* When other client send data, we listen by these */
+    /* Note */
     // Receive new note
     proxyNote.on("receiveInsertedNote", function (swimlanePosition, objtext) {
         $(objtext).appendTo($(".connected")[swimlanePosition]);
@@ -1566,6 +1598,28 @@ function init_NoteHub() {
         var lane = document.getElementsByClassName("connected")[swimlanePosition];
         var note = lane.getElementsByClassName("note");
         $(target).insertBefore($(note[position]));
+    });
+    
+    /* Note */
+    // Receive new swimlane
+    proxyNote.on("insertSwimlane", function (sw) {
+        addSWtoBoard(sw);
+    });
+
+    // Update swimlane
+    proxyNote.on("updateSwimlane", function (id, name) {
+        updateSWinBoard(id, name);
+    });
+
+    // Delete swimlane
+    proxyNote.on("deleteSwimlane", function (id) {
+        deleteSWinBoard(id);
+    });
+
+    // Receive new swimlane
+    proxyNote.on("changeSWPosition", function (org, target) {
+        changeSwPosition(org, target);
+        showSwimlaneWindow();
     });
 
     // Start connection and join group
