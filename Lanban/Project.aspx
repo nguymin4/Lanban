@@ -2,17 +2,17 @@
 
 <asp:Content ID="Content1" ContentPlaceHolderID="contentHead" runat="server">
     <script async="async" src="Scripts/jquery.Jcrop.min.js"></script>
-    <link href="Styles/jquery.Jcrop.min.css" rel="stylesheet" />
     <script src="Scripts/project.js"></script>
+    <link href="Styles/jquery.Jcrop.min.css" rel="stylesheet" />
     <link href="Styles/project.css" rel="stylesheet" />
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="contentPanel" runat="server">
     <li class="viewIndicator show" style="background-image: url('images/logo.png')" data-view-indicator="0"></li>
     <li style="background-image: url('images/sidebar/add_project.png')" onclick="openAddProjectWindow(1)"></li>
-    <li class="viewIndicator" style="background-image: url('images/sidebar/schedule.png')" data-view-indicator="1"></li>
+    <li class="viewIndicator" style="display: none; background-image: url('images/sidebar/schedule.png')" data-view-indicator="1"></li>
     <li class="viewIndicator" style="display: none;" data-view-indicator="2"></li>
-    <li class="viewIndicator" style="background-image: url('images/sidebar/setting.png')" data-view-indicator="3"></li>
+    <li class="viewIndicator" style="background-image: url('images/sidebar/setting.png')" data-view-indicator="3" onclick="cancelAccountChange(3)"></li>
 </asp:Content>
 
 <asp:Content ID="Content3" ContentPlaceHolderID="contentMain" runat="server">
@@ -105,7 +105,6 @@
     </div>
     <!-- End - The window for Schedule  -->
 
-
     <!-- Start - The window for Share -->
     <div id="sharingWindow" class="window view">
         <div class="title-bar">Share</div>
@@ -158,7 +157,7 @@
             <img src="#" id="tempProfileImg"/>
             <div id="accManaPanel">
                 <input type="button" class="button medium btnSave" value="Save" onclick="saveAccountChange()" />
-                <input type="button" class="button medium btnCancel" value="Cancel" onclick="cancelAccountChange()" />
+                <input type="button" class="button medium btnCancel" value="Cancel" onclick="cancelAccountChange(0)" />
             </div>
         </div>
     </div>
@@ -166,5 +165,4 @@
 
     <!-- Other elements  -->
     <div id="searchContainer"></div>
-
 </asp:Content>

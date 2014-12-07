@@ -825,14 +825,15 @@ function saveAccountChange() {
 }
 
 // Cancel changes go back to Project browser
-function cancelAccountChange() {
+function cancelAccountChange(i) {
     $("#accountMangement .input-project").val("");
     $("#txtAccFullname").val(_name);
     $("#inputUploadFile").val("");
     $("#inputFileName").html("");
     $("#tempProfileImg").attr("src", _avatar);
+    $("#tempProfileImg").css("width", 225);
     if (jcrop != null) jcrop.destroy();
-    showView(0);
+    showView(i);
 }
 
 // Get size from css

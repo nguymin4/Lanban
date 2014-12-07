@@ -1037,6 +1037,13 @@ function fetchBurnDownData() {
 
 //9.6 Team estimation factor
 function fetchTeamEstimationFactor() {
+    // Waiting While fetching data
+    var interval = setInterval(function () {
+        var fake = Math.round(Math.random() * 100) - 50;
+        gauge.refresh(fake);
+    }, 250);
+
+    // Fetching data
     $.ajax({
         url: "Handler/ChartHandler.ashx",
         data: {
@@ -1045,6 +1052,7 @@ function fetchTeamEstimationFactor() {
         },
         type: "get",
         success: function (result) {
+            clearInterval(interval);
             var data = result.split("$");
             var factor = (data[0] >= data[1]) ? 1 - (data[0] / data[1]) : (data[1] / data[0]) - 1;
             if (!isNaN(factor)) {
