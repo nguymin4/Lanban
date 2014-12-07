@@ -1,101 +1,119 @@
 ﻿using Microsoft.AspNet.SignalR;
 using System.Threading.Tasks;
 using System.Web.Security;
+using Lanban.AccessLayer;
 
 namespace Lanban.Hubs
 {
     // This Hub is for all client who are in the same kanban board
     public class NoteHub : Hub
     {
-        
+        UserAccess myUA = new UserAccess();
+        Model.UserModel sender;
+        string channelID;
+
         /********************************************/
         /* Sticky note */
         // Send new submitted note to other clients.
         public void SendInsertedNote(string swimlanePosition, string objtext)
         {
-            string channelID = GetChannelID();
+            GetChannelID();
             Clients.OthersInGroup(channelID).receiveInsertedNote(swimlanePosition, objtext);
         }
 
         // Delete note
         public void DeleteNote(string noteID)
         {
-            string channelID = GetChannelID();
+            GetChannelID();
             Clients.OthersInGroup(channelID).deleteNote(noteID);
         }
 
         // Update note content
         public void UpdateNote(string noteID, string title, string color)
         {
-            string channelID = GetChannelID();
+            GetChannelID();
             Clients.OthersInGroup(channelID).updateNote(noteID, title, color);
         }
 
         // Change position of a note
         public void ChangePosition(string noteID, string swimlanePosition, string position)
         {
-            string channelID = GetChannelID();
+            GetChannelID();
             Clients.OthersInGroup(channelID).changePosition(noteID, swimlanePosition, position);
         }
 
         // Change lane of a note
         public void ChangeLane(string noteID, string swimlanePosition, string position)
         {
-            string channelID = GetChannelID();
+            GetChannelID();
             Clients.OthersInGroup(channelID).changeLane(noteID, swimlanePosition, position);
         }
 
         /********************************************/
         /* Swimlane */
         // Insert a swimlane
-        public void InsertSwimlane(dynamic swimlane)
+        public async Task InsertSwimlane(dynamic swimlane)
         {
-            string channelID = GetChannelID();
-            Clients.OthersInGroup(channelID).insertSwimlane(swimlane);
+            await FetchData();
+            Clients.OthersInGroup(channelID).insertSwimlane(sender, swimlane);
         }
 
         // Update a swimlane
-        public void UpdateSwimlane(int swimlaneID, string name)
+        public async Task UpdateSwimlane(int swimlaneID, string name)
         {
-            string channelID = GetChannelID();
-            Clients.OthersInGroup(channelID).updateSwimlane(swimlaneID, name);
+            await FetchData();
+            Clients.OthersInGroup(channelID).updateSwimlane(sender, swimlaneID, name);
         }
 
         // Delete a swimlane
-        public void DeleteSwimlane(int swimlaneID)
+        public async Task DeleteSwimlane(int swimlaneID)
         {
-            string channelID = GetChannelID();
-            Clients.OthersInGroup(channelID).deleteSwimlane(swimlaneID);
+            await FetchData();
+            Clients.OthersInGroup(channelID).deleteSwimlane(sender, swimlaneID);
         }
 
         // Change position of a swimlane
-        public void ChangeSWPosition(int org, int target)
+        public async Task ChangeSWPosition(int org, int target)
         {
-            string channelID = GetChannelID();
-            Clients.OthersInGroup(channelID).changeSWPosition(org, target);
+            await FetchData();
+            Clients.OthersInGroup(channelID).changeSWPosition(sender, org, target);
         }
 
         // Change position of a swimlane
 
         /********************************************/
+        // Fetch data
+        // Fetch list of user will receive the message and data
+        protected async Task FetchData()
+        {
+            string username = Context.User.Identity.Name;
+            Task<Model.UserModel> task1 = Task.Run(() => myUA.getUserData(username));
+            Task task2 = Task.Run(() => GetChannelID());
+            sender = await task1;
+            await task2;
+        }
+
         // Join a channel
         public Task JoinChannel()
         {
-            return Groups.Add(Context.ConnectionId, GetChannelID());
+            GetChannelID();
+            return Groups.Add(Context.ConnectionId, channelID);
         }
 
         // Leave the channel
         public Task LeaveChannel()
         {
-            return Groups.Remove(Context.ConnectionId, GetChannelID());
+            GetChannelID();
+            return Groups.Remove(Context.ConnectionId, channelID);
         }
 
         // Get ProjectID aka ChannelID
-        public string GetChannelID()
+        public void GetChannelID()
         {
             var cookie = Context.RequestCookies[FormsAuthentication.FormsCookieName];
             var ticket = FormsAuthentication.Decrypt(cookie.Value);
-            return ticket.UserData;
+            channelID = ticket.UserData;
         }
+
     }
 }

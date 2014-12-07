@@ -1350,7 +1350,7 @@ function addSwimlane() {
             showSuccessDiaglog(0);
             resetSwForm();
             sw.Swimlane_ID = result;
-            
+
             // Add new swimlane to the board and swimlane management window
             addSWtoBoard(sw);
 
@@ -1365,7 +1365,7 @@ function addSWtoBoard(sw) {
     // Add swimlane in swimlane management window
     var objtext = getSwimlaneDisplay(sw.Name, sw.Swimlane_ID, sw.Type);
     $("#currentSwimlane").append(objtext);
-    
+
     // Add swimlane in kanban board
     var table = (sw.Type == 1) ? "backlog" : "task";
     var id = sw.Swimlane_ID;
@@ -1414,8 +1414,7 @@ function updateSWinBoard(id, name) {
     $(".swimlane[data-id='" + id + "'] .swName").html(name);
 
     // Update in the board
-    var th = $("#kanban th[data-id='" + id + "']");
-    $(".swName", th).html(name);
+    $("#kanban th[data-id='" + id + "'] .swName").html(name);
 }
 
 //11.5.1 Delete swimlane
@@ -1434,10 +1433,10 @@ function deleteSwimlane(id, confirm) {
             type: "post",
             success: function (result) {
                 showSuccessDiaglog(3);
-                
+
                 // Delete visual swimlane
                 deleteSWinBoard(id);
-               
+
                 // Send to other clients
                 proxyNote.invoke("deleteSwimlane", id);
             }
@@ -1607,26 +1606,39 @@ function init_NoteHub() {
         var note = lane.getElementsByClassName("note");
         $(target).insertBefore($(note[position]));
     });
-    
+
     /* Note */
     // Receive new swimlane
-    proxyNote.on("insertSwimlane", function (sw) {
+    proxyNote.on("insertSwimlane", function (sender, sw) {
+        if (sender.User_ID == userID) sender.Name = "You";
+        msgNewSw(sender, sw.Name);
         addSWtoBoard(sw);
     });
 
     // Update swimlane
-    proxyNote.on("updateSwimlane", function (id, name) {
+    proxyNote.on("updateSwimlane", function (sender, id, name) {
+        if (sender.User_ID == userID) sender.Name = "You";
+        var from = $("#kanban th[data-id='" + id + "'] .swName").html();
+        msgEditSw(sender, from, name);
         updateSWinBoard(id, name);
     });
 
     // Delete swimlane
-    proxyNote.on("deleteSwimlane", function (id) {
+    proxyNote.on("deleteSwimlane", function (sender, id) {
+        if (sender.User_ID == userID) sender.Name = "You";
+        var name = $("#kanban th[data-id='" + id + "'] .swName").html();
+        msgDeleteSw(sender, name);
         deleteSWinBoard(id);
     });
 
     // Receive new swimlane
-    proxyNote.on("changeSWPosition", function (org, target) {
+    proxyNote.on("changeSWPosition", function (sender, org, target) {
+        if (sender.User_ID == userID) sender.Name = "You";
+        var name = $("#kanban th:eq(" + org + ") .swName").html();
+        msgChangePosSw(sender, name);
+
         changeSwPosition(org, target);
+        // Update the position in swimlane management window
         showSwimlaneWindow();
     });
 
@@ -1634,6 +1646,38 @@ function init_NoteHub() {
     connNote.start().done(function () {
         proxyNote.invoke("joinChannel");
     });
+}
+/* Notification center */
+// New swimlane message
+function msgNewSw(sender, name) {
+    content = "<div class='noti-msg'><img src='" + sender.Avatar + "' class='noti-msg-avatar' />" +
+       "<div class='noti-msg-content'><span class='subject'>" + sender.Name + "</span> added new swimlane " +
+       "<i>" + name + "</i></div>";
+    pushNoti(content);
+}
+
+// Change name swimlane message
+function msgEditSw(sender, from, to) {
+    content = "<div class='noti-msg'><img src='" + sender.Avatar + "' class='noti-msg-avatar' />" +
+       "<div class='noti-msg-content'><span class='subject'>" + sender.Name + "</span> change a swimlane name from " +
+       "<i>" + from + "</i> to <i>" + to + "</i></div>";
+    pushNoti(content);
+}
+
+// Delete swimlane message
+function msgDeleteSw(sender, name) {
+    content = "<div class='noti-msg'><img src='" + sender.Avatar + "' class='noti-msg-avatar' />" +
+       "<div class='noti-msg-content'><span class='subject'>" + sender.Name + "</span> deleted swimlane" +
+       " <i>" + name + "</i></div>";
+    pushNoti(content);
+}
+
+// Change position swimlane message
+function msgChangePosSw(sender, name) {
+    content = "<div class='noti-msg'><img src='" + sender.Avatar + "' class='noti-msg-avatar' />" +
+        "<div class='noti-msg-content'><span class='subject'>" + sender.Name + "</span> changed position of swimlane " +
+        " <i>" + name + "</i></div>";
+    pushNoti(content);
 }
 
 // When the owner of the project delete the project

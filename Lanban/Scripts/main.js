@@ -227,13 +227,26 @@ function init_UserHub() {
 }
 
 /* Notification center */
+// Add new message to notification center
+function pushNoti(msg) {
+    $("#notiCenter").prepend(msg);
+    updateNotiIndicator();
+}
+
+// Update notification indicator
+function updateNotiIndicator() {
+    var msgNum = $("#notiIndicator").html();
+    if (msgNum == "") msgNum = 1;
+    else msgNum++;
+    $("#notiIndicator").html(msgNum).fadeIn("fast");
+}
+
 // New member added
 function msgAddUser(sender, newMem, project) {
     content = "<div class='noti-msg'><img src='" + sender.Avatar + "' class='noti-msg-avatar' />" +
         "<div class='noti-msg-content'><span class='subject'>" + sender.Name + "</span> added " +
         "<span class='target'>" + newMem + "</span> to <i>" + project + "</i></div>";
-    $("#notiCenter").prepend(content);
-    updateNotiIndicator();
+    pushNoti(content);
 }
 
 // Project updated or deleted
@@ -241,8 +254,7 @@ function msgProject(sender, context, project) {
     content = "<div class='noti-msg'><img src='" + sender.Avatar + "' class='noti-msg-avatar' />" +
         "<div class='noti-msg-content'><span class='subject'>" + sender.Name + "</span> " + context +
         " <i>" + project + "</i></div>";
-    $("#notiCenter").prepend(content);
-    updateNotiIndicator();
+    pushNoti(content);
 }
 
 // User is kicked
@@ -250,14 +262,5 @@ function msgOwnerKick(sender, project) {
     content = "<div class='noti-msg'><img src='" + sender.Avatar + "' class='noti-msg-avatar' />" +
        "<div class='noti-msg-content'><span class='subject'>" + sender.Name + "</span> kicked <strong> you </strong>" +
        " out of <i>" + project + "</i></div>";
-    $("#notiCenter").prepend(content);
-    updateNotiIndicator();
-}
-
-// Update notification
-function updateNotiIndicator() {
-    var msgNum = $("#notiIndicator").html();
-    if (msgNum == "") msgNum = 1;
-    else msgNum++;
-    $("#notiIndicator").html(msgNum).fadeIn("fast");
+    pushNoti(content);
 }

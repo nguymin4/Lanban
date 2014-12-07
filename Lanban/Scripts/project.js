@@ -648,7 +648,7 @@ function init_UserDragDrop() {
     }).disableSelection();
 }
 
-// Based on teh number of parameter
+// Based on the number of parameter
 // 1. Add project member to temp list
 // 2. Add project member to official list and update data in server
 function addMember(arg, projectID) {
