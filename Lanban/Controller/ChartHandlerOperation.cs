@@ -1,10 +1,8 @@
 ﻿using Lanban.AccessLayer;
 using Lanban.Model;
-using Newtonsoft.Json;
 using System;
 using System.Threading;
 using System.Web;
-using System.Web.SessionState;
 
 namespace Lanban
 {

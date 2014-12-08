@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-
-namespace Lanban.Model
+﻿namespace Lanban.Model
 {
     public class UserModel
     {

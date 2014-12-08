@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNet.SignalR;
+﻿using Lanban.AccessLayer;
+using Microsoft.AspNet.SignalR;
 using System.Threading.Tasks;
 using System.Web.Security;
-using Lanban.AccessLayer;
 
 namespace Lanban.Hubs
 {
@@ -83,7 +83,6 @@ namespace Lanban.Hubs
 
         /********************************************/
         // Fetch data
-        // Fetch list of user will receive the message and data
         protected async Task FetchData()
         {
             string username = Context.User.Identity.Name;

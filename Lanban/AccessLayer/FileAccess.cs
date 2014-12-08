@@ -79,7 +79,7 @@ namespace Lanban.AccessLayer
         // 2.9.b Get path of a file
         public string getFilePath(int fileID)
         {
-            myCommand.CommandText = "SELECT Path FROM Task_File WHERE File_ID=@fileID";
+            myCommand.CommandText = "SELECT TOP 1 Path FROM Task_File WHERE File_ID=@fileID";
             addParameter<int>("@fileID", SqlDbType.Int, fileID);
             string path = myCommand.ExecuteScalar().ToString();
             myCommand.Parameters.Clear();
@@ -89,7 +89,7 @@ namespace Lanban.AccessLayer
         // Get Task ID of the File
         public int getTaskID(int fileID)
         {
-            myCommand.CommandText = "SELECT Task_ID FROM Task_File WHERE File_ID = @fileID;";
+            myCommand.CommandText = "SELECT TOP 1 Task_ID FROM Task_File WHERE File_ID = @fileID;";
             addParameter<int>("@fileID", SqlDbType.Int, Convert.ToInt32(fileID));
             int result = Convert.ToInt32(myCommand.ExecuteScalar());
             myCommand.Parameters.Clear();

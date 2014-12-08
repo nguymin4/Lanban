@@ -1,10 +1,7 @@
 ﻿using Lanban.AccessLayer;
 using Microsoft.AspNet.SignalR;
-using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace Lanban.Hubs
 {

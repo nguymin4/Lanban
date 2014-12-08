@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNet.SignalR;
+﻿using Lanban.AccessLayer;
+using Microsoft.AspNet.SignalR;
+using System;
 using System.Threading.Tasks;
 using System.Web.Security;
-using Lanban.AccessLayer;
-using System;
 
 namespace Lanban.Hubs
 {

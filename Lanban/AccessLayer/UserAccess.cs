@@ -12,7 +12,7 @@ namespace Lanban.AccessLayer
         // Get User ID based on username
         public int getUserID(string username)
         {
-            myCommand.CommandText = "SELECT User_ID FROM Users WHERE Username = @username";
+            myCommand.CommandText = "SELECT TOP 1 User_ID FROM Users WHERE Username = @username";
             addParameter<string>("@username", SqlDbType.NVarChar, username);
             int result = Convert.ToInt32(myCommand.ExecuteScalar());
             myCommand.Parameters.Clear();
@@ -25,7 +25,7 @@ namespace Lanban.AccessLayer
             dynamic uid = id;
             string type = uid.GetType().ToString();
 
-            string command = "SELECT * FROM Users WHERE ";
+            string command = "SELECT TOP 1 * FROM Users WHERE ";
             if (type.Contains("String"))
             {
                 myCommand.CommandText = command + "Username = @username";
@@ -154,7 +154,7 @@ namespace Lanban.AccessLayer
         // Check whether a username is taken
         public string checkUsername(string username)
         {
-            myCommand.CommandText = "SELECT * FROM Users WHERE Username=@username";
+            myCommand.CommandText = "IF EXISTS (SELECT Username FROM Users WHERE Username=@username) SELECT 1 ELSE SELECT 0";
             addParameter<string>("@username", SqlDbType.VarChar, username);
             if (Convert.ToInt32(myCommand.ExecuteScalar()) == 0) return "";
             return "Existed";

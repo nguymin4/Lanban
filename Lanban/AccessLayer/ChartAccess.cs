@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System;
 using System.Data;
-using System.Threading;
 
 
 namespace Lanban.AccessLayer

@@ -1,5 +1,5 @@
-﻿using Lanban.Model;
-using Lanban.AccessLayer;
+﻿using Lanban.AccessLayer;
+using Lanban.Model;
 using Newtonsoft.Json;
 using System;
 using System.Threading;
