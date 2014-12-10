@@ -6,7 +6,7 @@ using System.Data;
 
 namespace Lanban.AccessLayer
 {
-    /* Working with task comments */
+    /* Working with Charts */
     public class ChartAccess : Query
     {
         string[,] colorHex = {

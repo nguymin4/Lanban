@@ -495,6 +495,7 @@ function shareProject(id, name) {
         success: function (result) {
             $(".diaglog.success").fadeOut(100);
             $("#userList").html(result);
+            $("#userList .person[data-id='" + userID + "'] .person-remove").remove();
         }
     });
 }

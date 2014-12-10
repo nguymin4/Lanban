@@ -210,7 +210,7 @@ function init_UserHub() {
         }
 
         // If the user in board page then redirect back to project page
-        if ((context == "Deleted") && (document.getElementById("kanbanBoard") != null))
+        if ((context == "Deleted") && (document.getElementById("kanban") != null))
             redirectAfterDeleting(pid, sender.Name, "deleted");
     });
 
@@ -218,7 +218,7 @@ function init_UserHub() {
         msgOwnerKick(sender, projectName);
 
         // If the user in board page then redirect back to project page
-        if (document.getElementById("kanbanBoard") !=  null)
+        if (document.getElementById("kanban") !=  null)
             redirectAfterDeleting(pid, sender.Name, "kicked you out of");
     });
 

@@ -34,11 +34,12 @@ namespace Lanban
             // Login - temporary for fast testing
             if (Session["user"] == null)
             {
-                Query query = new Query();
-                user = query.login("luosimin", "iloveyou");
-                Session["user"] = user;
-                Session["userID"] = user.User_ID;
-                query.Dipose();
+                //Query query = new Query();
+                //user = query.login("nguymin4", "");
+                //Session["user"] = user;
+                //Session["userID"] = user.User_ID;
+                //query.Dipose();
+                Response.Redirect("Login.aspx");
             }
             else
             {
