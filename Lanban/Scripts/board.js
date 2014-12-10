@@ -479,11 +479,24 @@ function searchAssignee(searchBox, type) {
 function addAssignee(obj, type) {
     var id = obj.getAttribute("data-id");
     var objtext = "<div class='assignee-name-active' data-id='" + id + "' onclick='removeAssignee(this)'>" + obj.innerHTML + "</div>";
-    var searchBox = document.getElementById(type + "Assign").getElementsByTagName("input")[0];
-    $(objtext).insertBefore($(searchBox));
-    $(searchBox).val("");
-    searchBox.focus();
-    assigneeChange = true;
+    var container = $("#" + type + "Assign");
+    if (!IsAssigned(id, container)) {
+        var searchBox = $("input:eq(0)", container);
+        $(objtext).insertBefore($(searchBox));
+        assigneeChange = true;
+    }
+
+    // Reset search box
+    $(searchBox).val("").focus();
+}
+
+// Find out whether the user had been assigned to that task/backlog yet
+function IsAssigned(userID, container) {
+    var users = $(".assignee-name-active", container);
+    for (var i = 0; i < users.length; i++) {
+        if ($(users[i]).attr("data-id") == userID) return true;
+    }
+    return false;
 }
 
 // When click on active assignee then it's removed
@@ -1324,6 +1337,7 @@ function editSwimlane(id) {
     $(".input-sw.ddlType").val($(sw).attr("data-type")).attr("disabled", "disabled");
     $(".input-sw.ddlDataStatus").val($(sw).attr("data-status")).attr("disabled", "disabled");
     $("#btnAddSw").val("Save").attr("onclick", "updateSwimlane(" + id + ")");
+    $("#btnCancelSw").val("Cancel").attr("onclick", "resetSwForm()");
 }
 
 //11.2.2 Reset swimlane form
@@ -1332,6 +1346,7 @@ function resetSwForm() {
     $(".input-sw.ddlType").val("1").removeAttr("disabled");
     $(".input-sw.ddlDataStatus").val("Standby").removeAttr("disabled");
     $("#btnAddSw").val("Add").attr("onclick", "addSwimlane()");
+    $("#btnCancelSw").val("Close").attr("onclick", "showView(0); resetSwForm();");
 }
 
 //11.3.1 Add new swimlane
@@ -1647,6 +1662,7 @@ function init_NoteHub() {
         proxyNote.invoke("joinChannel");
     });
 }
+
 /* Notification center */
 // New swimlane message
 function msgNewSw(sender, name) {

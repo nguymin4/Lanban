@@ -120,6 +120,5 @@ namespace Lanban.AccessLayer
             return comment;
         }
 
-        
     }
 }

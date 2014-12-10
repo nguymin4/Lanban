@@ -94,7 +94,7 @@ namespace Lanban
         //a.2 Get Data_status field of a swimlane in Swimlane table
         protected string getDataStatus(string swimlane_id)
         {
-            myCommand.CommandText = "SELECT TOP 1 Data_status FROM Swimlane WHERE Swimlane_ID=" + swimlane_id;
+            myCommand.CommandText = "SELECT Data_status FROM Swimlane WHERE Swimlane_ID=" + swimlane_id;
             return myCommand.ExecuteScalar().ToString();
         }
 
@@ -115,7 +115,7 @@ namespace Lanban
         //a.5 Get projectID of an item with itemID
         public int getProjectID(int itemID, string type)
         {
-            myCommand.CommandText = "SELECT TOP 1 Project_ID FROM " + type + " WHERE " + type + "_ID = @itemID";
+            myCommand.CommandText = "SELECT Project_ID FROM " + type + " WHERE " + type + "_ID = @itemID";
             addParameter<int>("@itemID", SqlDbType.Int, itemID);
             return Convert.ToInt32(myCommand.ExecuteScalar());
         }
@@ -159,7 +159,7 @@ namespace Lanban
         /*4. Login page */
         public UserModel login(string username, string password)
         {
-            myCommand.CommandText = "SELECT TOP 1 * FROM Users WHERE Username = @username";
+            myCommand.CommandText = "SELECT * FROM Users WHERE Username = @username";
             addParameter<string>("@username", SqlDbType.VarChar, username);
             myReader = myCommand.ExecuteReader();
             UserModel user = null;

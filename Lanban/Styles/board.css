@@ -342,6 +342,10 @@ div.assignee-name-active {
         margin-right: 10px;
     }
 
+    .chart-box .filter-container {
+        width: 500px;
+    }
+
 .chart-box .button.medium {
     line-height: 28px;
     height: 30px;
@@ -361,7 +365,7 @@ div.assignee-name-active {
 }
 
 #gaugeTable {
-    width: 240px;
+    width: 250px;
     margin: 10px auto;
     border-collapse: collapse;
     border: solid 1px white;
@@ -375,7 +379,7 @@ div.assignee-name-active {
     font-size: 18px;
     width: 120px;
     border: solid 1px white;
-    min-height: 32px;
+    height: 32px;
 }
 
 /* Comment box*/

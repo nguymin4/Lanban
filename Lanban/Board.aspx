@@ -69,24 +69,28 @@
 
             <div class="chart-box">
                 <h3>Burn-up Chart </h3>
-                <div>
-                    From: <asp:TextBox runat="server" ID="txtBUFrom" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
-                    To: <asp:TextBox runat="server" ID="txtBUTo" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
+                <div class="filter-container">
+                    From:
+                    <asp:TextBox runat="server" ID="txtBUFrom" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
+                    To:
+                    <asp:TextBox runat="server" ID="txtBUTo" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
                     <input type="button" id="btnBUFilter" class="medium button" value="Filter" onclick="filterBurnUp()" />
                 </div>
-                
+
                 <div class="loading-spinner"></div>
                 <canvas class="chart" id="burnupChart" width="500" height="300"></canvas>
             </div>
 
             <div class="chart-box">
                 <h3>Burn-down Chart</h3>
-                <div>
-                    From: <asp:TextBox runat="server" ID="txtBDFrom" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
-                    To: <asp:TextBox runat="server" ID="txtBDTo" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
+                <div class="filter-container">
+                    From:
+                    <asp:TextBox runat="server" ID="txtBDFrom" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
+                    To:
+                    <asp:TextBox runat="server" ID="txtBDTo" CssClass="inputBox date" placeholder="dd.mm.yyyy"></asp:TextBox>
                     <input type="button" id="btnBDFilter" class="medium button" value="Filter" onclick="filterBurnDown()" />
                 </div>
-                
+
                 <div class="loading-spinner"></div>
                 <canvas class="chart" id="burndownChart" width="500" height="300"></canvas>
             </div>
@@ -105,7 +109,8 @@
                     <td>Data status</td>
                 </tr>
                 <tr>
-                    <td><input class="input-sw txtName" type="text" /></td>
+                    <td>
+                        <input class="input-sw txtName" type="text" /></td>
                     <td>
                         <select class="input-sw ddlType">
                             <option value="1">Backlog</option>
@@ -120,8 +125,8 @@
                     </td>
                 </tr>
             </table>
-            <input id="btnAddSw" type="button" class="button medium btnSave" value="Add" onclick="addSwimlane()"/>
-            <input id="btnCancelSw" type="button" class="button medium btnCancel" value="Clear" onclick="resetSwForm()" />
+            <input id="btnAddSw" type="button" class="button medium btnSave" value="Add" onclick="addSwimlane()" />
+            <input id="btnCancelSw" type="button" class="button medium btnCancel" value="Close" onclick="showView(0); resetSwForm()" />
             <hr />
             <ul id="currentSwimlane"></ul>
         </div>
@@ -240,11 +245,13 @@
                     <table class="tblAddData">
                         <tr>
                             <td>Backlog:</td>
-                            <td><asp:DropDownList runat="server" ID="ddlTaskBacklog" Width="200"></asp:DropDownList></td>
+                            <td>
+                                <asp:DropDownList runat="server" ID="ddlTaskBacklog" Width="200"></asp:DropDownList></td>
                         </tr>
                         <tr>
                             <td>Color:</td>
-                            <td><asp:DropDownList runat="server" ID="ddlTaskColor"></asp:DropDownList></td>
+                            <td>
+                                <asp:DropDownList runat="server" ID="ddlTaskColor"></asp:DropDownList></td>
                         </tr>
                         <tr>
                             <td>Work estimation:</td>
@@ -312,7 +319,7 @@
                     </div>
                     <hr />
                     <div id="uploadProgressContainer">
-                        <div id ="uploadProgress"></div>
+                        <div id="uploadProgress"></div>
                     </div>
                     <div id="fileList"></div>
                 </div>
