@@ -735,6 +735,7 @@ function saveItem(itemID, type) {
     else {
         item = new Task();
         item.Task_ID = itemID;
+        document.getElementById(type + "." + itemID).setAttribute("data-backlog-id", item.Backlog_ID);
     }
 
     var saveData = $.ajax({
@@ -781,6 +782,11 @@ function deleteItem(itemID, type) {
     var id = type + "." + itemID;
     var note = document.getElementById(id);
     note.parentElement.removeChild(note);
+
+    // Remove all task belongs to the backlog if the backlog is deleted
+    if (type.toLowerCase() == "backlog") {
+        $(".note[data-backlog-id='" + itemID + "']").remove();
+    }
 
     $.ajax({
         url: "Handler/ItemHandler.ashx",
