@@ -11,7 +11,7 @@ namespace Lanban.AccessLayer
     {
         string[,] colorHex = {
                                 {"#ff9898", "#ffc864", "#ffff95", "#98ff98", "#caffff", "#adadff", "#d598ff" },
-                                { "#ff4b4b", "#ffa500", "#ffff4b", "#4bff4b", "#80ffff", "#6464ff", "#b64bff" }
+                                {"#ff4b4b", "#ffa500", "#ffff4b", "#4bff4b", "#80ffff", "#6464ff", "#b64bff" }
                              };
 
         public string getPieChart(int projectID)
@@ -199,16 +199,5 @@ namespace Lanban.AccessLayer
             return result;
         }
 
-        protected int[] getOptimumLine(int startPoint, int endPoint, int range)
-        {
-            int[] point = new int[range + 2];
-            point[0] = startPoint;
-            point[range + 1] = endPoint;
-            double a = (endPoint - startPoint) / range;
-            double b = startPoint;
-            for (int i = 1; i <= range; i++)
-                point[i] = Convert.ToInt32(a * i + b);
-            return point;
-        }
     }
 }

@@ -6,7 +6,6 @@ using System.Text;
 
 namespace Lanban.AccessLayer
 {
-    /* Working with task comments */
     public class FileAccess: Query
     {
         // Check whether a file belongs to a task

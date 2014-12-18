@@ -27,10 +27,9 @@ function showView(index) {
     }
 }
 
-
+/*****************************************************************************/
 var _avatar, _name;
 var errorPage = "/Error/error.html";
-
 $(window).ready(function () {
     var profile = $("#profile");
     _avatar = profile.attr("src");
@@ -61,13 +60,13 @@ $(window).ready(function () {
     init_UserHub();
 });
 
-
 // If error happens with ajax then redirect to error page
 $(document).ajaxError(function (event, req, setting) {
     console.log(req.status);
     if (req.status == 401) window.location.href = "Login.aspx";
     else window.location.href = errorPage;
 });
+
 
 /*****************************************************************************/
 // Unload page loading spinner
@@ -109,7 +108,6 @@ function initNotificationCenter() {
     });
 }
 
-
 /*****************************************************************************/
 // Support function for both board.js and project.js
 // Parse JSonDate to dd.mm.yyyy
@@ -134,7 +132,6 @@ function formatDate(date) {
     }
     return date;
 }
-
 
 /*****************************************************************************/
 /* Diaglog */

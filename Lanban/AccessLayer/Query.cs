@@ -51,13 +51,7 @@ namespace Lanban
             myCommand.Parameters[parameter].Value = value;
         }
 
-        //2.7.1 Helper 2.7
-        protected string getAssigneeDisplay(string id, string name)
-        {
-            string display = "<div class='assignee-name-active' data-id='" + id + "' onclick='removeAssignee(this)'>" + name + "</div>";
-            return display;
-        }
-
+        // Get the visual display of an User object
         public string getPersonContainer<T>(T obj, bool removeable, int projectID = 0)
         {
             StringBuilder result = new StringBuilder();
@@ -84,35 +78,28 @@ namespace Lanban
             return result.ToString();
         }
 
-        //a.1.1 Helper a.1
-        protected string getAssigneeResultDisplay(string ID, string name, string type)
-        {
-            string display = "<div class='resultline' data-id='" + ID + "' onclick=\"addAssignee(this,'" + type + "')\">" + name + "</div>";
-            return display;
-        }
-
-        //a.2 Get Data_status field of a swimlane in Swimlane table
+        // Get Data_status field of a swimlane in Swimlane table
         protected string getDataStatus(string swimlane_id)
         {
             myCommand.CommandText = "SELECT Data_status FROM Swimlane WHERE Swimlane_ID=" + swimlane_id;
             return myCommand.ExecuteScalar().ToString();
         }
 
-        //a.3 Get number of item in a swimlane
+        // Get number of item in a swimlane
         protected int countItem(int swimlane_id, string type)
         {
             myCommand.CommandText = "SELECT COUNT(*) FROM " + type + " WHERE Swimlane_ID=" + swimlane_id;
             return Convert.ToInt32(myCommand.ExecuteScalar());
         }
 
-        //a.4 Get relative id of a type
+        // Get relative id of a type
         protected int getRelativeID(int project_id, string type)
         {
             myCommand.CommandText = "SELECT COUNT(*) FROM " + type + " WHERE Project_ID=" + project_id;
             return Convert.ToInt32(myCommand.ExecuteScalar());
         }
 
-        //a.5 Get projectID of an item with itemID
+        // Get projectID of an item with itemID
         public int getProjectID(int itemID, string type)
         {
             myCommand.CommandText = "SELECT Project_ID FROM " + type + " WHERE " + type + "_ID = @itemID";
@@ -132,7 +119,6 @@ namespace Lanban
             return result;
         }
 
-
         // Check whether the user is authorized to watch and work on that project
         public bool IsProjectMember(int projectID, int userID, int role)
         {
@@ -146,7 +132,7 @@ namespace Lanban
             return result;
         }
 
-        // Convert a reader to object
+        // Convert a reader to Data model
         public T SerializeTo<T>(SqlDataReader reader) {
             var result = new Dictionary<string, object>();
             for (int i = 0; i < reader.FieldCount; i++)

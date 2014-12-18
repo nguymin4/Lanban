@@ -7,7 +7,6 @@ using System.Text;
 
 namespace Lanban.AccessLayer
 {
-    /* Working with task comments */
     public class ItemAccess: Query
     {
         

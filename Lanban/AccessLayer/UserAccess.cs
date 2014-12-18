@@ -6,7 +6,6 @@ using System.Text;
 
 namespace Lanban.AccessLayer
 {
-    /* Working with task comments */
     public class UserAccess : Query
     {
         // Get User ID based on username
@@ -76,8 +75,12 @@ namespace Lanban.AccessLayer
             StringBuilder result = new StringBuilder();
             myReader = myCommand.ExecuteReader();
             while (myReader.Read())
-                result.Append(getAssigneeDisplay(myReader[0].ToString(), myReader[1].ToString()));
-            
+            {
+                string display = "<div class='assignee-name-active' data-id='" + myReader[0] + 
+                    "' onclick='removeAssignee(this)'>" + myReader[1] + "</div>";
+                result.Append(display);
+            }
+                
             myReader.Close();
             myCommand.Parameters.Clear();
             return result.ToString();
@@ -98,7 +101,9 @@ namespace Lanban.AccessLayer
             {
                 while (available)
                 {
-                    result.Append(getAssigneeResultDisplay(myReader[0].ToString(), myReader[1].ToString(), type));
+                    string display = "<div class='resultline' data-id='" + myReader[0] + 
+                        "' onclick=\"addAssignee(this,'" + type + "')\">" + myReader[1] + "</div>";
+                    result.Append(display);
                     available = myReader.Read();
                 }
             }

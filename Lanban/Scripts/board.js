@@ -484,6 +484,7 @@ function addAssignee(obj, type) {
         var searchBox = $("input:eq(0)", container);
         $(objtext).insertBefore($(searchBox));
         assigneeChange = true;
+        $(".window-content").perfectScrollbar("update");
     }
 
     // Reset search box

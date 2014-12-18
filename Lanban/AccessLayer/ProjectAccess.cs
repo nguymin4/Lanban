@@ -7,10 +7,8 @@ using System.Text;
 
 namespace Lanban.AccessLayer
 {
-    /* Working with task comments */
     public class ProjectAccess : Query
     {
-        /*5. Project page */
         // 5.1 Fetch project list that a user has been joining 
         public void fetchProject(int userID, int role)
         {
