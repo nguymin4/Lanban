@@ -1,7 +1,7 @@
 Lanban
 ======
 <h3>Kanban board web application for Lahti University of Applied Sciences (LAMK)</h3>
-<h2>1.	Introduction</h2>
+<h2>Introduction</h2>
 <p>This web application development is a visual management tool which was developed as OSS and dedicated to LAMK. It can be used to control the flow of teamwork. With the help of this tool, team is able to see who is working for which task, thus enable better visual communication over team’s overall work in a time box. Further the tool would be enabling better visibility to see how the work is progressing over time and illustrating received business value that is created in a project.</p></br>
 <p><strong>Value of the application:</strong> LAMK project teams can utilize agile methodology with lean approach. Electronic Kanban board
 would bring visibility to not only current work and team level but also to individual level: who is doing
@@ -11,7 +11,7 @@ working. The board also works as basis for every day standup meeting content (Sh
 <img src="https://github.com/nguymin4/Lanban/blob/master/Lanban/Uploads/Project_1/screenshot.jpg" />
 
 
-<h2>2. Main Feature</h2>
+<h2>Main Feature</h2>
 1) Working kanban board (default 5 swimlanes). 
 Possible to add custom swimlanes and modifying them.
 
@@ -22,7 +22,7 @@ Possible to add custom swimlanes and modifying them.
 - Illustrate Burn up data chart (Business value cumulated)
 - Illustrate Team estimation factor
 
-3) Attaching documents and comments attached to tasks in kanban board
+3) Attaching documents and comments to tasks in kanban board
 - Multiple uploading files with various file types
 - Real-time chatting in comments section
  
@@ -30,7 +30,7 @@ Possible to add custom swimlanes and modifying them.
 
 5) User's account management (Display name, Profile picture, Password)
 
-<h2>3.	Platform and Technology</h2>
+<h2>Platform and Technology</h2>
 The project is developed in ASP.NET with C#
 
 <strong>Prerequisites - Server side:</strong></br>
@@ -45,7 +45,7 @@ The project is developed in ASP.NET with C#
     <li>Browsers: Internet Explorer 10+, Firefox 20+, Chrome 20+</li>
 </ul>
 
-<h2>4.	Database instruction</h2>
+<h2>Database instruction</h2>
 <h4>List of tables</h4>
 <table>
     <tr>
@@ -119,7 +119,7 @@ The project is developed in ASP.NET with C#
 </ul>
 
 
-<h2>5.	Preferences</h2>
+<h2>Preferences</h2>
 List of used C# libraries:
 <ol>
     <li>JSON.Net</li>
