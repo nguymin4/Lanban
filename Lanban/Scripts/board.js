@@ -1436,7 +1436,7 @@ function updateSWinBoard(id, name) {
     $(".swimlane[data-id='" + id + "'] .swName").html(name);
 
     // Update in the board
-    $("#kanban th[data-id='" + id + "'] .swName").html(name);
+    $("#kanban th[data-id='" + id + "'] .swName").html(name).attr("title", name);
 }
 
 //11.5.1 Delete swimlane
