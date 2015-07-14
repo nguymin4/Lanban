@@ -7,7 +7,11 @@ would bring visibility to not only current work and team level but also to indiv
 what and how much “points” have been earned within a sprint. Team leaders or “scrum masters”
 could see directly how efficiently the team is working and where to find the obstacles or barriers for
 working. The board also works as basis for every day standup meeting content (Show-and-tell)</p>
-<img src="https://github.com/nguymin4/Lanban/blob/master/Lanban/Uploads/Project_1/screenshot.jpg" />
+<img src="https://github.com/nguymin4/Lanban/blob/master/Lanban/Uploads/Project_5/screenshot.jpg" />
+<br />
+<img src="https://github.com/nguymin4/Lanban/blob/master/Lanban/images/Chart-Demo.png" />
+<br />
+<img src="https://github.com/nguymin4/Lanban/blob/master/Lanban/images/project.png" />
 
 
 <h2>Main Feature</h2>
