@@ -11,7 +11,7 @@ working. The board also works as basis for every day standup meeting content (Sh
 <br />
 <img src="https://github.com/nguymin4/Lanban/blob/master/Lanban/images/Chart-Demo.png" />
 <br />
-<img src="https://github.com/nguymin4/Lanban/blob/master/Lanban/images/Project.png" />
+<img src="https://github.com/nguymin4/Lanban/blob/master/Lanban/images/project.png" />
 
 
 <h2>Main Feature</h2>
