@@ -1617,8 +1617,11 @@ function init_NoteHub() {
         var i;
         for (i = 0; i < note.length; i++)
             if (note[i].getAttribute("id") == noteID) break;
-        if (i > position) $(target).insertBefore($(note[position]));
-        else $(target).insertAfter($(note[position]));
+        if (note.length == 0) $(lane).append(target);
+        else {
+            if (i > position) $(target).insertBefore($(note[position]));
+            else $(target).insertAfter($(note[position-1]));
+        }
     });
 
     // Change lane

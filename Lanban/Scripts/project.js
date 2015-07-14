@@ -259,7 +259,7 @@ function saveSupervisor(id, clear) {
                 projectID: id,
                 supervisorID: $(supervisor[i]).attr("data-id")
             },
-            type: "get"
+            type: "post"
         }));
     }
     // Whether clear container after save
