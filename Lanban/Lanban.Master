@@ -3,15 +3,11 @@
 <html>
 <head runat="server">
     <title></title>
-    <script src="Scripts/jquery-2.1.1.min.js" type="text/javascript"></script>
-    <script src="Scripts/jquery-ui.min.js" type="text/javascript"></script>
-    <script src="Scripts/perfect-scrollbar.min.js" type="text/javascript"></script>
-    <script src="Scripts/jquery.signalR-2.1.2.min.js" type="text/javascript"></script>
-    <script src="Scripts/main.js" type="text/javascript"></script>
     <link href="Styles/main.css" rel="stylesheet" />
     <link href="Styles/jquery-ui.min.css" rel="stylesheet" />
     <link href="Styles/perfect-scrollbar.min.css" rel="stylesheet" />
-    <%-- Part 1: Javascript files and Stylesheet files for each page --%>
+
+    <%-- Part 1: Stylesheet files for each page --%>
     <asp:ContentPlaceHolder ID="contentHead" runat="server"></asp:ContentPlaceHolder>
     <%-- End Part 1: --%>
 </head>
@@ -74,5 +70,12 @@
         </div>
         <%-- End Part 3: --%>
     </form>
+    <script src="Scripts/jquery-2.1.1.min.js" type="text/javascript"></script>
+    <script src="Scripts/jquery-ui.min.js" type="text/javascript"></script>
+    <script src="Scripts/perfect-scrollbar.min.js" type="text/javascript"></script>
+    <script src="Scripts/jquery.signalR-2.1.2.min.js" type="text/javascript"></script>
+    <script src="Scripts/main.js" type="text/javascript"></script>
+    <%-- Part 4: Scripts --%>
+    <asp:ContentPlaceHolder ID="scriptContent" runat="server"></asp:ContentPlaceHolder>
 </body>
 </html>

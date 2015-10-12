@@ -10,7 +10,7 @@ namespace Lanban
 {
     public class Query
     {
-        string myConnectionString = "Data Source=HP-ELITEBOOK;Initial Catalog=Lanban;Integrated Security=True";
+        string myConnectionString = "";
         protected SqlConnection myConnection;
         protected SqlCommand myCommand;
         protected SqlDataAdapter myAdapter;

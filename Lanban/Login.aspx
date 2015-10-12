@@ -3,8 +3,6 @@
 <html>
 <head runat="server">
     <title>Login - Welcome to Lanban</title>
-    <script src="Scripts/jquery-2.1.1.min.js"></script>
-    <script src="Scripts/login.js"></script>
     <link href="Styles/login.css" rel="stylesheet" />
 </head>
 <body>
@@ -35,7 +33,7 @@
                 </table>
                 <asp:Label runat="server" ID="lblMsg" CssClass="required"></asp:Label>
                 <asp:Button runat="server" ID="btnLogin" CssClass="button" Text="Login" OnClick="btnLogin_Click" />
-                <input type="button" runat="server" id="btnLRegister" class="button" value="Register" onclick="openRegister(true)" />
+                <input type="button" runat="server" id="btnLRegister" class="button" value="Register" onclick="openRegister(true)" style="display: none;" />
             </div>
             <div id="register" class="hidden">
                 <table>
@@ -71,5 +69,7 @@
             </div>
         </div>
     </form>
+    <script src="Scripts/jquery-2.1.1.min.js"></script>
+    <script src="Scripts/login.js"></script>
 </body>
 </html>

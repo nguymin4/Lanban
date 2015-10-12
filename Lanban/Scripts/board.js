@@ -273,35 +273,38 @@ function Task() {
 /***************************************************/
 /*1. Create new sticky note and save it to database*/
 function insertItem(type) {
-    showProcessingDiaglog();
     var item = (type == "backlog") ? new Backlog() : new Task();
+    if (type == "task" && !item.Backlog_ID) showErrorDialog(2);
+    else {
+        showProcessingDiaglog();
+        $.ajax({
+            url: "Handler/ItemHandler.ashx",
+            data: {
+                action: "insertItem",
+                projectID: projectID,
+                type: type,
+                item: JSON.stringify(item)
+            },
+            type: "post",
+            success: function (result) {
+                // Link assignee to the created item
+                var deferreds = saveAssignee(result.substring(0, result.indexOf(".")), type, true);
+                $.when(deferreds).done(function () {
+                    showSuccessDiaglog(0);
+                });
 
-    $.ajax({
-        url: "Handler/ItemHandler.ashx",
-        data: {
-            action: "insertItem",
-            projectID: projectID,
-            type: type,
-            item: JSON.stringify(item)
-        },
-        type: "post",
-        success: function (result) {
-            // Link assignee to the created item
-            var deferreds = saveAssignee(result.substring(0, result.indexOf(".")), type, true);
-            $.when(deferreds).done(function () {
-                showSuccessDiaglog(0);
-            });
+                // Display created item in board
+                var objtext = getVisualNote(result, type, item);
+                var swimlanePosition = parseInt($("#txtSwimlanePosition").val());
+                $(objtext).appendTo($(".connected")[swimlanePosition]);
+                (type == "backlog") ? clearBacklogWindow() : clearTaskWindow();
 
-            // Display created item in board
-            var objtext = getVisualNote(result, type, item);
-            var swimlanePosition = parseInt($("#txtSwimlanePosition").val());
-            $(objtext).appendTo($(".connected")[swimlanePosition]);
-            (type == "backlog") ? clearBacklogWindow() : clearTaskWindow();
-
-            // Send to other clients
-            proxyNote.invoke("sendInsertedNote", swimlanePosition, objtext);
-        }
-    });
+                // Send to other clients
+                proxyNote.invoke("sendInsertedNote", swimlanePosition, objtext);
+            }
+        });
+    }
+    
 }
 
 //Create visual note
@@ -638,10 +641,10 @@ function deleteTaskComment(commentID) {
         type: "get",
         success: function (message) {
             if (message == "Success") proxyTC.invoke("deleteComment", commentID);
-            else window.location.href = "/404/404.html";
+            //else window.location.href = "/404/404.html";
         }
     });
-    var obj = document.getElementById("comment." + commentID);
+    var obj = document.getElementById("comment-" + commentID);
     obj.parentElement.removeChild(obj);
 
     // Delete comment in other clients' view
@@ -650,7 +653,7 @@ function deleteTaskComment(commentID) {
 
 /*4.3.3 Fetch a comment to input field to edit*/
 function fetchTaskComment(commentID) {
-    var comment = document.getElementById("comment." + commentID);
+    var comment = document.getElementById("comment-" + commentID);
     var content = comment.getElementsByClassName("comment-content")[0].innerHTML;
     content = content.replace(/<br>/g, '\n');
     $("#txtTaskComment").val(content);
@@ -676,10 +679,10 @@ function updateTaskComment(commentID) {
                 var taskID = $("#btnSubmitComment").attr("data-task-id");
                 proxyTC.invoke("updateComment", commentID, contentText);
             }
-            else window.location.href = "/404/404.html";
+            //else window.location.href = "/404/404.html";
         }
     });
-    var comment = document.getElementById("comment." + commentID);
+    var comment = document.getElementById("comment-" + commentID);
     var content = comment.getElementsByClassName("comment-content")[0];
     content.innerHTML = contentText;
     $("#txtTaskComment").val("");
@@ -707,13 +710,18 @@ function submitTaskComment() {
         type: "post",
         success: function (id) {
             var content = $("#txtTaskComment").val().replace(new RegExp('\r?\n', 'g'), '<br />');
-            var objtext = "<div class='comment-box' id='comment." + id + "'><div class='comment-panel'>" +
+            var objtext = "<div class='comment-box' id='comment-" + id + "'><div class='comment-panel'>" +
             "<img class='comment-profile' title='" + _name + "' src='" + _avatar + "'></div>" +
             "<div class='comment-container'><div class='comment-content'>" + content + "</div><div class='comment-footer'>" +
             "<div class='comment-button' title='Edit comment' onclick='fetchTaskComment(" + id + ")'></div>" +
             "<div class='comment-button' title='Delete comment' onclick='deleteTaskComment(" + id + ")'></div>" +
             "</div></div>";
-            $("#commentBox").append(objtext);
+            var temp = $(objtext);
+            $(".comment-panel", temp).css({
+                "float": "right",
+                "margin-right": "10px"
+            });
+            $("#commentBox").append(temp);
             $("#commentBox").scrollTop(document.getElementById("commentBox").scrollHeight);
             $("#txtTaskComment").val("");
 
@@ -1533,9 +1541,13 @@ function init_TaskCommentHub() {
     proxyTC.on("receiveSubmittedComment", function (taskID, uid, msgObj) {
         var currentTask = $("#taskWindow").attr("data-task-id");
         if (currentTask == taskID) {
-            $("#commentBox").append(msgObj);
-            if (userID != uid)
-                $(msgObj).remove($(".comment-footer"), false);
+            var temp = $(msgObj);
+            if (userID != uid) {
+                $(".comment-footer", temp).remove();
+                $(".comment-panel", temp).attr("style", "");
+            }
+               
+            $("#commentBox").append(temp);
 
             $("#commentBox").scrollTop(document.getElementById("commentBox").scrollHeight);
         }
@@ -1543,7 +1555,7 @@ function init_TaskCommentHub() {
 
     // Delete a comment
     proxyTC.on("deleteComment", function (commentID) {
-        var obj = document.getElementById("comment." + commentID);
+        var obj = document.getElementById("comment-" + commentID);
         $(obj).remove();
         $("#commentBox").scrollTop(document.getElementById("commentBox").scrollHeight);
     });
@@ -1552,7 +1564,7 @@ function init_TaskCommentHub() {
     proxyTC.on("updateComment", function (taskID, commentID, content) {
         var currentTask = $("#taskWindow").attr("data-task-id");
         if (currentTask == taskID) {
-            var comment = document.getElementById("comment." + commentID);
+            var comment = document.getElementById("comment-" + commentID);
             comment.getElementsByClassName("comment-content")[0].innerHTML = content;
         }
     });

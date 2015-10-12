@@ -19,6 +19,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -169,8 +170,6 @@
     <Content Include="Styles\main.css" />
     <Content Include="Styles\perfect-scrollbar.min.css" />
     <Content Include="Styles\project.css" />
-    <Content Include="Uploads\Project_1\screenshot.jpg" />
-    <Content Include="Uploads\Project_2\screenshot.jpg" />
     <Content Include="Uploads\User\281115_30759306.jpg" />
     <Content Include="Uploads\User\_79G2227.jpg" />
     <Content Include="Web.config">
@@ -266,6 +265,7 @@
     <Content Include="Handler\ProjectHandler.ashx" />
     <Content Include="Handler\UserHandler.ashx" />
     <Content Include="Handler\SwimlaneHandler.ashx" />
+    <None Include="Properties\PublishProfiles\kanban-lamk.pubxml" />
     <None Include="Properties\PublishProfiles\nguymin4 - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\nguymin4 - Web Deploy.pubxml" />
     <None Include="Web.Debug.config">
@@ -273,6 +273,7 @@
     </None>
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup />

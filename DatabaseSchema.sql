@@ -1102,7 +1102,7 @@ ALTER TABLE [dbo].[Task]
  REFERENCES 
    [dbo].[Swimlane]     ([Swimlane_ID])
     ON DELETE NO ACTION
-    ON UPDATE CASCADE
+    ON UPDATE NO ACTION
 
 GO
 

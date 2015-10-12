@@ -90,7 +90,7 @@ namespace Lanban
             // Send project list in JSON to client for further processing
             Task task2 = Task.Run(() =>
             {
-                StringBuilder projectList = new StringBuilder("projectList = ");
+                StringBuilder projectList = new StringBuilder("var projectList = ");
                 projectList.Append(JsonConvert.SerializeObject(project));
                 projectList.Append(";");
                 lists.Append(projectList);
@@ -136,7 +136,7 @@ namespace Lanban
             var user = myAccess.MyDataSet.Tables["User"];
 
             // Send user list in JSON to client for further processing
-            StringBuilder userList = new StringBuilder("userList = ");
+            StringBuilder userList = new StringBuilder("var userList = ");
             userList.Append(JsonConvert.SerializeObject(user));
             userList.Append(";");
             lists.Append(userList);

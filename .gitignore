@@ -160,3 +160,8 @@ $RECYCLE.BIN/
 /Lanban/packages
 *.laccdb
 /Lanban/Properties/PublishProfiles
+.vs
+DemoUser.sql
+Lanban/Uploads/**
+
+

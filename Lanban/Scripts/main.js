@@ -64,7 +64,7 @@ $(window).ready(function () {
 $(document).ajaxError(function (event, req, setting) {
     console.log(req.status);
     if (req.status == 401) window.location.href = "Login.aspx";
-    else window.location.href = errorPage;
+    // else window.location.href = errorPage;
 });
 
 
@@ -136,7 +136,9 @@ function formatDate(date) {
 /*****************************************************************************/
 /* Diaglog */
 // Show error diaglog  - content taken from an array based on parameter
-var errorMsg = ["Cannot drop that item because it is not the same type with the items in column.", "Operation failed"];
+var errorMsg = ["Cannot drop that item because it is not the same type with the items in column.",
+    "Operation failed",
+    "Create backlog first"];
 
 function showErrorDialog(i) {
     $(".diaglog.error .content-holder").text(errorMsg[i]);

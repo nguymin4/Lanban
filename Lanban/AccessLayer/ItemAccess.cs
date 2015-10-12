@@ -82,7 +82,7 @@ namespace Lanban.AccessLayer
             addParameter<string>("@Color", SqlDbType.VarChar, task.Color);
 
             // Work estimation can be null
-            if (task.Work_estimation == null) addParameter<DBNull>("@Work_estimation", SqlDbType.Int, DBNull.Value);
+            if (task.Work_estimation == null) addParameter<int>("@Work_estimation", SqlDbType.Int, 1);
             else addParameter("@Work_estimation", SqlDbType.Int, task.Work_estimation);
 
             // Due date is nullable field - the user can skip input data of that field
@@ -156,7 +156,7 @@ namespace Lanban.AccessLayer
                 "Work_estimation=@Work_estimation, Color=@Color, Due_date=@Due_date, Completion_date=@Completion_date, "+
                 "Actual_work=@Actual_work WHERE Task_ID=@Task_ID AND Project_ID=@projectID";
 
-            addParameter<int>("@Backlog_ID", SqlDbType.Int, task.Backlog_ID);
+            addParameter("@Backlog_ID", SqlDbType.Int, task.Backlog_ID);
             addParameter<string>("@Title", SqlDbType.NVarChar, task.Title);
             addParameter<string>("@Description", SqlDbType.NVarChar, task.Description);
 

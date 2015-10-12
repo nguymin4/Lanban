@@ -344,7 +344,7 @@ function editProject(id) {
     $("#txtProjectDescription").val(project.Description.replace(/<br>/g, '\n'));
     $("#txtProjectStartDate").val(parseJSONDate(project.Start_Date));
     if (supervisorList != "") $("#projectSupervisor").attr("class", "expand").html(supervisorList);
-    $("#projectSupervisor .person").on("click", function () { removeUser(this) });
+    $("#projectSupervisor .person").on("click", function () { removeSupervisor(this) });
     $("#projectSupervisor .person").css("cursor", "pointer");
     supervisorChange = false;
 

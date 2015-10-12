@@ -1,9 +1,6 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Lanban.Master" AutoEventWireup="true" CodeBehind="Board.aspx.cs" Inherits="Lanban.Board" Async="true" EnableEventValidation="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="contentHead" runat="server">
-    <script src="Scripts/html2canvas.min.js"></script>
-    <script async="async" src="Scripts/Chart.min.js"></script>
-    <script src="Scripts/board.js"></script>
     <link href="Styles/board.css" rel="stylesheet" />
 </asp:Content>
 
@@ -256,7 +253,7 @@
                         <tr>
                             <td>Work estimation:</td>
                             <td>
-                                <asp:TextBox CssClass="inputBox" runat="server" ID="txtTaskWorkEstimation"></asp:TextBox>
+                                <asp:TextBox CssClass="inputBox" runat="server" ID="txtTaskWorkEstimation" Text="1"></asp:TextBox>
                             </td>
                         </tr>
                         <tr>
@@ -341,4 +338,10 @@
     <!-- Hidden field to store some temporary data -->
     <asp:TextBox runat="server" ID="txtSwimlaneID" CssClass="hidden"></asp:TextBox>
     <asp:TextBox runat="server" ID="txtSwimlanePosition" CssClass="hidden"></asp:TextBox>
+</asp:Content>
+
+<asp:Content ID="ScriptsBlock" ContentPlaceHolderID="scriptContent" runat="server">
+        <script src="Scripts/html2canvas.min.js"></script>
+    <script async="async" src="Scripts/Chart.min.js"></script>
+    <script src="Scripts/board.js"></script>
 </asp:Content>

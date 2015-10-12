@@ -1,8 +1,6 @@
 ﻿<%@ Page Title="Lanban - Projects" Language="C#" MasterPageFile="~/Lanban.Master" AutoEventWireup="true" CodeBehind="Project.aspx.cs" Inherits="Lanban.Project" Async="true" EnableEventValidation="false" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="contentHead" runat="server">
-    <script async="async" src="Scripts/jquery.Jcrop.min.js"></script>
-    <script src="Scripts/project.js"></script>
     <link href="Styles/jquery.Jcrop.min.css" rel="stylesheet" />
     <link href="Styles/project.css" rel="stylesheet" />
 </asp:Content>
@@ -165,4 +163,9 @@
 
     <!-- Other elements  -->
     <div id="searchContainer"></div>
+</asp:Content>
+
+<asp:Content ID="ScriptsBlock" ContentPlaceHolderID="scriptContent" runat="server">
+    <script async="async" src="Scripts/jquery.Jcrop.min.js"></script>
+    <script src="Scripts/project.js"></script>
 </asp:Content>

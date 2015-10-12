@@ -93,7 +93,9 @@ namespace Lanban.AccessLayer
             content = Regex.Replace(content, @"\r\n?|\n", "<br />");
             StringBuilder result = new StringBuilder();
 
-            result.Append("<div class='comment-box' id='comment." + id + "'><div class='comment-panel'>");
+            result.Append("<div class='comment-box' id='comment-" + id + "'><div class='comment-panel' ");
+            if (owner == userID) result.Append("style='float: right; margin-right: 10px;'");
+            result.Append(">");
             result.Append("<img class='comment-profile' src='" + comment.Avatar + "' title='" + comment.Name + "' /></div>");
             result.Append("<div class='comment-container'><div class='comment-content'>" + content + "</div>");
             if (owner == userID)
