@@ -44,7 +44,7 @@ namespace Lanban
             projectID = Convert.ToInt32(Session["projectID"]);
 
             // Start initialize
-            var timer = System.Diagnostics.Stopwatch.StartNew();
+            // var timer = System.Diagnostics.Stopwatch.StartNew();
             Task task1 = createKanban();
             Task task2 = Task.Run(() => initDropdownList());
 
@@ -67,8 +67,8 @@ namespace Lanban
             
             // Wait all task to complete
             await Task.WhenAll(task1, task2);
-            timer.Stop();
-            System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds);
+            // timer.Stop();
+            // System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds);
         }
 
         //1. Create the kanban board

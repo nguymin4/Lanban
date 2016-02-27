@@ -10,7 +10,7 @@ namespace Lanban
 {
     public class Query
     {
-        string myConnectionString = "";
+        string myConnectionString = Environment.GetEnvironmentVariable("SQLCONNSTR_Lanban");
         protected SqlConnection myConnection;
         protected SqlCommand myCommand;
         protected SqlDataAdapter myAdapter;

@@ -120,7 +120,7 @@ The project is developed in ASP.NET with C#
 <ul>
     <li>Check <a href="https://github.com/nguymin4/Lanban/blob/master/DatabaseSchema.sql" target="_blank">DatabaseSchema.sql</a> file for more details of the schema and script to create new database.</li>
     <li>Create your custom new account in <strong>Users</strong> table</li>
-    <li>Setup the <strong>connection string</strong> accordingly in file Query.cs</li>
+    <li>Setup the <strong>connection string</strong> by set environment variable `SQLCONNSTR_Lanban`</li>
 </ul>
 
 

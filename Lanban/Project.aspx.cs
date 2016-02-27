@@ -52,7 +52,7 @@ namespace Lanban
             lists = new StringBuilder("const userID=" + userID + ";");
 
             // Start tasks
-            var timer = System.Diagnostics.Stopwatch.StartNew();
+            // var timer = System.Diagnostics.Stopwatch.StartNew();
             Task[] task = new Task[2];
             task[0] = Task.Run(() => loadProject(userID, role));
             task[1] = Task.Run(() => loadUser(userID));
@@ -65,8 +65,8 @@ namespace Lanban
 
             // Wait all tasks to be completed
             await Task.WhenAll(task);
-            timer.Stop();
-            System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
+            // timer.Stop();
+            // System.Diagnostics.Debug.WriteLine(timer.ElapsedMilliseconds.ToString());
             ScriptManager.RegisterClientScriptBlock(this, this.GetType(), "projectScript", lists.ToString(), true);
         }
 

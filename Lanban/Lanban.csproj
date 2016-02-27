@@ -170,8 +170,6 @@
     <Content Include="Styles\main.css" />
     <Content Include="Styles\perfect-scrollbar.min.css" />
     <Content Include="Styles\project.css" />
-    <Content Include="Uploads\User\281115_30759306.jpg" />
-    <Content Include="Uploads\User\_79G2227.jpg" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -276,7 +274,9 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Uploads\User\" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
